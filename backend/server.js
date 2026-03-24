@@ -1,0 +1,52 @@
+import dotenv from "dotenv"
+import express from "express"
+import mongoose from "mongoose"
+import cors from "cors"
+
+
+dotenv.config();
+
+const app = express();
+const MONGO = process.env.MONGO_URI
+
+const PORT = 5500
+const allowedOrigins = [
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5173"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true
+  })
+);
+
+app.use(express.json());
+
+// Root Test
+app.get("/", (req, res) => {
+  res.send(" backend is Ready");
+});
+
+
+mongoose.connect(MONGO , {
+          serverSelectionTimeoutMS: 8000,
+    tls: true,
+    ssl: true,
+    tlsAllowInvalidCertificates: true, // ⚠️ dev only
+  })
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ Database Error:", err.message));
+
+  app.listen(PORT , () => {
+          console.log(`Server Running at http://localhost:${PORT}`)
+  })
+
