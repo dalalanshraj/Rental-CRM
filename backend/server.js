@@ -6,10 +6,16 @@ import cors from "cors"
 
 dotenv.config();
 
+// Custom Routes
+
+import userRoutes from "./routes/userRoutes.js";
+import leadsRoutes from "./routes/leadsRoutes.js"
+
+
 const app = express();
 const MONGO = process.env.MONGO_URI
 
-const PORT = 5500
+const PORT = 3000
 const allowedOrigins = [
   "http://localhost:5174",
   "http://localhost:5175",
@@ -29,6 +35,7 @@ app.use(
   })
 );
 
+app.use(cors());
 app.use(express.json());
 
 // Root Test
@@ -36,9 +43,15 @@ app.get("/", (req, res) => {
   res.send(" backend is Ready");
 });
 
+//  MOUNT ROUTES
+app.use("/api/auth", userRoutes)
+app.use("/api/leads" , leadsRoutes)
+
+
+
 
 mongoose.connect(MONGO , {
-          serverSelectionTimeoutMS: 8000,
+          serverSelectionTimeoutMS: 3000,
     tls: true,
     ssl: true,
     tlsAllowInvalidCertificates: true, // ⚠️ dev only
