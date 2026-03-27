@@ -29,10 +29,10 @@ export const getLeads = async (req, res) => {
                     if (userId) {
                               filter.owner = userId;
                     }
-                    const leads = await Leads.find(filter)
+                    const lead = await Leads.find(filter)
                               .populate("owner", "name email role")
                               .sort({ createdAt: -1 });
-                    res.json(leads);
+                    res.json(lead);
           } catch (error) {
                     res.status(500).json({ message: error.message });
           }
@@ -42,12 +42,12 @@ export const getLeads = async (req, res) => {
 
 export const updateLeads = async (req, res) => {
           try {
-                    const leads = await Leads.findByIdAndUpdate(
+                    const lead = await Leads.findByIdAndUpdate(
                               req.params.id,
                               req.body,
                               { new: true }
-                    ).populate("owner", "name , email , role");
-                    res.json(leads);
+                    ).populate("owner", "name email  role");
+                    res.json(lead);
           } catch (error) {
                     res.status(500).json({ message: error.message });
           }
@@ -57,7 +57,7 @@ export const updateLeads = async (req, res) => {
 
 export const deleteLeads = async (req, res) => {
           try {
-                    const leads = await Leads.findByIdAndDelete(req.params.id);
+                    const lead = await Leads.findByIdAndDelete(req.params.id);
                     res.json({ message: "lead Delete succesfully" });
           } catch (error) {
                     res.status(500).json({ message: error.message });

@@ -40,3 +40,7 @@ Client {
           *Title 
           *
 }
+
+* like hume ek user add karne ka bhi function write karna hoga jisme agar admin ya user kisi ko add karna chaiye toh uski email dale and email bhi woi jo actual me agar kisi user ne email dali and wo email exiting nhai hai toh wo invite nhai hoga alert ajyega and kisi ne email dali fir us email par ek msg jyega join (user name) teams kar ke us button par click karega toh apni jis user ke pas humne bheja hai join msg send kiya tha wo apna user name and password dalega create karega then wo team me add ho jyega ye hona chaiye ok 
+
+*
