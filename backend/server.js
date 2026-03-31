@@ -18,8 +18,8 @@ const MONGO = process.env.MONGO_URI
 const PORT = 3000
 const allowedOrigins = [
   "http://localhost:5174",
-  "http://localhost:5175"
-  
+  "http://localhost:5175",
+  "http://localhost:5173"
 ];
 
 app.use(
