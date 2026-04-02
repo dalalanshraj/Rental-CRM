@@ -10,6 +10,8 @@ dotenv.config();
 
 import userRoutes from "./routes/userRoutes.js";
 import leadsRoutes from "./routes/leadsRoutes.js"
+import dealsRoutes from "./routes/dealsRoutes.js";
+
 
 
 const app = express();
@@ -46,6 +48,7 @@ app.get("/", (req, res) => {
 //  MOUNT ROUTES
 app.use("/api/auth", userRoutes)
 app.use("/api/leads" , leadsRoutes)
+app.use("/api/deals", dealsRoutes);
 
 
 
