@@ -1,4 +1,6 @@
 import Deal from "../models/Deals.js";
+import Leads from "../models/Leads.js";
+
 
 // CREATE DEAL
 export const createDeals = async (req, res) => {
@@ -42,12 +44,17 @@ export const createDeals = async (req, res) => {
 // GET DEALS
 export const getDeals = async (req, res) => {
   try {
-    const { stage, userId , search} = req.query;
+    const { stage , search} = req.query;
 
     let filter = {};
 
+    // Owner only show own data 
+
+    if(req.user.role === "sales"){
+      filter.owner = req.user.id;
+    }
+
     if (stage) filter.stage = stage;
-    if (userId) filter.owner = userId;
 
     if(search){
       filter.$or=[
@@ -121,5 +128,40 @@ export const deleteDeal = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// transfer Deals + leads
+export const transferDeal  = async (req , res) => {
+  try{
+    const {newOwnerId} = req.body;
+
+    const deal = await Deal.findById(req.params.id);
+
+    if(!deal){
+      return res.status(404).json({message: "Deal not found"});
+    }
+    if(
+      req.user.role !== "Admin" &&
+      deal.owner.toString !== req.user.id
+    ){
+      return res.status(403).json({message : "Not Allowed"});
+    }
+
+    deal.owner = newOwnerId;
+    await deal.save();
+
+    if (deal.lead) {
+    await Leads.findByIdAndUpdate(deal.lead, {
+      owner: newOwnerId
+    });
+    }
+    const updateDeal = await Deal.findById(deal._id)
+    .populate("owner" , "name , email")
+    .populate("lead" , "name , organization");
+
+    res.json(updateDeal);
+  }catch(error) {
+    res.status(500).json({message :error.message});
   }
 };

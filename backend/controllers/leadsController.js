@@ -22,13 +22,15 @@ export const createLeads = async (req, res) => {
 
 export const getLeads = async (req , res) => {
     try{
-        const {userId , search} = req.query;
+        const { search} = req.query;
         let filter ={};
 
-        // user filter
-        if(userId) {
-            filter.owner = userId
+        // Owner only show own data 
+        if(req.user.role === 'sales'){
+            filter.owner = req.user.id;
         }
+        
+       
         if(search) {
             filter.$or =[
                 {name:{$regex: search,$options:"i"}},
