@@ -44,29 +44,28 @@ export const createDeals = async (req, res) => {
 // GET DEALS
 export const getDeals = async (req, res) => {
   try {
-    const { stage , search} = req.query;
+    const { stage , search , userId } = req.query;
 
     let filter = {};
 
-    // Owner only show own data 
+    if(stage) filter.stage = stage;
 
-    if(req.user.role === "sales"){
-      filter.owner = req.user.id;
+    // filter by owner dropdown
+    if(userId){
+      filter.owner = userId;
     }
 
-    if (stage) filter.stage = stage;
-
     if(search){
-      filter.$or=[
-        {title:{$regex:search, $options :"i"}},
-        {organization : {$regex :search , $options : "i"}}
-      ]
+      filter.$or = [
+        {title:{$regex:search,$options:"i"}},
+        {organization:{$regex:search,$options:"i"}}
+      ];
     }
 
     const deals = await Deal.find(filter)
-      .populate("owner", "name email")
-      .populate("lead", "name organization")
-      .sort({ createdAt: -1 });
+      .populate("owner","name email")
+      .populate("lead","name organization")
+      .sort({createdAt:-1});
 
     res.json(deals);
 
@@ -141,12 +140,12 @@ export const transferDeal  = async (req , res) => {
     if(!deal){
       return res.status(404).json({message: "Deal not found"});
     }
-    if(
-      req.user.role !== "Admin" &&
-      deal.owner.toString !== req.user.id
-    ){
-      return res.status(403).json({message : "Not Allowed"});
-    }
+   if(
+  req.user.role !== "admin" &&
+  deal.owner.toString() !== req.user.id
+){
+  return res.status(403).json({message:"Not allowed"});
+}
 
     deal.owner = newOwnerId;
     await deal.save();

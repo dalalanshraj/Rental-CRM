@@ -1,21 +1,25 @@
 // models/Lead.js
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 
 const leadSchema = new mongoose.Schema({
-
 
     name: {
         type: String,
         required: true
     },
 
-    organization: String,
+   organization: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Organization",
+  default: null,
+},
 
     phone: [
         {
             number: String,
             label: {
                 type: String,
+                enum: ["work", "home", "mobile", "other"],
                 default: "work"
             }
         }
@@ -26,6 +30,7 @@ const leadSchema = new mongoose.Schema({
             address: String,
             label: {
                 type: String,
+                enum: ["work", "home", "mobile", "other"],
                 default: "work"
             }
         }
@@ -37,9 +42,19 @@ const leadSchema = new mongoose.Schema({
         ref: "User"
     },
 
+    //Activities
+   activities: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Activity",
+  },
+],
+    
+
     // Website URl
     website: String,
     instagram: String,
+    facebook:String,
 
     // Address 
     address: {
@@ -76,7 +91,23 @@ const leadSchema = new mongoose.Schema({
         default: "new"
     },
 
-    notes: String
+//   notes: [
+//   {
+//     text: String,
+//     createdBy: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User"
+//     },
+//     createdAt: {
+//       type: Date,
+//       default: Date.now
+//     },
+//     pinned: {
+//       type: Boolean,
+//       default: false
+//     }
+//   }
+// ]
 
 }, { timestamps: true });
 

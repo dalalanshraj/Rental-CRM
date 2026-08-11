@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
+  
 
   const [form, setForm] = useState({
     email: "",
@@ -15,20 +16,22 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await api.post("/auth/login", form);
+  try {
+    const res = await api.post("/auth/login", form);
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("userId", res.data.user.id);
+    localStorage.setItem("userName", res.data.user.name);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      navigate("/app/dashboard");
+    navigate("/app/dashboard");
 
-    } catch (err) {
-      alert(err.response?.data?.msg || "Login failed");
-    }
-  };
+  } catch (err) {
+    alert(err.response?.data?.msg || "Login failed");
+  }
+};
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100">

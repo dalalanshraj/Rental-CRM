@@ -1,35 +1,114 @@
 import { Link, useLocation } from "react-router-dom";
+import { MdOutlineDashboard } from "react-icons/md";
+import { IoPeopleOutline } from "react-icons/io5";
+import { FaRegCalendarCheck } from "react-icons/fa";
+import { RiContactsBook3Line } from "react-icons/ri";
 
 export default function Sidebar() {
   const { pathname } = useLocation();
 
   const menu = [
-    { name: "Dashboard", path: "/app/dashboard" },
-    { name: "Leads", path: "/app/leads" },
-    { name: "Deals", path: "/app/deals" },
-    { name: "Clients", path: "/app/clients" },
+    {
+      icon: <MdOutlineDashboard size={25} />,
+      label: "Dashboard",
+      path: "/app/dashboard",
+    },
+    {
+      icon: <IoPeopleOutline size={25} />,
+      label: "People",
+      path: "/app/leads",
+    },
+    {
+      icon: <FaRegCalendarCheck size={23} />,
+      label: "Activities",
+      path: "/app/activities",
+    },
+    {
+      icon: <RiContactsBook3Line size={25} />,
+      label: "Organizations",
+      path: "/app/organizations",
+    },
   ];
 
   return (
-    <div className="w-64 h-screen bg-[#1E1B4B] text-white p-5">
-      <h2 className="text-xl font-bold mb-8">CRM</h2>
+    <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-[#fff]">
+      
+      {/* Logo */}
+      <div className="flex justify-center pt-6 pb-10">
+         <div className="w-12 h-12 rounded-2xl bg-[#4B49AC] flex items-center justify-center shadow-lg "> {/*shadow-indigo-500/30 */}
+          <span className="text-white font-bold text-sm">
+            CRM
+          </span>
+        </div>
+      </div>
 
-      <ul className="space-y-3">
-        {menu.map((item) => (
-          <li key={item.path}>
-            <Link
-              to={item.path}
-              className={`block p-2 rounded ${
-                pathname === item.path
-                  ? "bg-indigo-500"
-                  : "hover:bg-indigo-400"
-              }`}
-            >
-              {item.name}
-            </Link>
-          </li>
-        ))}
+      {/* Menu */}
+      <ul className="flex flex-col items-center gap-4 px-3">
+        {menu.map((item) => {
+          const isActive =
+            pathname === item.path ||
+            pathname.startsWith(`${item.path}/`);
+
+          return (
+            <li key={item.path} className="w-full">
+              <Link
+                to={item.path}
+                title={item.label}
+                className={`
+                  group relative
+                  flex items-center justify-center
+                  w-full h-12
+                  rounded-xl
+                  transition-all duration-300
+
+                  ${
+                    isActive
+                      ? "bg-[#4B49AC] text-white  "
+                      : "text-slate-400 hover:bg-[#4B49AC] hover:text-white"
+                  }
+                `}
+              >
+                
+
+                <span
+                  className={`
+                    transition-colors duration-200
+                    ${
+                      isActive
+                        ? "text-white"
+                        : "text-[#6C7383] group-hover:text-white"
+                    }
+                  `}
+                >
+                  {item.icon}
+                </span>
+
+                {/* Tooltip */}
+                <span
+                  className="
+                    absolute left-[65px]
+                    px-3 py-2
+                    rounded-lg
+                    bg-slate-900
+                    border border-slate-700
+                    text-white text-xs
+                    whitespace-nowrap
+                    opacity-0 invisible
+                    translate-x-1
+                    group-hover:opacity-100
+                    group-hover:visible
+                    group-hover:translate-x-0
+                    transition-all duration-200
+                    shadow-xl
+                  "
+                >
+                  {item.label}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
-    </div>
+    </aside>
   );
 }

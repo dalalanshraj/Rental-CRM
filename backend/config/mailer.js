@@ -1,0 +1,19 @@
+ import "dotenv/config";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD,
+  },
+});
+
+console.log("📧 EMAIL USER:", process.env.EMAIL_USER);
+console.log(
+  "📧 EMAIL PASSWORD LOADED:",
+  Boolean(process.env.EMAIL_APP_PASSWORD)
+);
+
+export default transporter;
