@@ -568,14 +568,7 @@ export default function ActivityComposer({
             </p>
           </div>
         </div>
-      </div>
-
-      {/* =====================================
-          FOOTER
-      ====================================== */}
-
-      <div className="border-t border-gray-200 px-6 sm:px-7 py-5">
-        <div className="flex justify-end gap-3">
+         <div className="flex justify-end gap-3 mt-5">
           <button
             type="button"
             onClick={handleCancel}
@@ -621,6 +614,10 @@ export default function ActivityComposer({
           </button>
         </div>
       </div>
+
+      {/* =====================================
+          FOOTER
+      ====================================== */}
     </div>
   );
 }

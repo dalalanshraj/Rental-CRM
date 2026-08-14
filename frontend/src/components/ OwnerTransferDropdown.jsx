@@ -78,7 +78,7 @@ export default function OwnerTransferDropdown({
   {/* Button */}
   <div
     onClick={() => setShowDropdown(!showDropdown)}
-    className="group flex items-center gap-3 cursor-pointer rounded-xl px-3 py-2 transition-all duration-300 hover:bg-blue-50 hover:shadow-md"
+    className="group flex items-center gap-3 cursor-pointer rounded-xl px-3 py-2 transition-all duration-300  "
   >
     <div className="w-11 h-11 rounded-full bg-[#4B49AC] flex items-center justify-center shadow">
       <User
@@ -114,7 +114,7 @@ export default function OwnerTransferDropdown({
     }`}
   >
     {/* Header */}
-    <div className="bg-gradient-to-r from-blue-600 to-[#4B49AC] px-4 py-3 text-white">
+    <div className="bg-[#4B49AC] px-4 py-3 text-white">
       <p className="text-sm font-medium">
         Transfer Ownership
       </p>

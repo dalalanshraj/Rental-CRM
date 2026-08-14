@@ -99,23 +99,25 @@ export default function PersonalPreferences() {
 
       const updatedUser = res.data;
 
-      setUser(updatedUser);
+setUser(updatedUser);
 
-      // Update localStorage
-      localStorage.setItem(
-        "userName",
-        updatedUser.name
-      );
+localStorage.setItem(
+  "userName",
+  updatedUser.name || ""
+);
 
-      localStorage.setItem(
-        "userEmail",
-        updatedUser.email
-      );
+localStorage.setItem(
+  "userEmail",
+  updatedUser.email || ""
+);
 
-      localStorage.setItem(
-        "userPhoto",
-        updatedUser.photo || ""
-      );
+localStorage.setItem(
+  "userPhoto",
+  updatedUser.photo || ""
+);
+window.dispatchEvent(
+  new Event("profileUpdated")
+);
 
       setMessage(
         "Profile updated successfully!"

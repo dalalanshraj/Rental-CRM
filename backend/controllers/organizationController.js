@@ -2,24 +2,132 @@ import Organization from "../models/Organization.js";
 import Leads from "../models/Leads.js";
 
 
+// ==========================================
 // CREATE ORGANIZATION
+// ==========================================
+
 export const createOrganization = async (req, res) => {
   try {
+    console.log("=================================");
+    console.log("CREATE ORGANIZATION");
+    console.log("BODY:", req.body);
+    console.log("USER:", req.user);
+    console.log("=================================");
+
+    if (!req.user?.id) {
+      return res.status(401).json({
+        message: "User authentication required",
+      });
+    }
+
+    const {
+      name,
+      website,
+      email,
+      phone,
+      industry,
+      vrsUsed,
+      vrsId,
+      monthsOfCredit,
+      totalUnitsManaged,
+      address,
+      notes,
+    } = req.body;
+
+    // Name required
+    if (!name?.trim()) {
+      return res.status(400).json({
+        message: "Organization name is required",
+      });
+    }
+
     const organization = await Organization.create({
-      ...req.body,
-      owner: req.user.id
+      name: name.trim(),
+
+      website: website || "",
+
+      email: email || "",
+
+      phone: phone || "",
+
+      industry: industry || "",
+
+      vrsUsed: vrsUsed || "",
+
+      vrsId: vrsId || "",
+
+      monthsOfCredit:
+        monthsOfCredit === "" ||
+        monthsOfCredit === null ||
+        monthsOfCredit === undefined
+          ? 0
+          : Number(monthsOfCredit),
+
+      totalUnitsManaged:
+        totalUnitsManaged === "" ||
+        totalUnitsManaged === null ||
+        totalUnitsManaged === undefined
+          ? 0
+          : Number(totalUnitsManaged),
+
+      address: address || {},
+
+      owner: req.user.id,
+
+      // agar schema me notes array hai
+      notes: notes || [],
     });
 
-    const populatedOrganization = await Organization.findById(
-      organization._id
-    )
-      .populate("owner", "name email role")
-      .populate("leads", "name email phone");
+    const populatedOrganization =
+      await Organization.findById(organization._id)
+        .populate(
+          "owner",
+          "name email role"
+        )
+        .populate(
+          "leads",
+          "name email phone"
+        );
 
-    res.status(201).json(populatedOrganization);
+    console.log(
+      "Organization created:",
+      populatedOrganization._id
+    );
+
+    res.status(201).json(
+      populatedOrganization
+    );
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    console.error(
+      "================================="
+    );
+
+    console.error(
+      "CREATE ORGANIZATION ERROR:"
+    );
+
+    console.error(error);
+
+    console.error(
+      "MESSAGE:",
+      error.message
+    );
+
+    console.error(
+      "NAME:",
+      error.name
+    );
+
+    console.error(
+      "================================="
+    );
+
+    res.status(500).json({
+      message: error.message,
+      error: error.name,
+    });
   }
 };
 
@@ -193,61 +301,150 @@ export const deleteOrganization = async (req, res) => {
 };
 
 // ADD LEAD TO ORGANIZATION
-export const addLeadToOrganization = async (req, res) => {
+// ==========================================
+// ADD / MOVE LEAD TO ORGANIZATION
+// ==========================================
+
+export const addLeadToOrganization = async (
+  req,
+  res
+) => {
   try {
 
-    console.log("Organization ID:", req.params.id);
-    console.log("Lead ID:", req.body.leadId);
-
     const { leadId } = req.body;
+    const organizationId = req.params.id;
 
-    const organization = await Organization.findById(req.params.id);
-    console.log("Organization:", organization);
+    // ========================================
+    // VALIDATE LEAD
+    // ========================================
 
-    const lead = await Leads.findById(leadId);
-    console.log("Lead:", lead);
+    if (!leadId) {
+      return res.status(400).json({
+        message: "Lead ID is required",
+      });
+    }
+
+    // ========================================
+    // FIND ORGANIZATION
+    // ========================================
+
+    const organization =
+      await Organization.findById(
+        organizationId
+      );
+
+    if (!organization) {
+      return res.status(404).json({
+        message: "Organization not found",
+      });
+    }
+
+    // ========================================
+    // FIND LEAD
+    // ========================================
+
+    const lead =
+      await Leads.findById(leadId);
 
     if (!lead) {
-      return res.status(404).json({ message: "Lead not found" });
+      return res.status(404).json({
+        message: "Lead not found",
+      });
     }
 
-    // Update lead
-    lead.organization = organization._id;
+    // ========================================
+    // OLD ORGANIZATION
+    // ========================================
+
+    const oldOrganizationId =
+      lead.organization
+        ? lead.organization.toString()
+        : null;
+
+    // ========================================
+    // REMOVE FROM OLD ORGANIZATION
+    // ========================================
+
+    if (
+      oldOrganizationId &&
+      oldOrganizationId !==
+        organizationId
+    ) {
+
+      await Organization.findByIdAndUpdate(
+        oldOrganizationId,
+        {
+          $pull: {
+            leads: leadId,
+          },
+        }
+      );
+
+    }
+
+    // ========================================
+    // UPDATE LEAD
+    // ========================================
+
+    lead.organization =
+      organization._id;
+
     await lead.save();
 
-    // Prevent duplicate
-    const exists = organization.leads.some(
-      (id) => id.toString() === lead._id.toString()
+    // ========================================
+    // ADD TO NEW ORGANIZATION
+    // ========================================
+
+    await Organization.findByIdAndUpdate(
+      organization._id,
+      {
+        $addToSet: {
+          leads: leadId,
+        },
+      }
     );
 
-    if (!exists) {
-      organization.leads.push(lead._id);
-      await organization.save();
-    }
+    // ========================================
+    // RETURN UPDATED ORGANIZATION
+    // ========================================
 
-    const updatedOrganization = await Organization.findById(
-      organization._id
-    )
-      .populate("owner", "name email role")
-      .populate("leads", "name email phone organization");
+    const updatedOrganization =
+      await Organization.findById(
+        organization._id
+      )
+        .populate(
+          "owner",
+          "name email role"
+        )
+        .populate(
+          "leads",
+          "name email phone organization"
+        );
 
     res.json(updatedOrganization);
 
   } catch (error) {
-    console.log(error);
+
+    console.error(
+      "ADD LEAD TO ORGANIZATION ERROR:",
+      error
+    );
+
     res.status(500).json({
       message: error.message,
-      stack: error.stack,
     });
   }
 };
-
 // REMOVE LEAD FROM ORGANIZATION
 export const removeLeadFromOrganization = async (req, res) => {
   try {
+
     const { leadId } = req.body;
 
-    const organization = await Organization.findById(req.params.id);
+    const organization =
+      await Organization.findById(
+        req.params.id
+      );
 
     if (!organization) {
       return res.status(404).json({
@@ -255,28 +452,51 @@ export const removeLeadFromOrganization = async (req, res) => {
       });
     }
 
-    organization.leads = organization.leads.filter(
-      (lead) => lead.toString() !== leadId
+    // Remove from organization
+    await Organization.findByIdAndUpdate(
+      organization._id,
+      {
+        $pull: {
+          leads: leadId
+        }
+      }
     );
 
-    await organization.save();
-
-    await Leads.findByIdAndUpdate(leadId, {
-      $unset: {
-        organization: ""
+    // Remove organization from lead
+    await Leads.findByIdAndUpdate(
+      leadId,
+      {
+        $unset: {
+          organization: ""
+        }
       }
-    });
+    );
 
-    const updatedOrganization = await Organization.findById(
-      organization._id
-    )
-      .populate("owner", "name email role")
-      .populate("leads", "name email phone");
+    const updatedOrganization =
+      await Organization.findById(
+        organization._id
+      )
+        .populate(
+          "owner",
+          "name email role"
+        )
+        .populate(
+          "leads",
+          "name email phone organization"
+        );
 
     res.json(updatedOrganization);
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    console.error(
+      "REMOVE LEAD FROM ORGANIZATION ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      message: error.message
+    });
   }
 };
 export const transferOrganizationOwner = async (req, res) => {

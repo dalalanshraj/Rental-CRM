@@ -39,28 +39,30 @@ export default function Leads() {
   // FETCH LEADS
   // ==========================================
 
-  const fetchLeads = async (userId) => {
-    try {
-      setLoading(true);
+const fetchLeads = async (userId = "") => {
+  try {
+    const params = {};
 
-      const url = userId
-        ? `/leads?userId=${userId}`
-        : "/leads";
-
-      const res = await api.get(url);
-
-      setLeads(
-        Array.isArray(res.data)
-          ? res.data
-          : []
-      );
-    } catch (err) {
-      console.log(err);
-      setLeads([]);
-    } finally {
-      setLoading(false);
+    // Specific user selected
+    if (userId && userId !== "all") {
+      params.userId = userId;
     }
-  };
+
+    const res = await api.get("/leads", {
+      params,
+    });
+
+    setLeads(
+      Array.isArray(res.data)
+        ? res.data
+        : []
+    );
+
+  } catch (error) {
+    console.error("Failed to fetch leads:", error);
+    setLeads([]);
+  }
+};
 
   // ==========================================
   // INITIAL LOAD
@@ -84,12 +86,18 @@ export default function Leads() {
   // USER CHANGE
   // ==========================================
 
-  const handleUserChange = (e) => {
-    const userId = e.target.value;
+ const handleUserChange = (e) => {
+  const value = e.target.value;
 
-    setSelectedUser(userId);
-    fetchLeads(userId);
-  };
+  if (value === "all") {
+    setSelectedUser("");
+    fetchLeads("");
+    return;
+  }
+
+  setSelectedUser(value);
+  fetchLeads(value);
+};
 
   // ==========================================
   // FILTER
@@ -221,76 +229,45 @@ export default function Leads() {
         <div className="flex flex-col sm:flex-row gap-3">
 
           {/* USER FILTER */}
-          <div className="relative">
+         <select
+  value={selectedUser || "all"}
+  onChange={handleUserChange}
+  className="
+    h-11
+    min-w-[180px]
+    appearance-none
+    border
+    border-gray-200
+    bg-white
+    pl-10
+    pr-9
+    rounded-xl
+    text-sm
+    text-gray-700
+    outline-none
+    cursor-pointer
+    transition-all
+    duration-200
+    hover:border-indigo-300
+    focus:border-indigo-500
+    focus:ring-4
+    focus:ring-indigo-500/10
+    shadow-sm
+  "
+>
+  <option value="all">
+    All Users
+  </option>
 
-            <FiUser
-              size={17}
-              className="
-                absolute
-                left-3.5
-                top-1/2
-                -translate-y-1/2
-                text-gray-400
-                pointer-events-none
-              "
-            />
-
-            <select
-              value={selectedUser || ""}
-              onChange={handleUserChange}
-              className="
-                h-11
-                min-w-[180px]
-                appearance-none
-                border
-                border-gray-200
-                bg-white
-                pl-10
-                pr-9
-                rounded-xl
-                text-sm
-                text-gray-700
-                outline-none
-                cursor-pointer
-                transition-all
-                duration-200
-                hover:border-indigo-300
-                focus:border-indigo-500
-                focus:ring-4
-                focus:ring-indigo-500/10
-                shadow-sm
-              "
-            >
-              <option value="">
-                All Users
-              </option>
-
-              {users.map((u) => (
-                <option
-                  key={u._id}
-                  value={u._id}
-                >
-                  {u.name}
-                </option>
-              ))}
-            </select>
-
-            {/* CUSTOM ARROW */}
-            <span
-              className="
-                absolute
-                right-3
-                top-1/2
-                -translate-y-1/2
-                text-gray-400
-                pointer-events-none
-                text-xs
-              "
-            >
-              ▼
-            </span>
-
-          </div>
+  {users.map((u) => (
+    <option
+      key={u._id}
+      value={u._id}
+    >
+      {u.name}
+    </option>
+  ))}
+</select>
 
           {/* SEARCH */}
           <div className="relative">
@@ -426,31 +403,31 @@ export default function Leads() {
               >
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
                     Name
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
                     Organization
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
                     Email
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
                     Phone
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
                     Owner
                   </span>
                 </th>

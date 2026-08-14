@@ -8,7 +8,13 @@ import EditableContactField from "../../components/EditableContactField";
 import EditableLinkField from "../../components/EditableLinkField";
 import OwnerTransferDropdown from "../../components/ OwnerTransferDropdown";
 import RightPanel from "../../components/RightSidePanel/RightPanel";
-import { UserRound } from "lucide-react";
+ import { FaPencil } from "react-icons/fa6";
+import {
+  UserRound,
+ 
+ 
+  Loader2,
+} from "lucide-react";
 import {
   Search,
   User,
@@ -26,7 +32,6 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-
 
 // ======================================================
 // ORGANIZATION FIELDS
@@ -71,7 +76,6 @@ const organizationFields = [
   },
 ];
 
-
 // ======================================================
 // LEAD DETAILS
 // ======================================================
@@ -99,39 +103,23 @@ export default function LeadDetails() {
   // ORGANIZATION
   // ====================================================
 
-  const [openOrganization, setOpenOrganization] =
-    useState(true);
+  const [openOrganization, setOpenOrganization] = useState(true);
 
-  const [
-    availableOrganizations,
-    setAvailableOrganizations,
-  ] = useState([]);
+  const [availableOrganizations, setAvailableOrganizations] = useState([]);
 
-  const [
-    organizationSearch,
-    setOrganizationSearch,
-  ] = useState("");
+  const [organizationSearch, setOrganizationSearch] = useState("");
 
-  const [
-    showOrganizationModal,
-    setShowOrganizationModal,
-  ] = useState(false);
+  const [showOrganizationModal, setShowOrganizationModal] = useState(false);
 
-  const [
-    showAddOrganizationModal,
-    setShowAddOrganizationModal,
-  ] = useState(false);
+  const [showAddOrganizationModal, setShowAddOrganizationModal] =
+    useState(false);
 
-  const [
-    linkingOrganization,
-    setLinkingOrganization,
-  ] = useState(false);
+  const [linkingOrganization, setLinkingOrganization] = useState(false);
 
-  const [
-    organizationLoading,
-    setOrganizationLoading,
-  ] = useState(false);
-
+  const [organizationLoading, setOrganizationLoading] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+const [nameInput, setNameInput] = useState("");
+const [savingName, setSavingName] = useState(false);
 
   // ====================================================
   // FETCH LEAD
@@ -145,15 +133,60 @@ export default function LeadDetails() {
 
       setLead(res.data);
     } catch (error) {
-      console.error(
-        "Failed to fetch lead:",
-        error
-      );
+      console.error("Failed to fetch lead:", error);
     } finally {
       setLoading(false);
     }
   };
+  // ====================================================
+// EDIT LEAD NAME
+// ====================================================
 
+const startNameEditing = () => {
+  setNameInput(lead?.name || "");
+  setEditingName(true);
+};
+
+const cancelNameEditing = () => {
+  setNameInput(lead?.name || "");
+  setEditingName(false);
+};
+
+const saveName = async () => {
+  if (savingName) return;
+
+  const trimmedName = nameInput.trim();
+
+  if (!trimmedName) return;
+
+  try {
+    setSavingName(true);
+
+    const res = await api.put(`/leads/${lead._id}`, {
+      name: trimmedName,
+    });
+
+    setLead(res.data);
+    setEditingName(false);
+
+  } catch (error) {
+    console.error("Failed to update lead name:", error);
+  } finally {
+    setSavingName(false);
+  }
+};
+
+const handleNameKeyDown = (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    saveName();
+  }
+
+  if (e.key === "Escape") {
+    e.preventDefault();
+    cancelNameEditing();
+  }
+};
 
   // ====================================================
   // FETCH ORGANIZATIONS
@@ -165,23 +198,15 @@ export default function LeadDetails() {
 
       const res = await api.get("/organizations");
 
-      setAvailableOrganizations(
-        Array.isArray(res.data)
-          ? res.data
-          : []
-      );
+      setAvailableOrganizations(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.error(
-        "Failed to fetch organizations:",
-        error
-      );
+      console.error("Failed to fetch organizations:", error);
 
       setAvailableOrganizations([]);
     } finally {
       setOrganizationLoading(false);
     }
   };
-
 
   // ====================================================
   // INITIAL LOAD
@@ -192,7 +217,6 @@ export default function LeadDetails() {
     fetchOrganizations();
   }, [id]);
 
-
   // ====================================================
   // UNLINK ORGANIZATION
   // ====================================================
@@ -201,41 +225,29 @@ export default function LeadDetails() {
     if (!lead?._id) return;
 
     try {
-      const res = await api.put(
-        `/leads/${lead._id}`,
-        {
-          organization: null,
-        }
-      );
+      const res = await api.put(`/leads/${lead._id}`, {
+        organization: null,
+      });
 
       setLead(res.data);
     } catch (error) {
-      console.error(
-        "Failed to unlink organization:",
-        error
-      );
+      console.error("Failed to unlink organization:", error);
     }
   };
-
 
   // ====================================================
   // LINK ORGANIZATION
   // ====================================================
 
-  const handleLinkOrganization = async (
-    organizationId
-  ) => {
+  const handleLinkOrganization = async (organizationId) => {
     if (!lead?._id || !organizationId) return;
 
     try {
       setLinkingOrganization(true);
 
-      const res = await api.put(
-        `/leads/${lead._id}`,
-        {
-          organization: organizationId,
-        }
-      );
+      const res = await api.put(`/leads/${lead._id}`, {
+        organization: organizationId,
+      });
 
       setLead(res.data);
 
@@ -243,59 +255,44 @@ export default function LeadDetails() {
 
       setOrganizationSearch("");
     } catch (error) {
-      console.error(
-        "Failed to link organization:",
-        error
-      );
+      console.error("Failed to link organization:", error);
     } finally {
       setLinkingOrganization(false);
     }
   };
 
-
   // ====================================================
   // ORGANIZATION UPDATE
   // ====================================================
 
-  const handleOrganizationUpdate = (
-    updatedOrganization
-  ) => {
+  const handleOrganizationUpdate = (updatedOrganization) => {
     setLead((previousLead) => ({
       ...previousLead,
       organization: updatedOrganization,
     }));
   };
 
-
   // ====================================================
   // FILTER ORGANIZATIONS
   // ====================================================
 
-  const filteredOrganizations =
-    availableOrganizations.filter((org) => {
-      const query =
-        organizationSearch
-          .trim()
-          .toLowerCase();
+  const filteredOrganizations = availableOrganizations.filter((org) => {
+    const query = organizationSearch.trim().toLowerCase();
 
-      if (!query) return true;
+    if (!query) return true;
 
-      const name =
-        org.name?.toLowerCase() || "";
+    const name = org.name?.toLowerCase() || "";
 
-      const industry =
-        org.industry?.toLowerCase() || "";
+    const industry = org.industry?.toLowerCase() || "";
 
-      const website =
-        org.website?.toLowerCase() || "";
+    const website = org.website?.toLowerCase() || "";
 
-      return (
-        name.includes(query) ||
-        industry.includes(query) ||
-        website.includes(query)
-      );
-    });
-
+    return (
+      name.includes(query) ||
+      industry.includes(query) ||
+      website.includes(query)
+    );
+  });
 
   // ====================================================
   // FILTER LEAD DETAILS
@@ -346,18 +343,9 @@ export default function LeadDetails() {
     },
   ];
 
-
-  const filteredLeadFields =
-    leadFields.filter((item) =>
-      item.label
-        .toLowerCase()
-        .includes(
-          fieldSearch
-            .trim()
-            .toLowerCase()
-        )
-    );
-
+  const filteredLeadFields = leadFields.filter((item) =>
+    item.label.toLowerCase().includes(fieldSearch.trim().toLowerCase()),
+  );
 
   // ====================================================
   // LOADING UI
@@ -376,7 +364,6 @@ export default function LeadDetails() {
         "
       >
         <div className="flex flex-col items-center gap-4">
-
           <div
             className="
               w-10
@@ -389,15 +376,11 @@ export default function LeadDetails() {
             "
           />
 
-          <p className="text-sm text-gray-400">
-            Loading lead...
-          </p>
-
+          <p className="text-sm text-gray-400">Loading lead...</p>
         </div>
       </div>
     );
   }
-
 
   // ====================================================
   // LEAD NOT FOUND
@@ -416,7 +399,6 @@ export default function LeadDetails() {
         "
       >
         <div className="text-center">
-
           <div
             className="
               w-14
@@ -453,12 +435,10 @@ export default function LeadDetails() {
           >
             The requested lead could not be loaded.
           </p>
-
         </div>
       </div>
     );
   }
-
 
   // ====================================================
   // RENDER
@@ -475,100 +455,72 @@ export default function LeadDetails() {
         overflow-hidden
       "
     >
-
       {/* ==================================================
           HEADER
       ================================================== */}
 
       <header
         className="
-          h-[76px]
-          flex-shrink-0
-          flex
-          items-center
-          justify-between
-          px-5
-          bg-white
-          border-b
-          border-gray-200
-          shadow-sm
-          z-20
-        "
-      >
-
-        {/* -----------------------------------------------
-            LEAD INFO
-        ------------------------------------------------ */}
-
-        <div className="flex items-center gap-3 min-w-0">
-
-          {/* AVATAR */}
-
-         <div
-  className="
-    w-11
-    h-11
-    rounded-full
-    bg-[#F5F7FF]
-    text-[#4B49AC]
+    h-[76px]
+    flex-shrink-0
     flex
     items-center
-    justify-center
-    shadow-sm
-    shadow-indigo-500/10
-    flex-shrink-0
+    justify-between
+    px-5
+    bg-white
+    
+    z-20
   "
->
-  <UserRound
-    size={32}
-    strokeWidth={1.8}
-  />
-</div>
-
-
-          {/* NAME */}
-
-          <div className="min-w-0">
-
-            <div
-              className="
-                flex
-                items-center
-                gap-2
-              "
-            >
-
-              <h1
-                className="
-                  text-lg
-                  font-bold
-                  text-gray-800
-                  truncate
-                "
-              >
-                <EditableField
-                  field="name"
-                  value={lead.name}
-                  leadId={lead._id}
-                  onUpdate={setLead}
-                />
-              </h1>
-
-
-             
-
-            </div>
-
-
-             
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="
+        w-11 h-11
+        rounded-xl
+        bg-[#4B49AC]
+        text-white
+        flex items-center justify-center
+        shadow-md
+        shadow-indigo-500/20
+        flex-shrink-0
+      "
+          >
+            <UserRound size={23} />
           </div>
 
+          <div className="min-w-0">
+            <h1
+              className="
+          text-lg
+          font-bold
+          text-gray-800
+          truncate
+        "
+            >
+             <EditableField
+  field="name"
+  value={lead.name}
+  leadId={lead._id}
+  variant="header"
+  onUpdate={setLead}
+/>
+            </h1>
+
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xs text-gray-400">Lead</span>
+
+              {lead.title && (
+                <>
+                  <span className="text-gray-300">•</span>
+
+                  <span className="text-xs text-gray-400 truncate">
+                    {lead.title}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
         </div>
-
-
-        {/* -----------------------------------------------
-            OWNER
-        ------------------------------------------------ */}
 
         <OwnerTransferDropdown
           owner={lead.owner}
@@ -576,9 +528,7 @@ export default function LeadDetails() {
           entityType="leads"
           onSuccess={setLead}
         />
-
       </header>
-
 
       {/* ==================================================
           BODY
@@ -592,7 +542,6 @@ export default function LeadDetails() {
           overflow-hidden
         "
       >
-
         {/* =================================================
             LEFT SIDEBAR
         ================================================= */}
@@ -612,13 +561,11 @@ export default function LeadDetails() {
             scrollbar-track-transparent
           "
         >
-
           {/* =================================================
               FIELD SEARCH
           ================================================= */}
 
           <div className="relative mb-5">
-
             <Search
               size={16}
               className="
@@ -635,11 +582,7 @@ export default function LeadDetails() {
               type="text"
               placeholder="Filter fields..."
               value={fieldSearch}
-              onChange={(e) =>
-                setFieldSearch(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setFieldSearch(e.target.value)}
               className="
                 w-full
                 h-10
@@ -663,9 +606,7 @@ export default function LeadDetails() {
                 focus:ring-indigo-500/10
               "
             />
-
           </div>
-
 
           {/* =================================================
               SUMMARY
@@ -681,70 +622,36 @@ export default function LeadDetails() {
               mb-4
             "
           >
-
-            <div
-              className="
-                flex
-                items-center
-                gap-2
-                mb-4
-              "
-            >
-
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className="
-                  w-8
-                  h-8
-                  rounded-lg
-                  bg-blue-50
-                  text-blue-600
-                  flex
-                  items-center
-                  justify-center
-                "
+    w-8 h-8
+    rounded-lg
+    bg-blue-50
+    text-blue-600
+    flex
+    items-center
+    justify-center
+  "
               >
                 <User size={16} />
               </div>
 
               <div>
+                <h3 className="text-sm font-semibold text-gray-800">Summary</h3>
 
-                <h3
-                  className="
-                    text-sm
-                    font-semibold
-                    text-gray-800
-                  "
-                >
-                  Summary
-                </h3>
-
-                <p
-                  className="
-                    text-[11px]
-                    text-gray-400
-                    mt-0.5
-                  "
-                >
+                <p className="text-[11px] text-gray-400 mt-0.5">
                   Primary contact information
                 </p>
-
               </div>
-
             </div>
 
-
             <div className="space-y-2">
-
               <EditableContactField
                 label="email"
                 field="email"
-                value={
-                  lead.email?.[0]?.address
-                }
-                type={
-                  lead.email?.[0]?.label ||
-                  "Work"
-                }
+                value={lead.email?.[0]?.address}
+                type={lead.email?.[0]?.label || "Work"}
                 itemId={lead._id}
                 endpoint="leads"
                 onUpdate={setLead}
@@ -753,22 +660,14 @@ export default function LeadDetails() {
               <EditableContactField
                 label="phone"
                 field="phone"
-                value={
-                  lead.phone?.[0]?.number
-                }
-                type={
-                  lead.phone?.[0]?.label ||
-                  "Work"
-                }
+                value={lead.phone?.[0]?.number}
+                type={lead.phone?.[0]?.label || "Work"}
                 itemId={lead._id}
                 endpoint="leads"
                 onUpdate={setLead}
               />
-
             </div>
-
           </section>
-
 
           {/* =================================================
               DETAILS
@@ -784,16 +683,11 @@ export default function LeadDetails() {
               mb-4
             "
           >
-
             {/* DETAILS HEADER */}
 
             <button
               type="button"
-              onClick={() =>
-                setOpenDetails(
-                  !openDetails
-                )
-              }
+              onClick={() => setOpenDetails(!openDetails)}
               className="
                 w-full
                 flex
@@ -805,9 +699,7 @@ export default function LeadDetails() {
                 transition
               "
             >
-
               <div className="flex items-center gap-2">
-
                 <div
                   className="
                     w-8
@@ -828,7 +720,6 @@ export default function LeadDetails() {
                 </div>
 
                 <div className="text-left">
-
                   <h3
                     className="
                       text-sm
@@ -847,11 +738,8 @@ export default function LeadDetails() {
                   >
                     Lead information
                   </p>
-
                 </div>
-
               </div>
-
 
               <span
                 className="
@@ -861,9 +749,7 @@ export default function LeadDetails() {
               >
                 {filteredLeadFields.length}
               </span>
-
             </button>
-
 
             {/* DETAILS CONTENT */}
 
@@ -879,7 +765,6 @@ export default function LeadDetails() {
                 }
               `}
             >
-
               <div
                 className="
                   px-4
@@ -888,46 +773,34 @@ export default function LeadDetails() {
                   space-y-2
                 "
               >
-
-                {filteredLeadFields.length >
-                0 ? (
-                  filteredLeadFields.map(
-                    (item) => {
-
-                      if (
-                        item.type ===
-                        "link"
-                      ) {
-                        return (
-                          <EditableLinkField
-                            key={item.field}
-                            label={item.label}
-                            field={item.field}
-                            value={item.value}
-                            itemId={lead._id}
-                            endpoint="leads"
-                            onUpdate={
-                              setLead
-                            }
-                          />
-                        );
-                      }
-
+                {filteredLeadFields.length > 0 ? (
+                  filteredLeadFields.map((item) => {
+                    if (item.type === "link") {
                       return (
-                        <EditableField
+                        <EditableLinkField
                           key={item.field}
                           label={item.label}
                           field={item.field}
                           value={item.value}
                           itemId={lead._id}
                           endpoint="leads"
-                          onUpdate={
-                            setLead
-                          }
+                          onUpdate={setLead}
                         />
                       );
                     }
-                  )
+
+                    return (
+                      <EditableField
+                        key={item.field}
+                        label={item.label}
+                        field={item.field}
+                        value={item.value}
+                        itemId={lead._id}
+                        endpoint="leads"
+                        onUpdate={setLead}
+                      />
+                    );
+                  })
                 ) : (
                   <div
                     className="
@@ -940,13 +813,9 @@ export default function LeadDetails() {
                     No fields found
                   </div>
                 )}
-
               </div>
-
             </div>
-
           </section>
-
 
           {/* =================================================
               ORGANIZATION SECTION
@@ -956,525 +825,378 @@ export default function LeadDetails() {
 
           <section
             className="
-              rounded-2xl
-              border
-              border-gray-100
-              bg-white
-              overflow-hidden
-            "
+    rounded-2xl
+    border border-gray-200
+    bg-white
+    overflow-hidden
+    shadow-sm
+  "
           >
-
+            {/* HEADER */}
             <button
               type="button"
-              onClick={() =>
-                setOpenOrganization(
-                  !openOrganization
-                )
-              }
+              onClick={() => setOpenOrganization(!openOrganization)}
               className="
-                w-full
-                flex
-                items-center
-                justify-between
-                px-4
-                py-3.5
-                hover:bg-gray-50
-                transition
-              "
+      w-full
+      flex
+      items-center
+      justify-between
+      px-4
+      py-4
+      hover:bg-gray-50/80
+      transition-all
+      duration-200
+    "
             >
-
-              <div className="flex items-center gap-2">
-
+              <div className="flex items-center gap-3">
                 <div
                   className="
-                    w-8
-                    h-8
-                    rounded-lg
-                    bg-violet-50
-                    text-violet-600
-                    flex
-                    items-center
-                    justify-center
-                  "
+          w-9 h-9
+          rounded-xl
+          bg-[#4B49AC]
+          text-white
+          border border-violet-100
+          flex items-center justify-center
+        "
                 >
-                  <Building2 size={16} />
+                  <Building2 size={17} />
                 </div>
 
                 <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      Organization
+                    </h3>
 
-                  <h3
-                    className="
-                      text-sm
-                      font-semibold
-                      text-gray-800
-                    "
-                  >
-                    Organization
-                  </h3>
+                    {lead.organization && (
+                      <span
+                        className="
+                inline-flex
+                items-center
+                gap-1
+                px-2
+                py-0.5
+                rounded-full
+                bg-emerald-50
+                text-emerald-600
+                text-[10px]
+                font-semibold
+              "
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        Linked
+                      </span>
+                    )}
+                  </div>
 
-                  <p
-                    className="
-                      text-[11px]
-                      text-gray-400
-                    "
-                  >
+                  <p className="text-[11px] text-gray-400 mt-0.5">
                     Company information
                   </p>
-
                 </div>
-
               </div>
 
-
-              <div className="flex items-center gap-2">
-
-                {lead.organization && (
-                  <span
-                    className="
-                      w-2
-                      h-2
-                      rounded-full
-                      bg-emerald-500
-                    "
-                  />
-                )}
-
+              <div
+                className="
+        w-8 h-8
+        rounded-lg
+        flex items-center justify-center
+        text-gray-400
+        hover:bg-gray-100
+        transition
+      "
+              >
                 {openOrganization ? (
-                  <ChevronUp
-                    size={17}
-                    className="text-gray-400"
-                  />
+                  <ChevronUp size={17} />
                 ) : (
-                  <ChevronDown
-                    size={17}
-                    className="text-gray-400"
-                  />
+                  <ChevronDown size={17} />
                 )}
-
               </div>
-
             </button>
 
-
+            {/* CONTENT */}
             {openOrganization && (
               <div className="px-4 pb-4">
-
-                {/* -----------------------------------------
-                    LINKED ORGANIZATION
-                ------------------------------------------ */}
-
                 {lead.organization ? (
-
-                  <div>
-
-                    {/* ORGANIZATION CARD */}
-
+                  <div className="space-y-4">
+                    {/* LINKED ORGANIZATION CARD */}
                     <div
                       className="
-                        p-4
-                        rounded-2xl
-                        bg-gradient-to-br
-                        from-indigo-50
-                        via-white
-                        to-violet-50
-                        border
-                        border-indigo-100
-                        mb-4
-                      "
+              relative
+              overflow-hidden
+              rounded-2xl
+              border border-indigo-100
+              bg-gradient-to-br
+              from-indigo-50/80
+              via-white
+              to-violet-50/70
+              p-4
+            "
                     >
-
+                      {/* decorative background */}
                       <div
                         className="
-                          flex
-                          items-center
-                          gap-3
-                        "
-                      >
+                absolute
+                -right-8
+                -top-8
+                w-24
+                h-24
+                rounded-full
+                bg-indigo-100/40
+              "
+                      />
 
+                      <div className="relative flex items-center gap-3">
                         <div
                           className="
-                            w-12
-                            h-12
-                            rounded-xl
-                            bg-gradient-to-br
-                            from-indigo-500
-                            to-violet-600
-                            text-white
-                            flex
-                            items-center
-                            justify-center
-                            shadow-md
-                            shadow-indigo-500/20
-                            flex-shrink-0
-                          "
+                  w-12 h-12
+                  rounded-xl
+                  bg-[#4B49AC]
+                  text-white
+                  flex items-center justify-center
+                  shadow-lg
+                  shadow-indigo-500/20
+                  flex-shrink-0
+                "
                         >
-                          <Building2
-                            size={23}
-                          />
+                          <Building2 size={23} />
                         </div>
 
-
-                        <div
-                          className="
-                            min-w-0
-                            flex-1
-                          "
-                        >
-
+                        <div className="flex-1 min-w-0">
                           <h4
                             className="
-                              text-sm
-                              font-bold
-                              text-gray-800
-                              truncate
-                            "
+                    text-sm
+                    font-bold
+                    text-gray-800
+                    truncate
+                  "
                           >
-                            {
-                              lead.organization
-                                ?.name
-                            }
+                            {lead.organization?.name || "Unnamed Organization"}
                           </h4>
 
-                          <p
-                            className="
-                              text-xs
-                              text-gray-400
-                              mt-1
-                              truncate
-                            "
-                          >
-                            {
-                              lead.organization
-                                ?.industry ||
-                              "No industry specified"
-                            }
+                          <p className="text-xs text-gray-400 mt-1 truncate">
+                            {lead.organization?.industry ||
+                              "No industry specified"}
                           </p>
-
                         </div>
 
+                        <div
+                          className="
+                  flex-shrink-0
+                  w-8 h-8
+                  rounded-lg
+                  bg-white/80
+                  border border-indigo-100
+                  flex items-center justify-center
+                  text-indigo-500
+                "
+                        >
+                          <Link2 size={15} />
+                        </div>
                       </div>
 
+                      {/* STATUS */}
+                      <div
+                        className="
+                relative
+                mt-4
+                pt-3
+                border-t border-indigo-100
+                flex items-center
+                justify-between
+              "
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+
+                          <span className="text-[11px] text-gray-500">
+                            Connected organization
+                          </span>
+                        </div>
+
+                        <span
+                          className="
+                  text-[10px]
+                  font-semibold
+                  text-emerald-600
+                  bg-emerald-50
+                  border border-emerald-100
+                  px-2.5
+                  py-1
+                  rounded-full
+                "
+                        >
+                          Active
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ORGANIZATION DETAILS */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4
+                          className="
+                  text-[11px]
+                  uppercase
+                  tracking-wider
+                  font-semibold
+                  text-gray-400
+                "
+                        >
+                          Organization details
+                        </h4>
+                      </div>
 
                       <div
                         className="
-                          mt-4
-                          pt-3
-                          border-t
-                          border-indigo-100
-                          flex
-                          items-center
-                          gap-2
-                        "
+                rounded-xl
+                border border-gray-100
+                bg-gray-50/50
+                p-2
+                space-y-1
+              "
                       >
-
-                        <Link2
-                          size={13}
-                          className="
-                            text-indigo-500
-                          "
+                        <EditableField
+                          label="Company Phone"
+                          field="phone"
+                          value={lead.organization?.phone}
+                          itemId={lead.organization?._id}
+                          endpoint="organizations"
+                          onUpdate={handleOrganizationUpdate}
                         />
 
-                        <span
-                          className="
-                            text-xs
-                            text-gray-500
-                          "
-                        >
-                          Linked Organization
-                        </span>
+                        <EditableField
+                          label="Company Email"
+                          field="email"
+                          value={lead.organization?.email}
+                          itemId={lead.organization?._id}
+                          endpoint="organizations"
+                          onUpdate={handleOrganizationUpdate}
+                        />
 
-                        <span
-                          className="
-                            ml-auto
-                            flex
-                            items-center
-                            gap-1
-                            text-[10px]
-                            font-semibold
-                            text-emerald-600
-                            bg-emerald-50
-                            px-2
-                            py-1
-                            rounded-full
-                          "
-                        >
-                          <Check size={11} />
-                          Linked
-                        </span>
+                        <EditableField
+                          label="Address"
+                          field="address.street"
+                          value={lead.organization?.address}
+                          itemId={lead.organization?._id}
+                          endpoint="organizations"
+                          onUpdate={handleOrganizationUpdate}
+                        />
 
-                      </div>
+                        <EditableLinkField
+                          label="Website"
+                          field="website"
+                          value={lead.organization?.website}
+                          itemId={lead.organization?._id}
+                          endpoint="organizations"
+                          onUpdate={handleOrganizationUpdate}
+                        />
 
-                    </div>
-
-
-                    {/* -------------------------------------
-                        BASIC ORGANIZATION FIELDS
-                    -------------------------------------- */}
-
-                    <div className="space-y-2">
-
-                      <EditableField
-                        label="Company Phone"
-                        field="phone"
-                        value={
-                          lead.organization
-                            ?.phone
-                        }
-                        itemId={
-                          lead.organization
-                            ?._id
-                        }
-                        endpoint="organizations"
-                        onUpdate={
-                          handleOrganizationUpdate
-                        }
-                      />
-
-                      <EditableField
-                        label="Company Email"
-                        field="email"
-                        value={
-                          lead.organization
-                            ?.email
-                        }
-                        itemId={
-                          lead.organization
-                            ?._id
-                        }
-                        endpoint="organizations"
-                        onUpdate={
-                          handleOrganizationUpdate
-                        }
-                      />
-
-                      <EditableField
-                        label="Address"
-                        field="address.street"
-                        value={
-                          lead.organization
-                            ?.address
-                        }
-                        itemId={
-                          lead.organization
-                            ?._id
-                        }
-                        endpoint="organizations"
-                        onUpdate={
-                          handleOrganizationUpdate
-                        }
-                      />
-
-                      <EditableLinkField
-                        label="Website"
-                        field="website"
-                        value={
-                          lead.organization
-                            ?.website
-                        }
-                        itemId={
-                          lead.organization
-                            ?._id
-                        }
-                        endpoint="organizations"
-                        onUpdate={
-                          handleOrganizationUpdate
-                        }
-                      />
-
-
-                      {/* ---------------------------------
-                          EXTRA ORGANIZATION FIELDS
-                      ---------------------------------- */}
-
-                      {organizationFields.map(
-                        ({
-                          label,
-                          field,
-                        }) => (
+                        {organizationFields.map(({ label, field }) => (
                           <EditableField
                             key={field}
                             label={label}
                             field={field}
-                            value={
-                              lead
-                                .organization?.[
-                                field
-                              ]
-                            }
-                            itemId={
-                              lead
-                                .organization
-                                ?._id
-                            }
+                            value={lead.organization?.[field]}
+                            itemId={lead.organization?._id}
                             endpoint="organizations"
-                            onUpdate={
-                              handleOrganizationUpdate
-                            }
+                            onUpdate={handleOrganizationUpdate}
                           />
-                        )
-                      )}
-
+                        ))}
+                      </div>
                     </div>
 
-
-                    {/* ---------------------------------
-                        UNLINK
-                    ---------------------------------- */}
-
+                    {/* UNLINK */}
                     <button
                       type="button"
-                      onClick={
-                        handleUnlinkOrganization
-                      }
+                      onClick={handleUnlinkOrganization}
                       className="
-                        w-full
-                        h-10
-                        mt-4
-                        rounded-xl
-                        border
-                        border-red-100
-                        bg-red-50
-                        text-red-500
-                        text-xs
-                        font-semibold
-                        flex
-                        items-center
-                        justify-center
-                        gap-2
-                        hover:bg-red-500
-                        hover:text-white
-                        hover:border-red-500
-                        transition-all
-                        duration-200
-                      "
+              w-full
+              h-10
+              rounded-xl
+              border border-red-100
+              bg-red-50
+              text-red-500
+              text-xs
+              font-semibold
+              flex items-center justify-center gap-2
+              hover:bg-red-500
+              hover:text-white
+              hover:border-red-500
+              transition-all
+              duration-200
+            "
                     >
                       <Unlink size={15} />
-
                       Unlink Organization
                     </button>
-
                   </div>
-
                 ) : (
-
-                  /* ---------------------------------------
-                     NO ORGANIZATION
-                  ---------------------------------------- */
-
+                  /* EMPTY STATE */
                   <div
                     className="
-                      p-4
-                      rounded-2xl
-                      border
-                      border-dashed
-                      border-gray-300
-                      bg-gray-50/70
-                    "
+            rounded-2xl
+            border border-dashed
+            border-gray-200
+            bg-gray-50/70
+            p-5
+          "
                   >
-
-                    <div
-                      className="
-                        flex
-                        items-center
-                        gap-3
-                      "
-                    >
-
+                    <div className="flex items-center gap-3">
                       <div
                         className="
-                          w-10
-                          h-10
-                          rounded-xl
-                          bg-gray-100
-                          text-gray-400
-                          flex
-                          items-center
-                          justify-center
-                          flex-shrink-0
-                        "
+                w-11 h-11
+                rounded-xl
+                bg-white
+                border border-gray-200
+                text-gray-400
+                flex items-center justify-center
+                shadow-sm
+              "
                       >
-                        <Building2
-                          size={20}
-                        />
+                        <Building2 size={20} />
                       </div>
 
-
-                      <div
-                        className="
-                          flex-1
-                          min-w-0
-                        "
-                      >
-
-                        <p
-                          className="
-                            text-sm
-                            font-semibold
-                            text-gray-700
-                          "
-                        >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-700">
                           No organization linked
                         </p>
 
-                        <p
-                          className="
-                            text-xs
-                            text-gray-400
-                            mt-0.5
-                          "
-                        >
-                          Connect this lead to an organization
+                        <p className="text-[11px] text-gray-400 mt-1">
+                          Connect this lead to a company
                         </p>
-
                       </div>
-
 
                       <button
                         type="button"
                         onClick={() => {
-                          setOrganizationSearch(
-                            ""
-                          );
-
-                          setShowOrganizationModal(
-                            true
-                          );
+                          setOrganizationSearch("");
+                          setShowOrganizationModal(true);
                         }}
                         className="
-                          w-9
-                          h-9
-                          rounded-xl
-                          bg-[#4B49AC]
-                          text-white
-                          flex
-                          items-center
-                          justify-center
-                          shadow-md
-                          shadow-indigo-500/20
-                          hover:bg-indigo-700
-                          hover:scale-105
-                          transition-all
-                          duration-200
-                          flex-shrink-0
-                        "
+                w-10 h-10
+                rounded-xl
+                bg-[#4B49AC]
+                text-white
+                flex items-center justify-center
+                shadow-md
+                shadow-indigo-500/20
+                hover:scale-105
+                hover:shadow-lg
+                transition-all
+                duration-200
+                flex-shrink-0
+              "
                         title="Link organization"
                       >
                         <Plus size={18} />
                       </button>
-
                     </div>
-
                   </div>
-
                 )}
-
               </div>
             )}
-
           </section>
-
         </aside>
-
 
         {/* =================================================
             RIGHT PANEL
@@ -1492,17 +1214,9 @@ export default function LeadDetails() {
             scrollbar-track-transparent
           "
         >
-
-          <RightPanel
-            type="lead"
-            data={lead}
-            setData={setLead}
-          />
-
+          <RightPanel type="lead" data={lead} setData={setLead} />
         </main>
-
       </div>
-
 
       {/* ==================================================
           ORGANIZATION MODAL
@@ -1510,15 +1224,13 @@ export default function LeadDetails() {
           
           ================================================== */}
 
-       
-
-{/* ==================================================
+      {/* ==================================================
     LINK ORGANIZATION MODAL
 ================================================== */}
 
-{showOrganizationModal && (
-  <div
-    className="
+      {showOrganizationModal && (
+        <div
+          className="
       fixed
       inset-0
       z-[100]
@@ -1529,20 +1241,19 @@ export default function LeadDetails() {
       bg-slate-950/50
       backdrop-blur-sm
     "
-    onMouseDown={(event) => {
-      if (event.target === event.currentTarget) {
-        setShowOrganizationModal(false);
-        setOrganizationSearch("");
-      }
-    }}
-  >
-
-    {/* ==================================================
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setShowOrganizationModal(false);
+              setOrganizationSearch("");
+            }
+          }}
+        >
+          {/* ==================================================
         MODAL
     ================================================== */}
 
-    <div
-      className="
+          <div
+            className="
         w-full
         max-w-[560px]
         bg-white
@@ -1553,17 +1264,16 @@ export default function LeadDetails() {
         overflow-hidden
         animate-[fadeIn_.2s_ease-out]
       "
-      onMouseDown={(event) => {
-        event.stopPropagation();
-      }}
-    >
-
-      {/* ==================================================
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            {/* ==================================================
           HEADER
       ================================================== */}
 
-      <div
-        className="
+            <div
+              className="
           px-6
           py-5
           border-b
@@ -1572,14 +1282,12 @@ export default function LeadDetails() {
           items-center
           justify-between
         "
-      >
+            >
+              {/* LEFT */}
 
-        {/* LEFT */}
-
-        <div className="flex items-center gap-3">
-
-          <div
-            className="
+              <div className="flex items-center gap-3">
+                <div
+                  className="
               w-11
               h-11
               rounded-xl
@@ -1593,46 +1301,42 @@ export default function LeadDetails() {
               border
               border-indigo-100
             "
-          >
-            <Link2 size={21} />
-          </div>
+                >
+                  <Link2 size={21} />
+                </div>
 
-          <div>
-
-            <h2
-              className="
+                <div>
+                  <h2
+                    className="
                 text-lg
                 font-bold
                 text-gray-800
               "
-            >
-              Link Organization
-            </h2>
+                  >
+                    Link Organization
+                  </h2>
 
-            <p
-              className="
+                  <p
+                    className="
                 text-xs
                 text-gray-400
                 mt-0.5
               "
-            >
-              Connect this lead with an organization
-            </p>
+                  >
+                    Connect this lead with an organization
+                  </p>
+                </div>
+              </div>
 
-          </div>
+              {/* CLOSE */}
 
-        </div>
-
-
-        {/* CLOSE */}
-
-        <button
-          type="button"
-          onClick={() => {
-            setShowOrganizationModal(false);
-            setOrganizationSearch("");
-          }}
-          className="
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOrganizationModal(false);
+                  setOrganizationSearch("");
+                }}
+                className="
             w-9
             h-9
             rounded-xl
@@ -1645,27 +1349,23 @@ export default function LeadDetails() {
             transition-all
             duration-200
           "
-          title="Close"
-        >
-          <X size={19} />
-        </button>
+                title="Close"
+              >
+                <X size={19} />
+              </button>
+            </div>
 
-      </div>
-
-
-      {/* ==================================================
+            {/* ==================================================
           SEARCH AREA
       ================================================== */}
 
-      <div className="px-6 pt-5">
+            <div className="px-6 pt-5">
+              <div className="relative">
+                {/* SEARCH ICON */}
 
-        <div className="relative">
-
-          {/* SEARCH ICON */}
-
-          <Search
-            size={18}
-            className="
+                <Search
+                  size={18}
+                  className="
               absolute
               left-4
               top-1/2
@@ -1673,28 +1373,25 @@ export default function LeadDetails() {
               text-gray-400
               pointer-events-none
             "
-          />
+                />
 
+                {/* SEARCH INPUT */}
 
-          {/* SEARCH INPUT */}
-
-          <input
-            autoFocus
-            type="text"
-            placeholder="Search organizations..."
-            value={organizationSearch}
-            onChange={(event) =>
-              setOrganizationSearch(
-                event.target.value
-              )
-            }
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                setShowOrganizationModal(false);
-                setOrganizationSearch("");
-              }
-            }}
-            className="
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Search organizations..."
+                  value={organizationSearch}
+                  onChange={(event) =>
+                    setOrganizationSearch(event.target.value)
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      setShowOrganizationModal(false);
+                      setOrganizationSearch("");
+                    }
+                  }}
+                  className="
               w-full
               h-12
               pl-11
@@ -1709,25 +1406,17 @@ export default function LeadDetails() {
               outline-none
               transition-all
               duration-200
-              hover:border-indigo-300
-              hover:bg-white
-              focus:bg-white
-              focus:border-indigo-500
-              focus:ring-4
-              focus:ring-indigo-500/10
+              
             "
-          />
+                />
 
+                {/* CLEAR SEARCH */}
 
-          {/* CLEAR SEARCH */}
-
-          {organizationSearch && (
-            <button
-              type="button"
-              onClick={() =>
-                setOrganizationSearch("")
-              }
-              className="
+                {organizationSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setOrganizationSearch("")}
+                    className="
                 absolute
                 right-3
                 top-1/2
@@ -1743,86 +1432,71 @@ export default function LeadDetails() {
                 hover:text-gray-700
                 transition
               "
-            >
-              <X size={15} />
-            </button>
-          )}
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
 
-        </div>
+              {/* SEARCH INFO */}
 
-
-        {/* SEARCH INFO */}
-
-        <div
-          className="
+              <div
+                className="
             flex
             items-center
             justify-between
             mt-3
           "
-        >
-
-          <div className="flex items-center gap-2">
-
-            <span
-              className="
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="
                 w-2
                 h-2
                 rounded-full
                 bg-indigo-500
               "
-            />
+                  />
 
-            <p
-              className="
+                  <p
+                    className="
                 text-xs
                 text-gray-400
               "
-            >
-              {organizationLoading
-                ? "Loading organizations..."
-                : `${filteredOrganizations.length} organization${
-                    filteredOrganizations.length !==
-                    1
-                      ? "s"
-                      : ""
-                  } found`}
-            </p>
+                  >
+                    {organizationLoading
+                      ? "Loading organizations..."
+                      : `${filteredOrganizations.length} organization${
+                          filteredOrganizations.length !== 1 ? "s" : ""
+                        } found`}
+                  </p>
+                </div>
 
-          </div>
-
-
-          {organizationSearch && (
-            <button
-              type="button"
-              onClick={() =>
-                setOrganizationSearch("")
-              }
-              className="
+                {organizationSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setOrganizationSearch("")}
+                    className="
                 text-xs
                 font-medium
                 text-[#4B49AC]
                 hover:text-indigo-700
                 transition
               "
-            >
-              Clear search
-            </button>
-          )}
+                  >
+                    Clear search
+                  </button>
+                )}
+              </div>
+            </div>
 
-        </div>
-
-      </div>
-
-
-      {/* ==================================================
+            {/* ==================================================
           ORGANIZATION LIST
       ================================================== */}
 
-      <div className="px-6 py-4">
-
-        <div
-          className="
+            <div className="px-6 py-4">
+              <div
+                className="
             max-h-[340px]
             overflow-y-auto
             pr-1
@@ -1831,20 +1505,16 @@ export default function LeadDetails() {
             scrollbar-thumb-gray-200
             scrollbar-track-transparent
           "
-        >
-
-          {/* ==================================================
+              >
+                {/* ==================================================
               LOADING
           ================================================== */}
 
-          {organizationLoading ? (
-
-            <div className="py-12">
-
-              <div className="flex flex-col items-center">
-
-                <div
-                  className="
+                {organizationLoading ? (
+                  <div className="py-12">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className="
                     w-9
                     h-9
                     rounded-full
@@ -1853,53 +1523,42 @@ export default function LeadDetails() {
                     border-t-[#4B49AC]
                     animate-spin
                   "
-                />
+                      />
 
-                <p
-                  className="
+                      <p
+                        className="
                     mt-4
                     text-sm
                     font-medium
                     text-gray-600
                   "
-                >
-                  Loading organizations
-                </p>
+                      >
+                        Loading organizations
+                      </p>
 
-                <p
-                  className="
+                      <p
+                        className="
                     mt-1
                     text-xs
                     text-gray-400
                   "
-                >
-                  Please wait...
-                </p>
-
-              </div>
-
-            </div>
-
-          ) : filteredOrganizations.length >
-            0 ? (
-
-            /* ==================================================
+                      >
+                        Please wait...
+                      </p>
+                    </div>
+                  </div>
+                ) : filteredOrganizations.length > 0 ? (
+                  /* ==================================================
                 RESULTS
             ================================================== */
 
-            filteredOrganizations.map(
-              (org) => (
-
-                <button
-                  type="button"
-                  key={org._id}
-                  disabled={linkingOrganization}
-                  onClick={() =>
-                    handleLinkOrganization(
-                      org._id
-                    )
-                  }
-                  className="
+                  filteredOrganizations.map((org) => (
+                    <button
+                      type="button"
+                      key={org._id}
+                      disabled={linkingOrganization}
+                      onClick={() => handleLinkOrganization(org._id)}
+                      className="
                     w-full
                     flex
                     items-center
@@ -1917,20 +1576,17 @@ export default function LeadDetails() {
                     disabled:opacity-60
                     disabled:cursor-wait
                   "
-                >
-
-                  {/* ==================================================
+                    >
+                      {/* ==================================================
                       ORGANIZATION ICON
                   ================================================== */}
 
-                  <div
-                    className="
+                      <div
+                        className="
                       w-11
                       h-11
                       rounded-xl
-                      bg-gradient-to-br
-                      from-indigo-500
-                      to-violet-500
+                      bg-[]
                       text-white
                       flex
                       items-center
@@ -1942,10 +1598,10 @@ export default function LeadDetails() {
                       transition-all
                       duration-200
                     "
-                  >
-                    {linkingOrganization ? (
-                      <div
-                        className="
+                      >
+                        {linkingOrganization ? (
+                          <div
+                            className="
                           w-5
                           h-5
                           rounded-full
@@ -1954,28 +1610,26 @@ export default function LeadDetails() {
                           border-t-white
                           animate-spin
                         "
-                      />
-                    ) : (
-                      <Building2 size={21} />
-                    )}
-                  </div>
+                          />
+                        ) : (
+                          <Building2 size={21} />
+                        )}
+                      </div>
 
-
-                  {/* ==================================================
+                      {/* ==================================================
                       ORGANIZATION INFO
                   ================================================== */}
 
-                  <div
-                    className="
+                      <div
+                        className="
                       flex-1
                       min-w-0
                     "
-                  >
+                      >
+                        {/* NAME */}
 
-                    {/* NAME */}
-
-                    <p
-                      className="
+                        <p
+                          className="
                         text-sm
                         font-semibold
                         text-gray-800
@@ -1984,29 +1638,26 @@ export default function LeadDetails() {
                         transition-colors
                         duration-200
                       "
-                    >
-                      {org.name ||
-                        "Unnamed Organization"}
-                    </p>
+                        >
+                          {org.name || "Unnamed Organization"}
+                        </p>
 
+                        {/* METADATA */}
 
-                    {/* METADATA */}
-
-                    <div
-                      className="
+                        <div
+                          className="
                         flex
                         items-center
                         gap-3
                         mt-1.5
                         min-w-0
                       "
-                    >
+                        >
+                          {/* INDUSTRY */}
 
-                      {/* INDUSTRY */}
-
-                      {org.industry && (
-                        <span
-                          className="
+                          {org.industry && (
+                            <span
+                              className="
                             flex
                             items-center
                             gap-1.5
@@ -2015,28 +1666,25 @@ export default function LeadDetails() {
                             truncate
                             max-w-[130px]
                           "
-                          title={org.industry}
-                        >
-                          <BriefcaseBusiness
-                            size={12}
-                            className="
+                              title={org.industry}
+                            >
+                              <BriefcaseBusiness
+                                size={12}
+                                className="
                               text-indigo-400
                               flex-shrink-0
                             "
-                          />
+                              />
 
-                          <span className="truncate">
-                            {org.industry}
-                          </span>
-                        </span>
-                      )}
+                              <span className="truncate">{org.industry}</span>
+                            </span>
+                          )}
 
+                          {/* WEBSITE */}
 
-                      {/* WEBSITE */}
-
-                      {org.website && (
-                        <span
-                          className="
+                          {org.website && (
+                            <span
+                              className="
                             flex
                             items-center
                             gap-1.5
@@ -2045,41 +1693,32 @@ export default function LeadDetails() {
                             truncate
                             max-w-[160px]
                           "
-                          title={org.website}
-                        >
-                          <Globe
-                            size={12}
-                            className="
+                              title={org.website}
+                            >
+                              <Globe
+                                size={12}
+                                className="
                               text-blue-400
                               flex-shrink-0
                             "
-                          />
+                              />
 
-                          <span className="truncate">
-                            {org.website
-                              .replace(
-                                /^https?:\/\//,
-                                ""
-                              )
-                              .replace(
-                                /\/$/,
-                                ""
-                              )}
-                          </span>
-                        </span>
-                      )}
+                              <span className="truncate">
+                                {org.website
+                                  .replace(/^https?:\/\//, "")
+                                  .replace(/\/$/, "")}
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                    </div>
-
-                  </div>
-
-
-                  {/* ==================================================
+                      {/* ==================================================
                       ARROW
                   ================================================== */}
 
-                  <div
-                    className="
+                      <div
+                        className="
                       w-8
                       h-8
                       rounded-lg
@@ -2093,25 +1732,19 @@ export default function LeadDetails() {
                       duration-200
                       flex-shrink-0
                     "
-                  >
-                    <ChevronRight size={17} />
-                  </div>
-
-                </button>
-
-              )
-            )
-
-          ) : (
-
-            /* ==================================================
+                      >
+                        <ChevronRight size={17} />
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  /* ==================================================
                 EMPTY STATE
             ================================================== */
 
-            <div className="py-10 text-center">
-
-              <div
-                className="
+                  <div className="py-10 text-center">
+                    <div
+                      className="
                   mx-auto
                   w-14
                   h-14
@@ -2122,25 +1755,23 @@ export default function LeadDetails() {
                   items-center
                   justify-center
                 "
-              >
-                <Building2 size={25} />
-              </div>
+                    >
+                      <Building2 size={25} />
+                    </div>
 
-
-              <h3
-                className="
+                    <h3
+                      className="
                   mt-4
                   text-sm
                   font-semibold
                   text-gray-700
                 "
-              >
-                No organization found
-              </h3>
+                    >
+                      No organization found
+                    </h3>
 
-
-              <p
-                className="
+                    <p
+                      className="
                   text-xs
                   text-gray-400
                   mt-1
@@ -2148,48 +1779,41 @@ export default function LeadDetails() {
                   mx-auto
                   leading-relaxed
                 "
-              >
-                {organizationSearch
-                  ? `No organization matches "${organizationSearch}".`
-                  : "There are no organizations available yet."}
-              </p>
-
+                    >
+                      {organizationSearch
+                        ? `No organization matches "${organizationSearch}".`
+                        : "There are no organizations available yet."}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
-          )}
-
-        </div>
-
-      </div>
-
-
-      {/* ==================================================
+            {/* ==================================================
           FOOTER
       ================================================== */}
 
-      <div
-        className="
+            <div
+              className="
           px-6
           py-4
           border-t
           border-gray-100
           bg-gray-50/70
         "
-      >
+            >
+              <div className="flex items-center gap-3">
+                {/* CREATE NEW */}
 
-        <div className="flex items-center gap-3">
-
-          {/* CREATE NEW */}
-
-          <button
-            type="button"
-            disabled={linkingOrganization}
-            onClick={() => {
-              setShowOrganizationModal(false);
-              setOrganizationSearch("");
-              setShowAddOrganizationModal(true);
-            }}
-            className="
+                <button
+                  type="button"
+                  disabled={linkingOrganization}
+                  onClick={() => {
+                    setShowOrganizationModal(false);
+                    setOrganizationSearch("");
+                    setShowAddOrganizationModal(true);
+                  }}
+                  className="
               flex-1
               h-11
               rounded-xl
@@ -2211,32 +1835,26 @@ export default function LeadDetails() {
               disabled:opacity-50
               disabled:cursor-not-allowed
             "
-          >
-            <Plus size={18} />
+                >
+                  <Plus size={18} />
+                  Create New Organization
+                </button>
+              </div>
 
-            Create New Organization
-          </button>
-
-        </div>
-
-        <p
-          className="
+              <p
+                className="
             text-[10px]
             text-gray-400
             text-center
             mt-3
           "
-        >
-          Select an organization to link it
-          with this lead.
-        </p>
-
-      </div>
-
-    </div>
-
-  </div>
-)}
+              >
+                Select an organization to link it with this lead.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

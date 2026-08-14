@@ -26,7 +26,7 @@ export default function Navbar({
 
   const navigate = useNavigate();
 
-  const userName = localStorage.getItem("userName") || "User";
+  // const userName = localStorage.getItem("userName") || "User";
 
   // ==========================================
   // SEARCH / DEBOUNCE
@@ -143,7 +143,18 @@ export default function Navbar({
     }
   };
 
-  const userPhoto = localStorage.getItem("userPhoto") || "";
+  // const userPhoto = localStorage.getItem("userPhoto") || "";
+  const [userName, setUserName] = useState(
+  localStorage.getItem("userName") || "User"
+);
+
+const [userPhoto, setUserPhoto] = useState(
+  localStorage.getItem("userPhoto") || ""
+);
+
+const [userEmail, setUserEmail] = useState(
+  localStorage.getItem("userEmail") || ""
+);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -154,22 +165,49 @@ export default function Navbar({
 
     navigate("/");
   };
+  useEffect(() => {
+  const handleProfileUpdated = () => {
+    setUserName(
+      localStorage.getItem("userName") || "User"
+    );
+
+    setUserPhoto(
+      localStorage.getItem("userPhoto") || ""
+    );
+
+    setUserEmail(
+      localStorage.getItem("userEmail") || ""
+    );
+  };
+
+  window.addEventListener(
+    "profileUpdated",
+    handleProfileUpdated
+  );
+
+  return () => {
+    window.removeEventListener(
+      "profileUpdated",
+      handleProfileUpdated
+    );
+  };
+}, []);
 
   return (
     <div
-      className="
-        relative
-        h-[74px]
-        w-full
-        bg-white
-        border-b
-        border-gray-200
-        flex
-        items-center
-        px-6
-        shadow-[0_1px_8px_rgba(0,0,0,0.03)]
-      "
-    >
+  className="
+    relative
+    h-[90px]
+    w-full
+    bg-white
+    border-b
+    border-gray-200
+    flex
+    items-center
+    px-6
+    shadow-[0_1px_8px_rgba(0,0,0,0.03)]
+  "
+>
       {/* =====================================
           LEFT / SEARCH AREA
       ====================================== */}
@@ -742,9 +780,7 @@ export default function Navbar({
               h-11
               rounded-full
               overflow-hidden
-              bg-gradient-to-br
-              from-indigo-500
-              to-blue-500
+              bg-[#4B49AC]
               flex
               items-center
               justify-center
@@ -769,7 +805,7 @@ export default function Navbar({
                   </p>
 
                   <p className="text-xs text-gray-400 truncate">
-                    {localStorage.getItem("userEmail") || ""}
+                    {userEmail}
                   </p>
                 </div>
               </div>

@@ -534,7 +534,7 @@ export default function Activities() {
                 items-center gap-2 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium border transition
                 ${
                   typeFilter === item.value
-                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                    ? "bg-[#4B49AC] text-white   shadow-sm"
                     : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
                 }
               `}

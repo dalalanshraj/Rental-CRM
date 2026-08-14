@@ -1,4 +1,4 @@
-import { useState } from "react";
+ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import AddLeadModal from "../components/AddLeadModal";
@@ -70,7 +70,7 @@ export default function MainLayout({ children }) {
 
         {/* PAGE CONTENT */}
         <main className="flex-1">
-          <div className="p-5 bg-gray-100 min-h-[calc(100vh-74px)]">
+          <div className="p-5 bg-gray-100 min-h-[calc(100vh-90px)]">
             {children}
           </div>
         </main>

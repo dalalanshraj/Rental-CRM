@@ -31,19 +31,19 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-[#fff]">
-      
-      {/* Logo */}
-      <div className="flex justify-center pt-6 pb-10">
-         <div className="w-12 h-12 rounded-2xl bg-[#4B49AC] flex items-center justify-center shadow-lg "> {/*shadow-indigo-500/30 */}
-          <span className="text-white font-bold text-sm">
-            CRM
-          </span>
-        </div>
-      </div>
+  <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-white  ">
 
-      {/* Menu */}
-      <ul className="flex flex-col items-center gap-4 px-3">
+  {/* LOGO */}
+  <div className="relative w-[89px] h-[90px] flex items-center justify-center">
+  <img
+    src="/Logo.png"
+    alt="Digify America CRM"
+    className="ab w-[72px] h-[72px] object-contain"
+  />
+</div>
+
+  {/* MENU */}
+  <ul className="flex flex-col items-center gap-4 px-3">
         {menu.map((item) => {
           const isActive =
             pathname === item.path ||
@@ -63,13 +63,11 @@ export default function Sidebar() {
 
                   ${
                     isActive
-                      ? "bg-[#4B49AC] text-white  "
+                      ? "bg-[#4B49AC] text-white"
                       : "text-slate-400 hover:bg-[#4B49AC] hover:text-white"
                   }
                 `}
               >
-                
-
                 <span
                   className={`
                     transition-colors duration-200

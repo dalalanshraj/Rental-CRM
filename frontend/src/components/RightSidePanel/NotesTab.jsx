@@ -429,38 +429,34 @@ export default function NotesTab({ type, data }) {
           "
         >
           <Editor
-            apiKey={TINYMCE_API_KEY}
-            value={note}
-            onEditorChange={(content) =>
-              setNote(content)
-            }
-            init={{
-              height: 170,
-              menubar: false,
-              plugins: [
-                "link",
-                "lists",
-              ],
-              toolbar:
-                "bold italic underline | bullist numlist | link",
-              toolbar_mode: "sliding",
-              branding: false,
-              statusbar: false,
-              content_style: `
-                body {
-                  font-family: Inter, Arial, sans-serif;
-                  font-size: 14px;
-                  color: #374151;
-                  padding: 10px;
-                  line-height: 1.6;
-                }
+  value={note}
+  onEditorChange={(content) => setNote(content)}
+  tinymceScriptSrc="/tinymce/tinymce.min.js"
+  licenseKey="gpl"
+  init={{
+    height: 170,
+    menubar: false,
 
-                a {
-                  color: #4f46e5;
-                }
-              `,
-            }}
-          />
+    plugins: [
+      "link",
+      "lists",
+    ],
+
+    toolbar:
+      "bold italic underline | bullist numlist | link",
+
+    branding: false,
+
+    content_style: `
+      body {
+        font-family: Inter, Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.6;
+        padding: 8px 12px;
+      }
+    `,
+  }}
+/>
         </div>
 
         {/* ACTIONS */}
