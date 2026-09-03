@@ -110,8 +110,8 @@ export default function EditableContactField({
         {/* LABEL */}
         <span
           className="
-            w-[90px]
-            min-w-[90px]
+            w-[40px]
+            min-w-[9px]
             flex-shrink-0
             text-sm
             text-gray-500
@@ -122,7 +122,7 @@ export default function EditableContactField({
         </span>
 
         {/* VALUE */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="flex items-center gap-1 flex-1 min-w-0">
 
           <span
             className="
@@ -131,6 +131,7 @@ export default function EditableContactField({
               truncate
               text-sm
               text-blue-600
+              hover:underline
             "
             title={value || ""}
           >

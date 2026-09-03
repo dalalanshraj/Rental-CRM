@@ -1,69 +1,67 @@
 // models/Lead.js
 import mongoose, { mongo } from "mongoose";
 
-const leadSchema = new mongoose.Schema({
-
+const leadSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
 
-   organization: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "Organization",
-  default: null,
-},
+    organization: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+      default: null,
+    },
 
     phone: [
-        {
-            number: String,
-            label: {
-                type: String,
-                enum: ["work", "home", "mobile", "other"],
-                default: "work"
-            }
-        }
+      {
+        number: String,
+        label: {
+          type: String,
+          enum: ["work", "home", "mobile", "other"],
+          default: "work",
+        },
+      },
     ],
 
     email: [
-        {
-            address: String,
-            label: {
-                type: String,
-                enum: ["work", "home", "mobile", "other"],
-                default: "work"
-            }
-        }
+      {
+        address: String,
+        label: {
+          type: String,
+          enum: ["work", "home", "mobile", "other"],
+          default: "work",
+        },
+      },
     ],
 
-    //  Owner 
+    //  Owner
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
 
     //Activities
-   activities: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Activity",
-  },
-],
-    
+    activities: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Activity",
+      },
+    ],
 
     // Website URl
     website: String,
     instagram: String,
-    facebook:String,
+    facebook: String,
 
-    // Address 
+    // Address
     address: {
-        street: String,
-        city: String,
-        state: String,
-        country: String,
-        zipCode: String,
-
+      street: String,
+      city: String,
+      state: String,
+      country: String,
+      zipCode: String,
     },
 
     //  Extra
@@ -80,35 +78,35 @@ const leadSchema = new mongoose.Schema({
     // ECBYO Email
     ecbEmail: String,
 
-
     //  Date
     nextExpirationDate: Date,
 
     // CRM
     status: {
-        type: String,
-        enum: ["new", "lost", "won"],
-        default: "new"
+      type: String,
+      enum: ["new", "lost", "won"],
+      default: "new",
     },
 
-//   notes: [
-//   {
-//     text: String,
-//     createdBy: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User"
-//     },
-//     createdAt: {
-//       type: Date,
-//       default: Date.now
-//     },
-//     pinned: {
-//       type: Boolean,
-//       default: false
-//     }
-//   }
-// ]
-
-}, { timestamps: true });
+    //   notes: [
+    //   {
+    //     text: String,
+    //     createdBy: {
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       ref: "User"
+    //     },
+    //     createdAt: {
+    //       type: Date,
+    //       default: Date.now
+    //     },
+    //     pinned: {
+    //       type: Boolean,
+    //       default: false
+    //     }
+    //   }
+    // ]
+  },
+  { timestamps: true },
+);
 
 export default mongoose.model("Lead", leadSchema);

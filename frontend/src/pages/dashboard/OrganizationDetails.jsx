@@ -73,9 +73,7 @@ export default function OrganizationDetails() {
     try {
       const res = await api.get("/leads");
 
-      setAvailableLeads(
-        Array.isArray(res.data) ? res.data : []
-      );
+      setAvailableLeads(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.log(err);
     }
@@ -100,12 +98,9 @@ export default function OrganizationDetails() {
     try {
       setLinking(true);
 
-      await api.put(
-        `/organizations/${organization._id}/add-lead`,
-        {
-          leadId: selectedLead,
-        }
-      );
+      await api.put(`/organizations/${organization._id}/add-lead`, {
+        leadId: selectedLead,
+      });
 
       setSelectedLead("");
       setLeadSearch("");
@@ -125,12 +120,9 @@ export default function OrganizationDetails() {
 
   const handleRemoveLead = async (leadId) => {
     try {
-      await api.put(
-        `/organizations/${organization._id}/remove-lead`,
-        {
-          leadId,
-        }
-      );
+      await api.put(`/organizations/${organization._id}/remove-lead`, {
+        leadId,
+      });
 
       fetchOrganization();
     } catch (err) {
@@ -142,33 +134,24 @@ export default function OrganizationDetails() {
   // FILTER PEOPLE
   // ==========================================
 
-  const linkedLeadIds =
-    organization?.leads?.map((lead) => lead._id) || [];
+  const linkedLeadIds = organization?.leads?.map((lead) => lead._id) || [];
 
   const filteredLeads = availableLeads.filter((lead) => {
     const text = leadSearch.trim().toLowerCase();
 
-    const alreadyLinked = linkedLeadIds.includes(
-      lead._id
-    );
+    const alreadyLinked = linkedLeadIds.includes(lead._id);
 
     if (alreadyLinked) return false;
 
     if (!text) return true;
 
-    const name =
-      lead.name?.toLowerCase() || "";
+    const name = lead.name?.toLowerCase() || "";
 
-    const email =
-      lead.email?.[0]?.address?.toLowerCase() || "";
+    const email = lead.email?.[0]?.address?.toLowerCase() || "";
 
-    const phone =
-      String(
-        lead.phone?.[0]?.number || ""
-      ).toLowerCase();
+    const phone = String(lead.phone?.[0]?.number || "").toLowerCase();
 
-    const title =
-      lead.title?.toLowerCase() || "";
+    const title = lead.title?.toLowerCase() || "";
 
     return (
       name.includes(text) ||
@@ -198,9 +181,7 @@ export default function OrganizationDetails() {
             "
           />
 
-          <p className="text-sm text-gray-500">
-            Loading organization...
-          </p>
+          <p className="text-sm text-gray-500">Loading organization...</p>
         </div>
       </div>
     );
@@ -237,7 +218,6 @@ export default function OrganizationDetails() {
         {/* LEFT */}
 
         <div className="flex items-center gap-4 min-w-0">
-
           <div
             className="
               w-12
@@ -257,58 +237,34 @@ export default function OrganizationDetails() {
           </div>
 
           <div className="min-w-0">
-
             <div className="flex items-center gap-2">
-
-            <div className="text-lg font-bold text-gray-800 min-w-0">
-  <EditableField
-    label="Organization name"
-    field="name"
-    value={organization.name}
-    itemId={organization._id}
-    endpoint="organizations"
-    variant="header"
-    onUpdate={setOrganization}
-  />
-</div>
-
+              <div className="text-lg font-bold text-gray-800 min-w-0">
+                <EditableField
+                  label="Organization name"
+                  field="name"
+                  value={organization.name}
+                  itemId={organization._id}
+                  endpoint="organizations"
+                  variant="header"
+                  onUpdate={setOrganization}
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-2 mt-1">
-
               <span
                 className="
-                  inline-flex
-                  items-center
-                  gap-1.5
-                  text-xs
-                  text-gray-400
-                "
+      inline-flex
+      items-center
+      gap-1.5
+      text-xs
+      text-gray-400
+    "
               >
                 <Building2 size={12} />
-
                 Organization
               </span>
-
-              {organization.industry && (
-                <>
-                  <span className="text-gray-300">
-                    •
-                  </span>
-
-                  <span
-                    className="
-                      text-xs
-                      text-gray-400
-                    "
-                  >
-                    {organization.industry}
-                  </span>
-                </>
-              )}
-
             </div>
-
           </div>
         </div>
 
@@ -327,7 +283,6 @@ export default function OrganizationDetails() {
       ====================================================== */}
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
-
         {/* ===================================================
             LEFT SIDEBAR
         ==================================================== */}
@@ -345,9 +300,7 @@ export default function OrganizationDetails() {
             scrollbar-track-transparent
           "
         >
-
           <div className="p-5">
-
             {/* =================================================
                 QUICK SUMMARY
             ================================================= */}
@@ -364,11 +317,8 @@ export default function OrganizationDetails() {
                 mb-5
               "
             >
-
               <div className="flex items-center justify-between mb-4">
-
                 <div>
-
                   <p
                     className="
                       text-xs
@@ -391,7 +341,6 @@ export default function OrganizationDetails() {
                   >
                     Organization details
                   </p>
-
                 </div>
 
                 <div
@@ -408,65 +357,55 @@ export default function OrganizationDetails() {
                 >
                   <Building2 size={16} />
                 </div>
-
               </div>
 
               <div className="space-y-2">
+                {/* <div className="flex items-center gap-2">
+                  <Mail size={14} className="text-gray-400" />
 
-                <div className="flex items-center gap-2">
-
-                  <Mail
-                    size={14}
-                    className="text-gray-400"
-                  />
-
-                  <div className="flex-1 min-w-0">
-
+                  <div className="flex-1 min-w-0 ">
                     <EditableContactField
                       label="email"
                       field="email"
                       value={organization.email}
-                      type={
-                        organization.email?.[0]?.label ||
-                        "Work"
-                      }
+                      type={organization.email?.[0]?.label || "Work"}
                       itemId={organization._id}
                       endpoint="organizations"
                       onUpdate={setOrganization}
                     />
-
                   </div>
+                </div> */}
 
-                </div>
-
-                <div className="flex items-center gap-2">
-
-                  <Phone
-                    size={14}
-                    className="text-gray-400"
-                  />
+                {/* <div className="flex items-center gap-2">
+                  <Phone size={14} className="text-gray-400" />
 
                   <div className="flex-1 min-w-0">
-
                     <EditableContactField
                       label="phone"
                       field="phone"
                       value={organization.phone}
-                      type={
-                        organization.phone?.[0]?.label ||
-                        "Work"
-                      }
+                      type={organization.phone?.[0]?.label || "Work"}
                       itemId={organization._id}
                       endpoint="organizations"
                       onUpdate={setOrganization}
                     />
-
                   </div>
+                </div> */}
+                <div className="flex items-center gap-2">
+                  <MapPin size={19} className="text-gray-500" />
 
+                  <div className="flex-1 min-w-0">
+                    <EditableField
+                     
+                      field="address"
+                      value={organization.address}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+                  </div>
                 </div>
-
               </div>
-
             </div>
 
             {/* =================================================
@@ -483,12 +422,9 @@ export default function OrganizationDetails() {
                 mb-5
               "
             >
-
               <button
                 type="button"
-                onClick={() =>
-                  setOpenDetails(!openDetails)
-                }
+                onClick={() => setOpenDetails(!openDetails)}
                 className="
                   w-full
                   px-4
@@ -500,9 +436,7 @@ export default function OrganizationDetails() {
                   transition
                 "
               >
-
                 <div className="flex items-center gap-2">
-
                   <div
                     className="
                       w-8
@@ -519,7 +453,6 @@ export default function OrganizationDetails() {
                   </div>
 
                   <div className="text-left">
-
                     <p
                       className="
                         text-sm
@@ -538,21 +471,14 @@ export default function OrganizationDetails() {
                     >
                       Organization information
                     </p>
-
                   </div>
-
                 </div>
 
                 {openDetails ? (
-                  <IoIosArrowUp
-                    className="text-gray-400"
-                  />
+                  <IoIosArrowUp className="text-gray-400" />
                 ) : (
-                  <IoIosArrowDown
-                    className="text-gray-400"
-                  />
+                  <IoIosArrowDown className="text-gray-400" />
                 )}
-
               </button>
 
               {openDetails && (
@@ -565,8 +491,8 @@ export default function OrganizationDetails() {
                     border-gray-100
                   "
                 >
-
                   <div className="space-y-3 text-sm">
+                    {/* NAME */}
 
                     <EditableField
                       label="Name"
@@ -577,6 +503,113 @@ export default function OrganizationDetails() {
                       onUpdate={setOrganization}
                     />
 
+                    {/* COMPANY PHONE */}
+
+                    <EditableField
+                      label="Company Phone"
+                      field="phone"
+                      value={organization.phone}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* CURRENT BOOKINGPAL ACCOUNT */}
+
+                    <EditableField
+                      label="Current BookingPal Account"
+                      field="currentBookingPalAccount"
+                      value={organization.currentBookingPalAccount}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* NEXT LISTING EXPIRATION DATE */}
+
+                    <EditableField
+                      label="Next Listing Expiration Date"
+                      field="nextListingExpirationDate"
+                      value={
+                        organization.nextListingExpirationDate
+                          ? new Date(organization.nextListingExpirationDate)
+                              .toISOString()
+                              .split("T")[0]
+                          : ""
+                      }
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* ECBYO PASS */}
+
+                    <EditableField
+                      label="ECBYO Pass"
+                      field="ecbyoPass"
+                      value={organization.ecbyoPass}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* PMS */}
+
+                    <EditableField
+                      label="What PMS does this company use?"
+                      field="vrsUsed"
+                      value={organization.vrsUsed}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* TOTAL UNITS MANAGED */}
+
+                    <EditableField
+                      label="Total Number of Units Managed"
+                      field="totalUnitsManaged"
+                      value={organization.totalUnitsManaged}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* UNITS ON ECBYO */}
+
+                    <EditableField
+                      label="Number of Units on ECBYO"
+                      field="unitsOnECBYO"
+                      value={organization.unitsOnECBYO}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* LISTING ID */}
+
+                    <EditableField
+                      label="Listing ID"
+                      field="listingId"
+                      value={organization.listingId}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* FEED DATA LINK */}
+
+                    <EditableLinkField
+                      label="Feed Data Link"
+                      field="feedDataLink"
+                      value={organization.feedDataLink}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                    {/* WEBSITE */}
+
                     <EditableLinkField
                       label="Website"
                       field="website"
@@ -585,46 +618,114 @@ export default function OrganizationDetails() {
                       endpoint="organizations"
                       onUpdate={setOrganization}
                     />
-
-                    <EditableField
-                      label="Phone"
-                      field="phone"
-                      value={organization.phone}
-                      itemId={organization._id}
-                      endpoint="organizations"
-                      onUpdate={setOrganization}
-                    />
-
-                    <EditableField
-                      label="Email"
-                      field="email"
-                      value={organization.email}
-                      itemId={organization._id}
-                      endpoint="organizations"
-                      onUpdate={setOrganization}
-                    />
-
-                    <EditableField
-                      label="Industry"
-                      field="industry"
-                      value={organization.industry}
-                      itemId={organization._id}
-                      endpoint="organizations"
-                      onUpdate={setOrganization}
-                    />
-
                   </div>
-
                 </div>
               )}
+            </div>
+            {/* =================================================
+    SOCIAL
+================================================= */}
 
+            <div
+              className="
+    border
+    border-gray-200
+    rounded-2xl
+    bg-white
+    overflow-hidden
+    mb-5
+  "
+            >
+              {/* HEADER */}
+
+              <div
+                className="
+      px-4
+      py-3.5
+      flex
+      items-center
+      gap-3
+    "
+              >
+                <div
+                  className="
+        w-8
+        h-8
+        rounded-lg
+        bg-indigo-50
+        text-indigo-600
+        flex
+        items-center
+        justify-center
+      "
+                >
+                  <Link2 size={16} />
+                </div>
+
+                <div>
+                  <p
+                    className="
+          text-sm
+          font-semibold
+          text-gray-800
+        "
+                  >
+                    Social
+                  </p>
+
+                  <p
+                    className="
+          text-[11px]
+          text-gray-400
+        "
+                  >
+                    Social media profiles
+                  </p>
+                </div>
+              </div>
+
+              {/* SOCIAL LINKS */}
+
+              <div
+                className="
+      px-4
+      pb-4
+      pt-1
+      border-t
+      border-gray-100
+    "
+              >
+                <div className="space-y-3">
+                  {/* FACEBOOK */}
+
+                  <EditableLinkField
+                    label="Facebook"
+                    field="facebook"
+                    value={organization.facebook}
+                    itemId={organization._id}
+                    endpoint="organizations"
+                    onUpdate={setOrganization}
+                  />
+
+                  {/* LINKEDIN */}
+
+                  <EditableLinkField
+                    label="LinkedIn"
+                    field="linkedin"
+                    value={organization.linkedin}
+                    itemId={organization._id}
+                    endpoint="organizations"
+                    onUpdate={setOrganization}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* =================================================
                 ADDRESS
             ================================================= */}
 
-            <div
+            {/* <div
               className="
                 border
                 border-gray-200
@@ -685,67 +786,25 @@ export default function OrganizationDetails() {
 
               </div>
 
-              <div
-                className="
-                  px-4
-                  pb-4
-                  pt-1
-                  border-t
-                  border-gray-100
-                "
-              >
-
-                <div className="space-y-3">
-
-                  <EditableField
-                    label="Street"
-                    field="address.street"
-                    value={
-                      organization.address?.street
-                    }
-                    itemId={organization._id}
-                    endpoint="organizations"
-                    onUpdate={setOrganization}
-                  />
-
-                  <EditableField
-                    label="City"
-                    field="address.city"
-                    value={
-                      organization.address?.city
-                    }
-                    itemId={organization._id}
-                    endpoint="organizations"
-                    onUpdate={setOrganization}
-                  />
-
-                  <EditableField
-                    label="State"
-                    field="address.state"
-                    value={
-                      organization.address?.state
-                    }
-                    itemId={organization._id}
-                    endpoint="organizations"
-                    onUpdate={setOrganization}
-                  />
-
-                  <EditableField
-                    label="Country"
-                    field="address.country"
-                    value={
-                      organization.address?.country
-                    }
-                    itemId={organization._id}
-                    endpoint="organizations"
-                    onUpdate={setOrganization}
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
+           <div
+  className="
+    px-4
+    pb-4
+    pt-1
+    border-t
+    border-gray-100
+  "
+>
+  <EditableField
+    label="Full Address"
+    field="address"
+    value={organization.address}
+    itemId={organization._id}
+    endpoint="organizations"
+    onUpdate={setOrganization}
+  />
+</div>
+            </div> */}
 
             {/* =================================================
                 PEOPLE
@@ -760,7 +819,6 @@ export default function OrganizationDetails() {
                 overflow-hidden
               "
             >
-
               {/* HEADER */}
 
               <div
@@ -774,12 +832,9 @@ export default function OrganizationDetails() {
                   border-gray-100
                 "
               >
-
                 <button
                   type="button"
-                  onClick={() =>
-                    setOpenPeople(!openPeople)
-                  }
+                  onClick={() => setOpenPeople(!openPeople)}
                   className="
                     flex
                     items-center
@@ -788,7 +843,6 @@ export default function OrganizationDetails() {
                     text-left
                   "
                 >
-
                   <div
                     className="
                       w-8
@@ -805,7 +859,6 @@ export default function OrganizationDetails() {
                   </div>
 
                   <div>
-
                     <p
                       className="
                         text-sm
@@ -824,26 +877,18 @@ export default function OrganizationDetails() {
                     >
                       {organization.leads?.length || 0} linked
                     </p>
-
                   </div>
 
                   {openPeople ? (
-                    <IoIosArrowUp
-                      className="ml-auto text-gray-400"
-                    />
+                    <IoIosArrowUp className="ml-auto text-gray-400" />
                   ) : (
-                    <IoIosArrowDown
-                      className="ml-auto text-gray-400"
-                    />
+                    <IoIosArrowDown className="ml-auto text-gray-400" />
                   )}
-
                 </button>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowLeadModal(true)
-                  }
+                  onClick={() => setShowLeadModal(true)}
                   title="Link person"
                   className="
                     ml-2
@@ -864,23 +909,18 @@ export default function OrganizationDetails() {
                 >
                   <Plus size={17} />
                 </button>
-
               </div>
 
               {/* PEOPLE LIST */}
 
               {openPeople && (
                 <div className="p-3">
-
                   {organization.leads?.length > 0 ? (
-
                     <div className="space-y-2">
-
-                      {organization.leads.map(
-                        (lead) => (
-                          <div
-                            key={lead._id}
-                            className="
+                      {organization.leads.map((lead) => (
+                        <div
+                          key={lead._id}
+                          className="
                               group
                               p-3
                               rounded-xl
@@ -890,12 +930,10 @@ export default function OrganizationDetails() {
                               hover:bg-indigo-50/50
                               transition
                             "
-                          >
-
-                            <div className="flex items-center gap-3">
-
-                              <div
-                                className="
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="
                                   w-9
                                   h-9
                                   rounded-xl
@@ -906,51 +944,41 @@ export default function OrganizationDetails() {
                                   justify-center
                                   flex-shrink-0
                                 "
-                              >
-                                <UserRound
-                                  size={17}
-                                />
-                              </div>
+                            >
+                              <UserRound size={17} />
+                            </div>
 
-                              <div className="flex-1 min-w-0">
-
-                                <p
-                                  className="
+                            <div className="flex-1 min-w-0">
+                              <p
+                                className="
                                     text-sm
                                     font-semibold
                                     text-gray-800
                                     truncate
                                   "
-                                >
-                                  {lead.name ||
-                                    "Unnamed Person"}
-                                </p>
+                              >
+                                {lead.name || "Unnamed Person"}
+                              </p>
 
-                                <p
-                                  className="
+                              <p
+                                className="
                                     text-xs
                                     text-gray-400
                                     truncate
                                     mt-0.5
                                   "
-                                >
-                                  {lead.title ||
-                                    lead.email?.[0]
-                                      ?.address ||
-                                    "Person"}
-                                </p>
+                              >
+                                {lead.title ||
+                                  lead.email?.[0]?.address ||
+                                  "Person"}
+                              </p>
+                            </div>
 
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  navigate(
-                                    `/app/leads/${lead._id}`
-                                  )
-                                }
-                                title="View person"
-                                className="
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/app/leads/${lead._id}`)}
+                              title="View person"
+                              className="
                                   w-8
                                   h-8
                                   rounded-lg
@@ -962,29 +990,20 @@ export default function OrganizationDetails() {
                                   hover:text-indigo-600
                                   transition
                                 "
-                              >
-                                <ChevronRight
-                                  size={17}
-                                />
-                              </button>
-
-                            </div>
-
+                            >
+                              <ChevronRight size={17} />
+                            </button>
                           </div>
-                        )
-                      )}
-
+                        </div>
+                      ))}
                     </div>
-
                   ) : (
-
                     <div
                       className="
                         py-7
                         text-center
                       "
                     >
-
                       <div
                         className="
                           mx-auto
@@ -1024,9 +1043,7 @@ export default function OrganizationDetails() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setShowLeadModal(true)
-                        }
+                        onClick={() => setShowLeadModal(true)}
                         className="
                           mt-4
                           inline-flex
@@ -1046,16 +1063,11 @@ export default function OrganizationDetails() {
                         <Plus size={15} />
                         Link Person
                       </button>
-
                     </div>
-
                   )}
-
                 </div>
               )}
-
             </div>
-
           </div>
         </aside>
 
@@ -1070,21 +1082,18 @@ export default function OrganizationDetails() {
             min-h-0
             overflow-y-auto
             bg-[#f6f7fb]
-            p-5
+           
             scrollbar-thin
             scrollbar-thumb-gray-200
             scrollbar-track-transparent
           "
         >
-
           <RightPanel
             type="organization"
             data={organization}
             setData={setOrganization}
           />
-
         </main>
-
       </div>
 
       {/* =====================================================
@@ -1092,7 +1101,6 @@ export default function OrganizationDetails() {
       ====================================================== */}
 
       {showLeadModal && (
-
         <div
           className="
             fixed
@@ -1106,16 +1114,13 @@ export default function OrganizationDetails() {
             backdrop-blur-sm
           "
           onMouseDown={(e) => {
-            if (
-              e.target === e.currentTarget
-            ) {
+            if (e.target === e.currentTarget) {
               setShowLeadModal(false);
               setLeadSearch("");
               setSelectedLead("");
             }
           }}
         >
-
           <div
             className="
               w-full
@@ -1128,7 +1133,6 @@ export default function OrganizationDetails() {
               overflow-hidden
             "
           >
-
             {/* MODAL HEADER */}
 
             <div
@@ -1142,9 +1146,7 @@ export default function OrganizationDetails() {
                 justify-between
               "
             >
-
               <div className="flex items-center gap-3">
-
                 <div
                   className="
                     w-11
@@ -1161,7 +1163,6 @@ export default function OrganizationDetails() {
                 </div>
 
                 <div>
-
                   <h2
                     className="
                       text-lg
@@ -1181,9 +1182,7 @@ export default function OrganizationDetails() {
                   >
                     Connect a person with this organization
                   </p>
-
                 </div>
-
               </div>
 
               <button
@@ -1208,15 +1207,12 @@ export default function OrganizationDetails() {
               >
                 <X size={19} />
               </button>
-
             </div>
 
             {/* SEARCH */}
 
             <div className="px-6 pt-5">
-
               <div className="relative">
-
                 <Search
                   size={18}
                   className="
@@ -1234,11 +1230,7 @@ export default function OrganizationDetails() {
                   type="text"
                   placeholder="Search people..."
                   value={leadSearch}
-                  onChange={(e) =>
-                    setLeadSearch(
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => setLeadSearch(e.target.value)}
                   className="
                     w-full
                     h-12
@@ -1256,11 +1248,9 @@ export default function OrganizationDetails() {
                     
                   "
                 />
-
               </div>
 
               <div className="flex items-center justify-between mt-3">
-
                 <p
                   className="
                     text-xs
@@ -1268,18 +1258,13 @@ export default function OrganizationDetails() {
                   "
                 >
                   {filteredLeads.length}{" "}
-                  {filteredLeads.length === 1
-                    ? "person"
-                    : "people"}{" "}
-                  available
+                  {filteredLeads.length === 1 ? "person" : "people"} available
                 </p>
 
                 {leadSearch && (
                   <button
                     type="button"
-                    onClick={() =>
-                      setLeadSearch("")
-                    }
+                    onClick={() => setLeadSearch("")}
                     className="
                       text-xs
                       font-medium
@@ -1290,15 +1275,12 @@ export default function OrganizationDetails() {
                     Clear
                   </button>
                 )}
-
               </div>
-
             </div>
 
             {/* PEOPLE */}
 
             <div className="px-6 py-4">
-
               <div
                 className="
                   max-h-[330px]
@@ -1309,23 +1291,15 @@ export default function OrganizationDetails() {
                   scrollbar-thumb-gray-200
                 "
               >
-
                 {filteredLeads.length > 0 ? (
-
                   filteredLeads.map((lead) => {
-
-                    const selected =
-                      selectedLead === lead._id;
+                    const selected = selectedLead === lead._id;
 
                     return (
                       <button
                         type="button"
                         key={lead._id}
-                        onClick={() =>
-                          setSelectedLead(
-                            lead._id
-                          )
-                        }
+                        onClick={() => setSelectedLead(lead._id)}
                         className={`
                           w-full
                           flex
@@ -1344,7 +1318,6 @@ export default function OrganizationDetails() {
                           }
                         `}
                       >
-
                         {/* AVATAR */}
 
                         <div
@@ -1363,15 +1336,12 @@ export default function OrganizationDetails() {
                             shadow-sm
                           "
                         >
-                          <UserRound
-                            size={20}
-                          />
+                          <UserRound size={20} />
                         </div>
 
                         {/* INFO */}
 
                         <div className="flex-1 min-w-0">
-
                           <p
                             className="
                               text-sm
@@ -1380,8 +1350,7 @@ export default function OrganizationDetails() {
                               truncate
                             "
                           >
-                            {lead.name ||
-                              "Unnamed Person"}
+                            {lead.name || "Unnamed Person"}
                           </p>
 
                           <div
@@ -1392,7 +1361,6 @@ export default function OrganizationDetails() {
                               mt-1
                             "
                           >
-
                             {lead.title && (
                               <span
                                 className="
@@ -1406,13 +1374,10 @@ export default function OrganizationDetails() {
                               </span>
                             )}
 
-                            {lead.email?.[0]
-                              ?.address && (
+                            {lead.email?.[0]?.address && (
                               <>
                                 {lead.title && (
-                                  <span className="text-gray-300">
-                                    •
-                                  </span>
+                                  <span className="text-gray-300">•</span>
                                 )}
 
                                 <span
@@ -1423,16 +1388,11 @@ export default function OrganizationDetails() {
                                     max-w-[180px]
                                   "
                                 >
-                                  {
-                                    lead.email[0]
-                                      .address
-                                  }
+                                  {lead.email[0].address}
                                 </span>
                               </>
                             )}
-
                           </div>
-
                         </div>
 
                         {/* CHECK */}
@@ -1456,20 +1416,16 @@ export default function OrganizationDetails() {
                         >
                           <Check size={16} />
                         </div>
-
                       </button>
                     );
                   })
-
                 ) : (
-
                   <div
                     className="
                       py-10
                       text-center
                     "
                   >
-
                     <div
                       className="
                         mx-auto
@@ -1506,13 +1462,9 @@ export default function OrganizationDetails() {
                     >
                       Try another search term.
                     </p>
-
                   </div>
-
                 )}
-
               </div>
-
             </div>
 
             {/* FOOTER */}
@@ -1529,7 +1481,6 @@ export default function OrganizationDetails() {
                 gap-3
               "
             >
-
               <button
                 type="button"
                 onClick={() => {
@@ -1600,14 +1551,10 @@ export default function OrganizationDetails() {
                   </>
                 )}
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 }

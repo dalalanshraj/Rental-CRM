@@ -506,10 +506,11 @@ export default function EditableField({
           <span
             className="
               flex-1
-              min-w-0
-              truncate
+              w-full
               text-sm
-              text-gray-800
+              text-blue-500 
+             
+              hover:underline
             "
             title={String(
               displayValue()
@@ -616,7 +617,7 @@ export default function EditableField({
                 block
                 w-full
                 h-10
-                px-3
+                px-1
                 rounded-xl
                 border
                 border-gray-300
