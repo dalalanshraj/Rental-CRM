@@ -22,8 +22,8 @@ const MONGO = process.env.MONGODB_URI;
 const PORT = 3000;
 
 const allowedOrigins = [
-  "http://localhost:5174",
-  "http://localhost:5175",
+ "https://bitbytegigabyte.com",
+  "https://www.bitbytegigabyte.com",
   "http://localhost:5173",
 ];
 
