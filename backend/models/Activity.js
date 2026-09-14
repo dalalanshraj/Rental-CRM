@@ -19,10 +19,10 @@ const activitySchema = new mongoose.Schema(
       default: "",
     },
 
-    dueDate: {
-      type: Date,
-      required: true,
-    },
+   dueDate: {
+  type: String,
+  required: true,
+},
 
     startTime: {
       type: String,

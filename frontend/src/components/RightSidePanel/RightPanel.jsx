@@ -756,66 +756,40 @@ const [historyOpen, setHistoryOpen] = useState(true);
   // ==========================================================
 
   const formatDate = (date) => {
+  if (!date) return "-";
 
-    if (!date) return "-";
+  // Date-only string: YYYY-MM-DD
+  const dateString = String(date).split("T")[0];
 
-    const d = new Date(date);
+  const [year, month, day] = dateString.split("-").map(Number);
 
-    const now = new Date();
+  const target = new Date(year, month - 1, day);
 
-    const today = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
+  const now = new Date();
 
-    const target = new Date(
-      d.getFullYear(),
-      d.getMonth(),
-      d.getDate()
-    );
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
 
-    const diff = Math.round(
-      (target - today) /
-      (1000 * 60 * 60 * 24)
-    );
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
 
-    if (diff === 0) {
+  if (target.getTime() === today.getTime()) {
+    return "Today";
+  }
 
-      return `Today at ${d.toLocaleTimeString(
-        "en-US",
-        {
-          hour: "numeric",
-          minute: "2-digit",
-        }
-      )}`;
+  if (target.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  }
 
-    }
-
-    if (diff === -1) {
-
-      return `Yesterday at ${d.toLocaleTimeString(
-        "en-US",
-        {
-          hour: "numeric",
-          minute: "2-digit",
-        }
-      )}`;
-
-    }
-
-    return d.toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }
-    );
-
-  };
+  return target.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 
   // ==========================================================

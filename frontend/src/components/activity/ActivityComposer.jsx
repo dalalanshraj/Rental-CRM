@@ -183,8 +183,8 @@ export default function ActivityComposer({
       type: editingActivity.type || "task",
 
       dueDate: editingActivity.dueDate
-  ? editingActivity.dueDate.split("T")[0]
-  : "",
+        ? editingActivity.dueDate.split("T")[0]
+        : "",
 
       startTime: editingActivity.startTime || "",
 
@@ -299,29 +299,27 @@ export default function ActivityComposer({
               Date
             </label>
 
-         <DatePicker
-  selected={
-    form.dueDate
-      ? new Date(`${form.dueDate}T00:00:00`)
-      : null
-  }
-  onChange={(date) => {
-    if (!date) {
-      updateField("dueDate", "");
-      return;
-    }
+            <DatePicker
+              selected={
+                form.dueDate ? new Date(`${form.dueDate}T00:00:00`) : null
+              }
+              onChange={(date) => {
+                if (!date) {
+                  updateField("dueDate", "");
+                  return;
+                }
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
 
-    updateField("dueDate", `${year}-${month}-${day}`);
-  }}
-  minDate={new Date()}
-  todayButton="Today"
-  dateFormat="dd MMM yyyy"
-  placeholderText="Select date"
-  className="
+                updateField("dueDate", `${year}-${month}-${day}`);
+              }}
+              minDate={new Date()}
+              todayButton="Today"
+              dateFormat="dd MMM yyyy"
+              placeholderText="Select date"
+              className="
     w-full
     border
     border-gray-300
@@ -335,8 +333,8 @@ export default function ActivityComposer({
     focus:ring-blue-100
     cursor-pointer
   "
-  calendarClassName="activity-datepicker"
-/>
+              calendarClassName="activity-datepicker"
+            />
           </div>
 
           {/* =================================================
@@ -583,7 +581,7 @@ export default function ActivityComposer({
             </p>
           </div>
         </div>
-         <div className="flex justify-end gap-3 mt-5">
+        <div className="flex justify-end gap-3 mt-5">
           <button
             type="button"
             onClick={handleCancel}
