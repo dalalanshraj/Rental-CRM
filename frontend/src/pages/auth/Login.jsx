@@ -225,13 +225,13 @@ export default function Login() {
 
           {/* LOGO */}
 
-          <div className="relative z-10">
+          <div className="relative z-10   ">
 
             <img
               src="/Logo.png"
               alt="Digify America CRM"
               className="
-                w-[150px]
+                w-[150px] bg-white rounded-md
                 h-auto
                 object-contain
               "

@@ -74,7 +74,7 @@ export default function Register() {
       setError(
         err.response?.data?.msg ||
           err.response?.data?.message ||
-          "Unable to create account. Please try again."
+          "Unable to create account. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -190,25 +190,21 @@ export default function Register() {
 
           {/* LOGO */}
 
-        <div className="relative z-10">
-
+          <div className="relative z-10">
             <img
               src="/Logo.png"
               alt="Digify America CRM"
               className="
-                w-[150px]
+                w-[150px] bg-white rounded-md
                 h-auto
                 object-contain
               "
             />
-
           </div>
-
 
           {/* CONTENT */}
 
           <div className="relative z-10">
-
             <span
               className="
                 inline-flex
@@ -251,16 +247,14 @@ export default function Register() {
                 max-w-[280px]
               "
             >
-              Manage your customers, leads and sales
-              activities from one powerful CRM workspace.
+              Manage your customers, leads and sales activities from one
+              powerful CRM workspace.
             </p>
 
             {/* FEATURES */}
 
             <div className="mt-6 space-y-3">
-
               <div className="flex items-center gap-2.5">
-
                 <div
                   className="
                     w-8
@@ -275,14 +269,10 @@ export default function Register() {
                   <Users size={15} />
                 </div>
 
-                <span className="text-xs text-white/80">
-                  Manage customers
-                </span>
-
+                <span className="text-xs text-white/80">Manage customers</span>
               </div>
 
               <div className="flex items-center gap-2.5">
-
                 <div
                   className="
                     w-8
@@ -300,11 +290,9 @@ export default function Register() {
                 <span className="text-xs text-white/80">
                   Track your pipeline
                 </span>
-
               </div>
 
               <div className="flex items-center gap-2.5">
-
                 <div
                   className="
                     w-8
@@ -319,31 +307,20 @@ export default function Register() {
                   <ShieldCheck size={15} />
                 </div>
 
-                <span className="text-xs text-white/80">
-                  Secure workspace
-                </span>
-
+                <span className="text-xs text-white/80">Secure workspace</span>
               </div>
-
             </div>
-
           </div>
 
           {/* FOOTER */}
 
           <div className="relative z-10 flex items-center gap-2">
-
-            <CheckCircle2
-              size={13}
-              className="text-white/50"
-            />
+            <CheckCircle2 size={13} className="text-white/50" />
 
             <span className="text-[10px] text-white/45">
               Simple. Powerful. Organized.
             </span>
-
           </div>
-
         </div>
 
         {/* =========================================
@@ -362,25 +339,20 @@ export default function Register() {
             sm:py-8
           "
         >
-
           <div className="w-full max-w-[350px]">
-
             {/* MOBILE LOGO */}
 
             <div className="md:hidden flex justify-center mb-5">
-
               <img
                 src="/Logo.png"
                 alt="Digify America CRM"
                 className="w-[165px] h-auto object-contain"
               />
-
             </div>
 
             {/* HEADING */}
 
             <div className="mb-5">
-
               <div
                 className="
                   flex
@@ -389,7 +361,6 @@ export default function Register() {
                   mb-1.5
                 "
               >
-
                 <span
                   className="
                     w-1.5
@@ -410,7 +381,6 @@ export default function Register() {
                 >
                   Get Started
                 </span>
-
               </div>
 
               <h2
@@ -427,13 +397,11 @@ export default function Register() {
               <p className="text-xs text-gray-400 mt-1">
                 Set up your CRM workspace in a few seconds.
               </p>
-
             </div>
 
             {/* ERROR */}
 
             {error && (
-
               <div
                 className="
                   mb-4
@@ -449,15 +417,12 @@ export default function Register() {
               >
                 {error}
               </div>
-
             )}
 
             <form onSubmit={handleSubmit}>
-
               {/* NAME */}
 
               <div className="mb-3.5">
-
                 <label
                   htmlFor="name"
                   className="
@@ -472,7 +437,6 @@ export default function Register() {
                 </label>
 
                 <div className="relative">
-
                   <User
                     size={16}
                     className="
@@ -511,15 +475,12 @@ export default function Register() {
                       focus:ring-indigo-500/10
                     "
                   />
-
                 </div>
-
               </div>
 
               {/* EMAIL */}
 
               <div className="mb-3.5">
-
                 <label
                   htmlFor="email"
                   className="
@@ -534,7 +495,6 @@ export default function Register() {
                 </label>
 
                 <div className="relative">
-
                   <Mail
                     size={16}
                     className="
@@ -573,15 +533,12 @@ export default function Register() {
                       focus:ring-indigo-500/10
                     "
                   />
-
                 </div>
-
               </div>
 
               {/* PASSWORD */}
 
               <div className="mb-3.5">
-
                 <label
                   htmlFor="password"
                   className="
@@ -596,7 +553,6 @@ export default function Register() {
                 </label>
 
                 <div className="relative">
-
                   <Lock
                     size={16}
                     className="
@@ -610,11 +566,7 @@ export default function Register() {
 
                   <input
                     id="password"
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={form.password}
                     onChange={handleChange}
@@ -642,11 +594,7 @@ export default function Register() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowPassword(
-                        (prev) => !prev
-                      )
-                    }
+                    onClick={() => setShowPassword((prev) => !prev)}
                     className="
                       absolute
                       right-2.5
@@ -662,25 +610,18 @@ export default function Register() {
                       hover:bg-gray-100
                     "
                   >
-                    {showPassword ? (
-                      <EyeOff size={15} />
-                    ) : (
-                      <Eye size={15} />
-                    )}
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
-
                 </div>
 
                 <p className="text-[10px] text-gray-400 mt-1">
                   Minimum 6 characters.
                 </p>
-
               </div>
 
               {/* ROLE */}
 
               <div className="mb-5">
-
                 <label
                   htmlFor="role"
                   className="
@@ -695,7 +636,6 @@ export default function Register() {
                 </label>
 
                 <div className="relative">
-
                   <ShieldCheck
                     size={16}
                     className="
@@ -732,13 +672,9 @@ export default function Register() {
                       focus:ring-indigo-500/10
                     "
                   >
-                    <option value="sales">
-                      Sales
-                    </option>
+                    <option value="sales">Sales</option>
 
-                    <option value="admin">
-                      Admin
-                    </option>
+                    <option value="admin">Admin</option>
                   </select>
 
                   <span
@@ -754,9 +690,7 @@ export default function Register() {
                   >
                     ▾
                   </span>
-
                 </div>
-
               </div>
 
               {/* BUTTON */}
@@ -789,7 +723,6 @@ export default function Register() {
                   disabled:cursor-not-allowed
                 "
               >
-
                 {loading ? (
                   <>
                     <span
@@ -803,13 +736,11 @@ export default function Register() {
                         animate-spin
                       "
                     />
-
                     Creating account...
                   </>
                 ) : (
                   <>
                     Create account
-
                     <ArrowRight
                       size={15}
                       className="
@@ -819,9 +750,7 @@ export default function Register() {
                     />
                   </>
                 )}
-
               </button>
-
             </form>
 
             {/* LOGIN */}
@@ -835,11 +764,8 @@ export default function Register() {
                 text-center
               "
             >
-
               <p className="text-xs text-gray-400">
-
                 Already have an account?
-
                 <button
                   type="button"
                   onClick={() => navigate("/")}
@@ -852,9 +778,7 @@ export default function Register() {
                 >
                   Sign in
                 </button>
-
               </p>
-
             </div>
 
             {/* SECURITY */}
@@ -870,19 +794,12 @@ export default function Register() {
                 text-gray-400
               "
             >
-
               <ShieldCheck size={12} />
 
-              <span>
-                Secure CRM workspace
-              </span>
-
+              <span>Secure CRM workspace</span>
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
