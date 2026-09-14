@@ -183,8 +183,8 @@ export default function ActivityComposer({
       type: editingActivity.type || "task",
 
       dueDate: editingActivity.dueDate
-        ? new Date(editingActivity.dueDate).toISOString().split("T")[0]
-        : "",
+  ? editingActivity.dueDate.split("T")[0]
+  : "",
 
       startTime: editingActivity.startTime || "",
 
@@ -299,29 +299,44 @@ export default function ActivityComposer({
               Date
             </label>
 
-            <DatePicker
-              selected={form.dueDate ? new Date(form.dueDate) : null}
-              onChange={(date) => updateField("dueDate", date)}
-              minDate={new Date()}
-              todayButton="Today"
-              dateFormat="dd MMM yyyy"
-              placeholderText="Select date"
-              className="
-        w-full
-        border
-        border-gray-300
-        rounded-xl
-        px-20
-        py-3
-        text-gray-800
-        outline-none
-        focus:border-blue-500
-        focus:ring-2
-        focus:ring-blue-100
-        cursor-pointer
-      "
-              calendarClassName="activity-datepicker"
-            />
+         <DatePicker
+  selected={
+    form.dueDate
+      ? new Date(`${form.dueDate}T00:00:00`)
+      : null
+  }
+  onChange={(date) => {
+    if (!date) {
+      updateField("dueDate", "");
+      return;
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    updateField("dueDate", `${year}-${month}-${day}`);
+  }}
+  minDate={new Date()}
+  todayButton="Today"
+  dateFormat="dd MMM yyyy"
+  placeholderText="Select date"
+  className="
+    w-full
+    border
+    border-gray-300
+    rounded-xl
+    px-20
+    py-3
+    text-gray-800
+    outline-none
+    focus:border-blue-500
+    focus:ring-2
+    focus:ring-blue-100
+    cursor-pointer
+  "
+  calendarClassName="activity-datepicker"
+/>
           </div>
 
           {/* =================================================
