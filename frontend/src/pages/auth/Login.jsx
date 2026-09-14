@@ -856,7 +856,7 @@ export default function Login() {
               "
             >
 
-              <p className="text-xs text-gray-400">
+              {/* <p className="text-xs text-gray-400">
 
                 Don't have an account?
 
@@ -876,7 +876,7 @@ export default function Login() {
                   Create account
                 </button>
 
-              </p>
+              </p> */}
 
             </div>
 

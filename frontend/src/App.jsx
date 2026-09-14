@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // AUTH
 import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+// import Register from "./pages/auth/Register";
 
 // DASHBOARD
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -23,7 +23,7 @@ export default function App() {
       <Routes>
         {/* AUTH */}
         <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* <Route path="/register" element={<Register />} /> */}
 
         {/* DASHBOARD */}
         <Route
