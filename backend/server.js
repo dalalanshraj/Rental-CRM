@@ -15,6 +15,7 @@ import noteRoutes from "./routes/noteRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import exportRoutes from "./routes/exportRoutes.js";
 const app = express();
 
 const MONGO = process.env.MONGODB_URI;
@@ -77,6 +78,7 @@ app.use( "/api/notes", noteRoutes );
 app.use( "/api/activities", activityRoutes );
 app.use("/api/search", searchRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/export", exportRoutes);
 
 // =========================================
 // MONGODB

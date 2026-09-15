@@ -1,4 +1,4 @@
- import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
@@ -39,30 +39,25 @@ export default function Leads() {
   // FETCH LEADS
   // ==========================================
 
-const fetchLeads = async (userId = "") => {
-  try {
-    const params = {};
+  const fetchLeads = async (userId = "") => {
+    try {
+      const params = {};
 
-    // Specific user selected
-    if (userId && userId !== "all") {
-      params.userId = userId;
+      // Specific user selected
+      if (userId && userId !== "all") {
+        params.userId = userId;
+      }
+
+      const res = await api.get("/leads", {
+        params,
+      });
+
+      setLeads(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Failed to fetch leads:", error);
+      setLeads([]);
     }
-
-    const res = await api.get("/leads", {
-      params,
-    });
-
-    setLeads(
-      Array.isArray(res.data)
-        ? res.data
-        : []
-    );
-
-  } catch (error) {
-    console.error("Failed to fetch leads:", error);
-    setLeads([]);
-  }
-};
+  };
 
   // ==========================================
   // INITIAL LOAD
@@ -71,8 +66,7 @@ const fetchLeads = async (userId = "") => {
   useEffect(() => {
     fetchUsers();
 
-    const userId =
-      localStorage.getItem("userId");
+    const userId = localStorage.getItem("userId");
 
     if (userId) {
       setSelectedUser(userId);
@@ -86,18 +80,18 @@ const fetchLeads = async (userId = "") => {
   // USER CHANGE
   // ==========================================
 
- const handleUserChange = (e) => {
-  const value = e.target.value;
+  const handleUserChange = (e) => {
+    const value = e.target.value;
 
-  if (value === "all") {
-    setSelectedUser("");
-    fetchLeads("");
-    return;
-  }
+    if (value === "all") {
+      setSelectedUser("");
+      fetchLeads("");
+      return;
+    }
 
-  setSelectedUser(value);
-  fetchLeads(value);
-};
+    setSelectedUser(value);
+    fetchLeads(value);
+  };
 
   // ==========================================
   // FILTER
@@ -108,31 +102,21 @@ const fetchLeads = async (userId = "") => {
 
     if (!text) return true;
 
-    const name =
-      lead.name?.toLowerCase() || "";
+    const name = lead.name?.toLowerCase() || "";
 
-    const organization =
-      lead.organization?.name?.toLowerCase() || "";
+    const organization = lead.organization?.name?.toLowerCase() || "";
 
-    const email =
-      lead.email?.[0]?.address?.toLowerCase() || "";
+    const email = lead.email?.[0]?.address?.toLowerCase() || "";
 
-    const phone =
-      String(
-        lead.phone?.[0]?.number || ""
-      ).toLowerCase();
+    const phone = String(lead.phone?.[0]?.number || "").toLowerCase();
 
-    const title =
-      lead.title?.toLowerCase() || "";
+    const title = lead.title?.toLowerCase() || "";
 
-    const website =
-      lead.website?.toLowerCase() || "";
+    const website = lead.website?.toLowerCase() || "";
 
-    const instagram =
-      lead.instagram?.toLowerCase() || "";
+    const instagram = lead.instagram?.toLowerCase() || "";
 
-    const facebook =
-      lead.facebook?.toLowerCase() || "";
+    const facebook = lead.facebook?.toLowerCase() || "";
 
     return (
       name.includes(text) ||
@@ -153,25 +137,19 @@ const fetchLeads = async (userId = "") => {
   const getInitial = (name) => {
     if (!name) return "?";
 
-    return name
-      .trim()
-      .charAt(0)
-      .toUpperCase();
+    return name.trim().charAt(0).toUpperCase();
   };
 
   return (
     <div className="w-full">
-
       {/* ======================================
           HEADER
       ======================================= */}
 
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mt-25">
-
         {/* LEFT */}
         <div>
           <div className="flex items-center gap-3">
-
             <div
               className="
                 w-11
@@ -188,20 +166,16 @@ const fetchLeads = async (userId = "") => {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
-                People
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-800">People</h1>
 
               <p className="text-sm text-gray-400 mt-0.5">
                 Manage and view all your leads
               </p>
             </div>
-
           </div>
 
           {/* COUNT */}
           <div className="mt-3 flex items-center gap-2">
-
             <span
               className="
                 px-2.5
@@ -217,22 +191,18 @@ const fetchLeads = async (userId = "") => {
             </span>
 
             {search && (
-              <span className="text-xs text-gray-400">
-                matching "{search}"
-              </span>
+              <span className="text-xs text-gray-400">matching "{search}"</span>
             )}
-
           </div>
         </div>
 
         {/* RIGHT CONTROLS */}
         <div className="flex flex-col sm:flex-row gap-3">
-
           {/* USER FILTER */}
-         <select
-  value={selectedUser || "all"}
-  onChange={handleUserChange}
-  className="
+          <select
+            value={selectedUser || "all"}
+            onChange={handleUserChange}
+            className="
     h-11
     min-w-[180px]
     appearance-none
@@ -254,24 +224,18 @@ const fetchLeads = async (userId = "") => {
     focus:ring-indigo-500/10
     shadow-sm
   "
->
-  <option value="all">
-    All Users
-  </option>
+          >
+            <option value="all">All Users</option>
 
-  {users.map((u) => (
-    <option
-      key={u._id}
-      value={u._id}
-    >
-      {u.name}
-    </option>
-  ))}
-</select>
+            {users.map((u) => (
+              <option key={u._id} value={u._id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
           {/* SEARCH */}
           <div className="relative">
-
             <FiSearch
               size={18}
               className="
@@ -288,9 +252,7 @@ const fetchLeads = async (userId = "") => {
               type="text"
               placeholder="Search leads..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
+              onChange={(e) => setSearch(e.target.value)}
               className="
                 h-11
                 w-full
@@ -314,11 +276,8 @@ const fetchLeads = async (userId = "") => {
                 shadow-sm
               "
             />
-
           </div>
-
         </div>
-
       </div>
 
       {/* ======================================
@@ -335,7 +294,6 @@ const fetchLeads = async (userId = "") => {
           overflow-hidden
         "
       >
-
         {/* TABLE TOP BAR */}
 
         <div
@@ -349,7 +307,6 @@ const fetchLeads = async (userId = "") => {
             justify-between
           "
         >
-
           <div>
             <h2 className="text-sm font-semibold text-gray-800">
               Lead Directory
@@ -377,10 +334,8 @@ const fetchLeads = async (userId = "") => {
                 bg-emerald-500
               "
             />
-
             {filteredLeads.length} results
           </div>
-
         </div>
 
         {/* ======================================
@@ -388,9 +343,7 @@ const fetchLeads = async (userId = "") => {
         ======================================= */}
 
         <div className="overflow-x-auto">
-
           <table className="w-full text-sm">
-
             {/* HEAD */}
 
             <thead>
@@ -401,7 +354,6 @@ const fetchLeads = async (userId = "") => {
                   border-gray-100
                 "
               >
-
                 <th className="text-left px-5 py-3.5">
                   <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
                     Name
@@ -433,25 +385,18 @@ const fetchLeads = async (userId = "") => {
                 </th>
 
                 <th className="w-12" />
-
               </tr>
             </thead>
 
             {/* BODY */}
 
             <tbody>
-
               {loading ? (
-
                 /* LOADING */
 
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="py-16"
-                  >
+                  <td colSpan="6" className="py-16">
                     <div className="flex flex-col items-center justify-center">
-
                       <div
                         className="
                           w-8
@@ -467,22 +412,14 @@ const fetchLeads = async (userId = "") => {
                       <p className="mt-3 text-sm text-gray-400">
                         Loading leads...
                       </p>
-
                     </div>
                   </td>
                 </tr>
-
               ) : filteredLeads.length > 0 ? (
-
                 filteredLeads.map((lead) => (
-
                   <tr
                     key={lead._id}
-                    onClick={() =>
-                      navigate(
-                        `/app/leads/${lead._id}`
-                      )
-                    }
+                    onClick={() => navigate(`/app/leads/${lead._id}`)}
                     className="
                       group
                       border-b
@@ -494,17 +431,11 @@ const fetchLeads = async (userId = "") => {
                       duration-200
                     "
                   >
-
                     {/* NAME */}
 
                     <td className="px-5 py-4">
-
                       <div className="flex items-center gap-3">
-
-                       
-
                         <div className="min-w-0">
-
                           <p
                             className="
                               font-semibold
@@ -522,19 +453,14 @@ const fetchLeads = async (userId = "") => {
                               {lead.title}
                             </p>
                           )}
-
                         </div>
-
                       </div>
-
                     </td>
 
                     {/* ORGANIZATION */}
 
                     <td className="px-5 py-4">
-
                       <div className="flex items-center gap-2">
-
                         <div
                           className="
                             w-8
@@ -548,9 +474,7 @@ const fetchLeads = async (userId = "") => {
                             flex-shrink-0
                           "
                         >
-                          <HiOutlineBuildingOffice2
-                            size={20}
-                          />
+                          <HiOutlineBuildingOffice2 size={20} />
                         </div>
 
                         <span
@@ -560,21 +484,16 @@ const fetchLeads = async (userId = "") => {
                             max-w-[180px]
                           "
                         >
-                          {lead.organization?.name ||
-                            "—"}
+                          {lead.organization?.name || "—"}
                         </span>
-
                       </div>
-
                     </td>
 
                     {/* EMAIL */}
 
                     <td className="px-5 py-4">
-
                       {lead.email?.[0]?.address ? (
                         <div className="flex items-center gap-2">
-
                           <FiMail
                             size={15}
                             className="text-gray-400 flex-shrink-0"
@@ -589,47 +508,32 @@ const fetchLeads = async (userId = "") => {
                           >
                             {lead.email[0].address}
                           </span>
-
                         </div>
                       ) : (
-                        <span className="text-gray-300">
-                          —
-                        </span>
+                        <span className="text-gray-300">—</span>
                       )}
-
                     </td>
 
                     {/* PHONE */}
 
                     <td className="px-5 py-4">
-
                       {lead.phone?.[0]?.number ? (
                         <div className="flex items-center gap-2">
-
-                          <FiPhone
-                            size={15}
-                            className="text-gray-400"
-                          />
+                          <FiPhone size={15} className="text-gray-400" />
 
                           <span className="text-gray-600">
                             {lead.phone[0].number}
                           </span>
-
                         </div>
                       ) : (
-                        <span className="text-gray-300">
-                          —
-                        </span>
+                        <span className="text-gray-300">—</span>
                       )}
-
                     </td>
 
                     {/* OWNER */}
 
                     <td className="px-5 py-4">
-
                       <div className="flex items-center gap-2">
-
                         <div
                           className="
                             w-8
@@ -644,23 +548,18 @@ const fetchLeads = async (userId = "") => {
                             font-semibold
                           "
                         >
-                          {getInitial(
-                            lead.owner?.name
-                          )}
+                          {getInitial(lead.owner?.name)}
                         </div>
 
                         <span className="text-gray-600">
                           {lead.owner?.name || "—"}
                         </span>
-
                       </div>
-
                     </td>
 
                     {/* ARROW */}
 
                     <td className="px-4">
-
                       <div
                         className="
                           w-8
@@ -677,25 +576,15 @@ const fetchLeads = async (userId = "") => {
                       >
                         <FiChevronRight size={18} />
                       </div>
-
                     </td>
-
                   </tr>
-
                 ))
-
               ) : (
-
                 /* EMPTY STATE */
 
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="py-16"
-                  >
-
+                  <td colSpan="6" className="py-16">
                     <div className="flex flex-col items-center justify-center">
-
                       <div
                         className="
                           w-14
@@ -724,9 +613,7 @@ const fetchLeads = async (userId = "") => {
                       {search && (
                         <button
                           type="button"
-                          onClick={() =>
-                            setSearch("")
-                          }
+                          onClick={() => setSearch("")}
                           className="
                             mt-4
                             px-4
@@ -743,22 +630,14 @@ const fetchLeads = async (userId = "") => {
                           Clear Search
                         </button>
                       )}
-
                     </div>
-
                   </td>
                 </tr>
-
               )}
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
-
     </div>
   );
 }

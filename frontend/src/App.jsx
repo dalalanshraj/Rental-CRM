@@ -16,6 +16,7 @@ import Organizations from "./pages/dashboard/OrganizationsTable";
 import OrganizationDetails from "./pages/dashboard/OrganizationDetails";
 import Activities from "./pages/dashboard/Activities";
 import PersonalPreferences from "./pages/PersonalPreferences";
+import Settings from "./pages/Settings";
 
 export default function App() {
   return (
@@ -102,6 +103,16 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/settings"
+  element={
+    <ProtectedRoute>
+      <MainLayout>
+        <Settings />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

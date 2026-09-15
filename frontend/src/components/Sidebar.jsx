@@ -3,9 +3,20 @@ import { MdOutlineDashboard } from "react-icons/md";
 import { IoPeopleOutline } from "react-icons/io5";
 import { FaRegCalendarCheck } from "react-icons/fa";
 import { RiContactsBook3Line } from "react-icons/ri";
+import { IoSettingsOutline } from "react-icons/io5";
+import { useState } from "react";
 
 export default function Sidebar() {
+  const [sales, setSale] = useState(() => {
+    const savedSales = localStorage.getItem("sales");
+    return savedSales ? JSON.parse(savedSales) : null;
+  });
   const { pathname } = useLocation();
+
+  const role = localStorage.getItem("role")?.toLowerCase();
+
+console.log("ROLE:", role);
+
 
   const menu = [
     {
@@ -28,26 +39,34 @@ export default function Sidebar() {
       label: "Organizations",
       path: "/app/organizations",
     },
+
+     ...(role === "admin"
+  ? [
+      {
+        icon: <IoSettingsOutline size={25} />,
+        label: "Settings",
+        path: "/settings",
+      },
+    ]
+  : []),
   ];
 
   return (
- <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-white">
+    <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-white">
+      {/* LOGO */}
+      <div className="relative w-[82px] h-[105px] flex items-center justify-start overflow-visible">
+        <img
+          src="/Logo.png"
+          alt="Digify America CRM"
+          className="w-[120px] h-auto max-w-none object-contain -ml-[0px]"
+        />
+      </div>
 
-  {/* LOGO */}
-  <div className="relative w-[82px] h-[105px] flex items-center justify-start overflow-visible">
-  <img
-    src="/Logo.png"
-    alt="Digify America CRM"
-    className="w-[120px] h-auto max-w-none object-contain -ml-[0px]"
-  />
-</div>
-
-  {/* MENU */}
-  <ul className="flex flex-col items-center gap-4 px-3">
+      {/* MENU */}
+      <ul className="flex flex-col items-center gap-4 px-3">
         {menu.map((item) => {
           const isActive =
-            pathname === item.path ||
-            pathname.startsWith(`${item.path}/`);
+            pathname === item.path || pathname.startsWith(`${item.path}/`);
 
           return (
             <li key={item.path} className="w-full">
