@@ -10,8 +10,8 @@ export const globalSearch = async (req, res) => {
       return res.json([]);
     }
 
-    const regex = new RegExp(search, "i");
-
+   const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const regex = new RegExp(escapedSearch, "i");
     // =====================================================
     // 1. FIND MATCHING ORGANIZATIONS
     // =====================================================

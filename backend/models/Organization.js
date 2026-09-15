@@ -183,6 +183,13 @@ const OrganizationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+OrganizationSchema.index({ owner: 1, createdAt: -1 });
+OrganizationSchema.index({ name: 1 });
+OrganizationSchema.index({ website: 1 });
+OrganizationSchema.index({ email: 1 });
+OrganizationSchema.index({ phone: 1 });
+OrganizationSchema.index({ listingId: 1 });
+OrganizationSchema.index({ pmsUsed: 1 });
 
 export default mongoose.model(
   "Organization",

@@ -108,5 +108,14 @@ const leadSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
+leadSchema.index({ owner: 1, createdAt: -1 });
+leadSchema.index({ organization: 1 });
+leadSchema.index({ name: 1 });
+leadSchema.index({ title: 1 });
+leadSchema.index({ "email.address": 1 });
+leadSchema.index({ "phone.number": 1 });
+leadSchema.index({ website: 1 });
+leadSchema.index({ instagram: 1 });
+leadSchema.index({ facebook: 1 });
+leadSchema.index({ status: 1 });
 export default mongoose.model("Lead", leadSchema);
