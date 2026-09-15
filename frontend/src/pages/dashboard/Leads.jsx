@@ -166,7 +166,7 @@ const fetchLeads = async (userId = "") => {
           HEADER
       ======================================= */}
 
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mt-25">
 
         {/* LEFT */}
         <div>

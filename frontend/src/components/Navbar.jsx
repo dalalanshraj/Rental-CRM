@@ -196,9 +196,12 @@ const [userEmail, setUserEmail] = useState(
   return (
     <div
   className="
-    relative
+    fixed
+    top-0
+    right-0
+    z-40
     h-[90px]
-    w-full
+    w-[calc(100%-82px)]
     bg-white
     border-b
     border-gray-200

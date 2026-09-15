@@ -195,6 +195,7 @@ export default function OrganizationDetails() {
         flex-col
         bg-[#f6f7fb]
         overflow-hidden
+        mt-20
       "
     >
       {/* =====================================================

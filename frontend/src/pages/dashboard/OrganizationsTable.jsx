@@ -138,7 +138,7 @@ export default function Organizations() {
         min-h-screen
         bg-[#f7f8fc]
         p-5
-        md:p-6
+        md:p-6 mt-20
       "
     >
       {/* =====================================
@@ -163,13 +163,13 @@ export default function Organizations() {
             className="
               w-11
               h-11
-              rounded-2xl
-              bg-indigo-50
+          
+               
               text-indigo-600
               flex
               items-center
               justify-center
-              shadow-sm
+               
             "
           >
             <HiOutlineBuildingOffice2 size={30} />

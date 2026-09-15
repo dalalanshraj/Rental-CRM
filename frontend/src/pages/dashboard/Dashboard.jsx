@@ -215,7 +215,7 @@ export default function Dashboard() {
   // =========================================
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 sm:p-6 lg:p-8 mt-20">
       {/* =========================================
           HEADER
       ========================================= */}

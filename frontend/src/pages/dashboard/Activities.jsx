@@ -17,6 +17,7 @@ import {
   Building2,
   MoreHorizontal,
 } from "lucide-react";
+import { FaRegCalendarCheck } from "react-icons/fa";
 
 export default function Activities() {
   const navigate = useNavigate();
@@ -424,22 +425,43 @@ export default function Activities() {
   // =========================================================
 
   return (
-    <div className="w-full">
+    <div className="w-full mt-25">
       {/* =====================================================
           PAGE HEADER
       ====================================================== */}
 
       <div className=" flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-5 ">
         {/* TITLE */}
+   <div className="flex items-center gap-3">
 
-        <div>
-          <h1 className=" text-2xl font-semibold text-gray-800 ">Activities</h1>
+            <div
+              className="
+                w-11
+                h-11
+                rounded-xl
+                bg-indigo-50
+                text-[#4B49AC]
+                flex
+                items-center
+                justify-center
+              "
+            >
+              <FaRegCalendarCheck size={22} />
+            </div>
 
-          <p className=" text-sm text-gray-500 mt-1 ">
-            Manage activities across your team
-          </p>
-        </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">
+               Activities
+              </h1>
 
+              <p className="text-sm text-gray-400 mt-0.5">
+                Manage activities across your team
+              </p>
+            </div>
+
+          </div>
+
+        
         {/* SEARCH + USER */}
 
         <div className=" flex flex-col sm:flex-row gap-3 w-full xl:w-auto ">

@@ -31,14 +31,14 @@ export default function Sidebar() {
   ];
 
   return (
-  <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-white  ">
+ <aside className="fixed top-0 left-0 z-50 w-[82px] h-screen bg-white">
 
   {/* LOGO */}
-  <div className="relative w-[89px] h-[90px] flex items-center justify-center">
+  <div className="relative w-[82px] h-[105px] flex items-center justify-start overflow-visible">
   <img
     src="/Logo.png"
     alt="Digify America CRM"
-    className="ab w-[72px] h-[72px] object-contain"
+    className="w-[120px] h-auto max-w-none object-contain -ml-[0px]"
   />
 </div>
 
