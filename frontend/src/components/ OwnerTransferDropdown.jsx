@@ -92,14 +92,14 @@ export default function OwnerTransferDropdown({
         {owner?.name}
       </p>
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-black">
         Lead Owner
       </p>
     </div>
 
     <ChevronDown
       size={18}
-      className={`text-gray-500 transition-all duration-300 ${
+      className={`text-black transition-all duration-300 ${
         showDropdown ? "rotate-180" : ""
       }`}
     />
@@ -182,7 +182,7 @@ export default function OwnerTransferDropdown({
                 {user.name}
               </p>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-black">
                 Team Member
               </p>
             </div>

@@ -28,6 +28,7 @@ import {
   Check,
   UserRound,
 } from "lucide-react";
+import AddLeadModal from "../../components/AddLeadModal";
 
 export default function OrganizationDetails() {
   const { id } = useParams();
@@ -43,6 +44,8 @@ export default function OrganizationDetails() {
 
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [leadSearch, setLeadSearch] = useState("");
+
+  const [showAddLeadModal, setShowAddLeadModal] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [linking, setLinking] = useState(false);
@@ -99,7 +102,7 @@ export default function OrganizationDetails() {
       setLinking(true);
 
       await api.put(`/organizations/${organization._id}/add-lead`, {
-        leadId: selectedLead,
+        leadId: String(selectedLead),
       });
 
       setSelectedLead("");
@@ -108,7 +111,7 @@ export default function OrganizationDetails() {
 
       await fetchOrganization();
     } catch (err) {
-      console.log(err);
+      console.error("LINK LEAD ERROR:", err.response?.data || err.message);
     } finally {
       setLinking(false);
     }
@@ -133,34 +136,55 @@ export default function OrganizationDetails() {
   // ==========================================
   // FILTER PEOPLE
   // ==========================================
+  // ==========================================
+  // FILTER PEOPLE
+  // ==========================================
 
-  const linkedLeadIds = organization?.leads?.map((lead) => lead._id) || [];
+  const searchText = leadSearch.trim().toLowerCase();
 
-  const filteredLeads = availableLeads.filter((lead) => {
-    const text = leadSearch.trim().toLowerCase();
+  const linkedLeadIds =
+    organization?.leads?.map((lead) => String(lead._id)) || [];
 
-    const alreadyLinked = linkedLeadIds.includes(lead._id);
+  const filteredLeads = searchText
+    ? availableLeads.filter((lead) => {
+        const leadId = String(lead._id);
 
-    if (alreadyLinked) return false;
+        // Already linked lead ko dobara show mat karo
+        if (linkedLeadIds.includes(leadId)) {
+          return false;
+        }
 
-    if (!text) return true;
+        const name = String(lead.name || "").toLowerCase();
 
-    const name = lead.name?.toLowerCase() || "";
+        const email = String(lead.email?.[0]?.address || "").toLowerCase();
 
-    const email = lead.email?.[0]?.address?.toLowerCase() || "";
+        const phone = String(lead.phone?.[0]?.number || "").toLowerCase();
 
-    const phone = String(lead.phone?.[0]?.number || "").toLowerCase();
+        const title = String(lead.title || "").toLowerCase();
 
-    const title = lead.title?.toLowerCase() || "";
+        return (
+          name.includes(searchText) ||
+          email.includes(searchText) ||
+          phone.includes(searchText) ||
+          title.includes(searchText)
+        );
+      })
+    : [];
 
-    return (
-      name.includes(text) ||
-      email.includes(text) ||
-      phone.includes(text) ||
-      title.includes(text)
-    );
-  });
+  const handleNewContactCreated = async (createdLead) => {
+    const newLeadId =
+      createdLead?._id || createdLead?.lead?._id || createdLead?.data?._id;
 
+    if (!newLeadId) {
+      throw new Error("Lead ID not returned");
+    }
+
+    await api.put(`/organizations/${organization._id}/add-lead`, {
+      leadId: newLeadId,
+    });
+
+    await Promise.all([fetchOrganization(), fetchLeads()]);
+  };
   // ==========================================
   // LOADING
   // ==========================================
@@ -181,7 +205,7 @@ export default function OrganizationDetails() {
             "
           />
 
-          <p className="text-sm text-gray-500">Loading organization...</p>
+          <p className="text-sm text-black">Loading organization...</p>
         </div>
       </div>
     );
@@ -290,7 +314,7 @@ export default function OrganizationDetails() {
 
         <aside
           className="
-            w-[370px]
+            w-[400px]
             flex-shrink-0
             bg-white
             border-r
@@ -393,11 +417,10 @@ export default function OrganizationDetails() {
                   </div>
                 </div> */}
                 <div className="flex items-center gap-2">
-                  <MapPin size={19} className="text-gray-500" />
+                  <MapPin size={19} className="text-black" />
 
                   <div className="flex-1 min-w-0">
                     <EditableField
-                     
                       field="address"
                       value={organization.address}
                       itemId={organization._id}
@@ -492,7 +515,7 @@ export default function OrganizationDetails() {
                     border-gray-100
                   "
                 >
-                  <div className="space-y-3 text-sm">
+                  <div className="space-y-2 text-sm">
                     {/* NAME */}
 
                     <EditableField
@@ -510,6 +533,25 @@ export default function OrganizationDetails() {
                       label="Company Phone"
                       field="phone"
                       value={organization.phone}
+                      itemId={organization._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+                    <EditableField
+                      label="Company Email"
+                      field="email"
+                      value={organization?.email}
+                      itemId={organization?._id}
+                      endpoint="organizations"
+                      onUpdate={setOrganization}
+                    />
+
+                     {/* WEBSITE */}
+
+                    <EditableLinkField
+                      label="Website"
+                      field="website"
+                      value={organization.website}
                       itemId={organization._id}
                       endpoint="organizations"
                       onUpdate={setOrganization}
@@ -609,16 +651,7 @@ export default function OrganizationDetails() {
                       onUpdate={setOrganization}
                     />
 
-                    {/* WEBSITE */}
-
-                    <EditableLinkField
-                      label="Website"
-                      field="website"
-                      value={organization.website}
-                      itemId={organization._id}
-                      endpoint="organizations"
-                      onUpdate={setOrganization}
-                    />
+                   
                   </div>
                 </div>
               )}
@@ -1124,15 +1157,18 @@ export default function OrganizationDetails() {
         >
           <div
             className="
-              w-full
-              max-w-[560px]
-              bg-white
-              rounded-3xl
-              border
-              border-gray-200
-              shadow-[0_25px_80px_rgba(15,23,42,0.25)]
-              overflow-hidden
-            "
+    w-full
+    max-w-[560px]
+    max-h-[90vh]
+    bg-white
+    rounded-3xl
+    border
+    border-gray-200
+    shadow-[0_25px_80px_rgba(15,23,42,0.25)]
+    overflow-hidden
+    flex
+    flex-col
+  "
           >
             {/* MODAL HEADER */}
 
@@ -1265,7 +1301,10 @@ export default function OrganizationDetails() {
                 {leadSearch && (
                   <button
                     type="button"
-                    onClick={() => setLeadSearch("")}
+                    onClick={() => {
+                      setLeadSearch("");
+                      setSelectedLead("");
+                    }}
                     className="
                       text-xs
                       font-medium
@@ -1284,58 +1323,58 @@ export default function OrganizationDetails() {
             <div className="px-6 py-4">
               <div
                 className="
-                  max-h-[330px]
-                  overflow-y-auto
-                  space-y-2
-                  pr-1
-                  scrollbar-thin
-                  scrollbar-thumb-gray-200
-                "
+    space-y-2
+    pr-1
+  "
               >
+                {/* ==========================================
+        EXISTING MATCHING CONTACTS
+    ========================================== */}
+
                 {filteredLeads.length > 0 ? (
                   filteredLeads.map((lead) => {
-                    const selected = selectedLead === lead._id;
+                    const selected = String(selectedLead) === String(lead._id);
 
                     return (
                       <button
                         type="button"
                         key={lead._id}
-                        onClick={() => setSelectedLead(lead._id)}
+                        onClick={() => setSelectedLead(String(lead._id))}
                         className={`
-                          w-full
-                          flex
-                          items-center
-                          gap-3
-                          p-3
-                          rounded-2xl
-                          border
-                          text-left
-                          transition-all
-                          duration-200
-                          ${
-                            selected
-                              ? "border-indigo-300 bg-indigo-50"
-                              : "border-transparent hover:border-indigo-100 hover:bg-indigo-50/60"
-                          }
-                        `}
+              w-full
+              flex
+              items-center
+              gap-3
+              p-3
+              rounded-2xl
+              border
+              text-left
+              transition-all
+              duration-200
+              ${
+                selected
+                  ? "border-indigo-300 bg-indigo-50"
+                  : "border-transparent hover:border-indigo-100 hover:bg-indigo-50/60"
+              }
+            `}
                       >
                         {/* AVATAR */}
 
                         <div
                           className="
-                            w-11
-                            h-11
-                            rounded-xl
-                            bg-gradient-to-br
-                            from-indigo-500
-                            to-violet-500
-                            text-white
-                            flex
-                            items-center
-                            justify-center
-                            flex-shrink-0
-                            shadow-sm
-                          "
+                w-11
+                h-11
+                rounded-xl
+                bg-gradient-to-br
+                from-indigo-500
+                to-violet-500
+                text-white
+                flex
+                items-center
+                justify-center
+                flex-shrink-0
+                shadow-sm
+              "
                         >
                           <UserRound size={20} />
                         </div>
@@ -1345,31 +1384,31 @@ export default function OrganizationDetails() {
                         <div className="flex-1 min-w-0">
                           <p
                             className="
-                              text-sm
-                              font-semibold
-                              text-gray-800
-                              truncate
-                            "
+                  text-sm
+                  font-semibold
+                  text-gray-800
+                  truncate
+                "
                           >
                             {lead.name || "Unnamed Person"}
                           </p>
 
                           <div
                             className="
-                              flex
-                              items-center
-                              gap-2
-                              mt-1
-                            "
+                  flex
+                  items-center
+                  gap-2
+                  mt-1
+                "
                           >
                             {lead.title && (
                               <span
                                 className="
-                                  text-[11px]
-                                  text-gray-400
-                                  truncate
-                                  max-w-[140px]
-                                "
+                      text-[11px]
+                      text-gray-400
+                      truncate
+                      max-w-[140px]
+                    "
                               >
                                 {lead.title}
                               </span>
@@ -1383,11 +1422,11 @@ export default function OrganizationDetails() {
 
                                 <span
                                   className="
-                                    text-[11px]
-                                    text-gray-400
-                                    truncate
-                                    max-w-[180px]
-                                  "
+                        text-[11px]
+                        text-gray-400
+                        truncate
+                        max-w-[180px]
+                      "
                                 >
                                   {lead.email[0].address}
                                 </span>
@@ -1400,88 +1439,214 @@ export default function OrganizationDetails() {
 
                         <div
                           className={`
-                            w-8
-                            h-8
-                            rounded-lg
-                            flex
-                            items-center
-                            justify-center
-                            flex-shrink-0
-                            transition
-                            ${
-                              selected
-                                ? "bg-indigo-600 text-white"
-                                : "bg-gray-100 text-gray-300"
-                            }
-                          `}
+                w-8
+                h-8
+                rounded-lg
+                flex
+                items-center
+                justify-center
+                flex-shrink-0
+                ${
+                  selected
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-300"
+                }
+              `}
                         >
                           <Check size={16} />
                         </div>
                       </button>
                     );
                   })
-                ) : (
+                ) : searchText ? (
+                  /* ==========================================
+         NO MATCHING CONTACT
+      ========================================== */
+
                   <div
                     className="
-                      py-10
-                      text-center
-                    "
+          py-6
+          text-center
+        "
                   >
                     <div
                       className="
-                        mx-auto
-                        w-14
-                        h-14
-                        rounded-2xl
-                        bg-gray-100
-                        text-gray-400
-                        flex
-                        items-center
-                        justify-center
-                      "
+            mx-auto
+            w-12
+            h-12
+            rounded-xl
+            bg-gray-100
+            text-gray-400
+            flex
+            items-center
+            justify-center
+          "
                     >
-                      <UserRound size={25} />
+                      <UserRound size={22} />
                     </div>
-
-                    <h3
-                      className="
-                        mt-4
-                        text-sm
-                        font-semibold
-                        text-gray-700
-                      "
-                    >
-                      No people found
-                    </h3>
 
                     <p
                       className="
-                        text-xs
-                        text-gray-400
-                        mt-1
-                      "
+            mt-3
+            text-sm
+            font-semibold
+            text-gray-700
+          "
                     >
-                      Try another search term.
+                      No contact found
+                    </p>
+
+                    <p
+                      className="
+            mt-1
+            text-xs
+            text-gray-400
+          "
+                    >
+                      No existing contact matches "{leadSearch.trim()}".
+                    </p>
+                  </div>
+                ) : (
+                  /* ==========================================
+         NO SEARCH
+      ========================================== */
+
+                  <div
+                    className="
+          py-8
+          text-center
+        "
+                  >
+                    <div
+                      className="
+            mx-auto
+            w-12
+            h-12
+            rounded-xl
+            bg-gray-100
+            text-gray-400
+            flex
+            items-center
+            justify-center
+          "
+                    >
+                      <UserRound size={22} />
+                    </div>
+
+                    <p
+                      className="
+            mt-3
+            text-sm
+            font-semibold
+            text-gray-700
+          "
+                    >
+                      Search for a contact
+                    </p>
+
+                    <p
+                      className="
+            mt-1
+            text-xs
+            text-gray-400
+          "
+                    >
+                      Start typing a name to find a contact.
                     </p>
                   </div>
                 )}
+
+                {/* ==========================================
+        ALWAYS SHOW ADD BUTTON WHEN SEARCHING
+    ========================================== */}
+
+                {searchText && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowLeadModal(false);
+                      setShowAddLeadModal(true);
+                    }}
+                    className="
+          w-full
+          mt-3
+          p-3
+          rounded-2xl
+          border
+          border-dashed
+          border-indigo-200
+          bg-indigo-50/50
+          text-indigo-600
+          hover:bg-indigo-50
+          hover:border-indigo-300
+          transition
+          flex
+          items-center
+          gap-3
+          text-left
+        "
+                  >
+                    <div
+                      className="
+            w-10
+            h-10
+            rounded-xl
+            bg-indigo-600
+            text-white
+            flex
+            items-center
+            justify-center
+            flex-shrink-0
+          "
+                    >
+                      <Plus size={19} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="
+              text-sm
+              font-semibold
+              text-indigo-700
+              truncate
+            "
+                      >
+                        Add "{leadSearch.trim()}" as new contact
+                      </p>
+
+                      <p
+                        className="
+              text-[11px]
+              text-indigo-400
+              mt-0.5
+            "
+                      >
+                        Create a new contact
+                      </p>
+                    </div>
+                  </button>
+                )}
               </div>
             </div>
-
-            {/* FOOTER */}
+            {/* =====================================================
+    LINK PERSON FOOTER
+====================================================== */}
 
             <div
               className="
-                px-6
-                py-4
-                border-t
-                border-gray-100
-                bg-gray-50/70
-                flex
-                items-center
-                gap-3
-              "
+    px-6
+    py-4
+    border-t
+    border-gray-100
+    bg-gray-50/70
+    flex
+    items-center
+    gap-3
+    flex-shrink-0
+  "
             >
+              {/* CANCEL */}
+
               <button
                 type="button"
                 onClick={() => {
@@ -1490,58 +1655,60 @@ export default function OrganizationDetails() {
                   setSelectedLead("");
                 }}
                 className="
-                  flex-1
-                  h-11
-                  rounded-xl
-                  border
-                  border-gray-200
-                  bg-white
-                  text-gray-600
-                  text-sm
-                  font-semibold
-                  hover:bg-gray-100
-                  transition
-                "
+      flex-1
+      h-11
+      rounded-xl
+      border
+      border-gray-200
+      bg-white
+      text-gray-600
+      text-sm
+      font-semibold
+      hover:bg-gray-100
+      transition
+    "
               >
                 Cancel
               </button>
+
+              {/* LINK PERSON */}
 
               <button
                 type="button"
                 disabled={!selectedLead || linking}
                 onClick={handleAddLead}
                 className="
-                  flex-1
-                  h-11
-                  rounded-xl
-                  bg-indigo-600
-                  text-white
-                  text-sm
-                  font-semibold
-                  flex
-                  items-center
-                  justify-center
-                  gap-2
-                  shadow-md
-                  shadow-indigo-500/20
-                  hover:bg-indigo-700
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-                  transition
-                "
+      flex-1
+      h-11
+      rounded-xl
+      bg-indigo-600
+      text-white
+      text-sm
+      font-semibold
+      flex
+      items-center
+      justify-center
+      gap-2
+      shadow-md
+      shadow-indigo-500/20
+      hover:bg-indigo-700
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+      transition
+    "
               >
                 {linking ? (
                   <>
                     <span
                       className="
-                        w-4
-                        h-4
-                        rounded-full
-                        border-2
-                        border-white/40
-                        border-t-white
-                        animate-spin
-                      "
+            w-4
+            h-4
+            rounded-full
+            border-2
+            border-white/40
+            border-t-white
+            animate-spin
+          "
                     />
                     Linking...
                   </>
@@ -1555,6 +1722,18 @@ export default function OrganizationDetails() {
             </div>
           </div>
         </div>
+      )}
+      {showAddLeadModal && (
+        <AddLeadModal
+          initialName={leadSearch.trim()}
+          initialOrganization={organization._id}
+          onClose={() => {
+            setShowAddLeadModal(false);
+            setLeadSearch("");
+            setSelectedLead("");
+          }}
+          onCreated={handleNewContactCreated}
+        />
       )}
     </div>
   );

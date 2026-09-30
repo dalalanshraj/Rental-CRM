@@ -166,7 +166,7 @@ window.dispatchEvent(
           Personal preferences
         </h1>
 
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-black mt-1">
           Manage your personal information and profile.
         </p>
 
@@ -274,7 +274,7 @@ window.dispatchEvent(
                 {name || "User"}
               </h2>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-black">
                 {user.role}
               </p>
 
@@ -457,7 +457,7 @@ window.dispatchEvent(
                   border-gray-200
                   rounded-xl
                   bg-gray-50
-                  text-gray-500
+                  text-black
                   capitalize
                 "
               />

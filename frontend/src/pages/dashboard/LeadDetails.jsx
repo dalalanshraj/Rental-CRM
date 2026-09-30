@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 import EditableField from "../../components/EditableField";
@@ -8,13 +8,8 @@ import EditableContactField from "../../components/EditableContactField";
 import EditableLinkField from "../../components/EditableLinkField";
 import OwnerTransferDropdown from "../../components/ OwnerTransferDropdown";
 import RightPanel from "../../components/RightSidePanel/RightPanel";
- import { FaPencil } from "react-icons/fa6";
-import {
-  UserRound,
- 
- 
-  Loader2,
-} from "lucide-react";
+import { FaPencil } from "react-icons/fa6";
+import { UserRound, Loader2 } from "lucide-react";
 import {
   Search,
   User,
@@ -82,6 +77,7 @@ const organizationFields = [
 
 export default function LeadDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   // ====================================================
   // LEAD
@@ -118,8 +114,8 @@ export default function LeadDetails() {
 
   const [organizationLoading, setOrganizationLoading] = useState(false);
   const [editingName, setEditingName] = useState(false);
-const [nameInput, setNameInput] = useState("");
-const [savingName, setSavingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
 
   // ====================================================
   // FETCH LEAD
@@ -139,54 +135,53 @@ const [savingName, setSavingName] = useState(false);
     }
   };
   // ====================================================
-// EDIT LEAD NAME
-// ====================================================
+  // EDIT LEAD NAME
+  // ====================================================
 
-const startNameEditing = () => {
-  setNameInput(lead?.name || "");
-  setEditingName(true);
-};
+  const startNameEditing = () => {
+    setNameInput(lead?.name || "");
+    setEditingName(true);
+  };
 
-const cancelNameEditing = () => {
-  setNameInput(lead?.name || "");
-  setEditingName(false);
-};
-
-const saveName = async () => {
-  if (savingName) return;
-
-  const trimmedName = nameInput.trim();
-
-  if (!trimmedName) return;
-
-  try {
-    setSavingName(true);
-
-    const res = await api.put(`/leads/${lead._id}`, {
-      name: trimmedName,
-    });
-
-    setLead(res.data);
+  const cancelNameEditing = () => {
+    setNameInput(lead?.name || "");
     setEditingName(false);
+  };
 
-  } catch (error) {
-    console.error("Failed to update lead name:", error);
-  } finally {
-    setSavingName(false);
-  }
-};
+  const saveName = async () => {
+    if (savingName) return;
 
-const handleNameKeyDown = (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    saveName();
-  }
+    const trimmedName = nameInput.trim();
 
-  if (e.key === "Escape") {
-    e.preventDefault();
-    cancelNameEditing();
-  }
-};
+    if (!trimmedName) return;
+
+    try {
+      setSavingName(true);
+
+      const res = await api.put(`/leads/${lead._id}`, {
+        name: trimmedName,
+      });
+
+      setLead(res.data);
+      setEditingName(false);
+    } catch (error) {
+      console.error("Failed to update lead name:", error);
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleNameKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveName();
+    }
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      cancelNameEditing();
+    }
+  };
 
   // ====================================================
   // FETCH ORGANIZATIONS
@@ -376,7 +371,7 @@ const handleNameKeyDown = (e) => {
             "
           />
 
-          <p className="text-sm text-gray-400">Loading lead...</p>
+          <p className="text-sm text-black">Loading lead...</p>
         </div>
       </div>
     );
@@ -406,7 +401,7 @@ const handleNameKeyDown = (e) => {
               mx-auto
               rounded-2xl
               bg-gray-100
-              text-gray-400
+              text-black
               flex
               items-center
               justify-center
@@ -430,7 +425,7 @@ const handleNameKeyDown = (e) => {
             className="
               mt-1
               text-xs
-              text-gray-400
+              text-black
             "
           >
             The requested lead could not be loaded.
@@ -498,23 +493,23 @@ const handleNameKeyDown = (e) => {
           truncate
         "
             >
-             <EditableField
-  field="name"
-  value={lead.name}
-  leadId={lead._id}
-  variant="header"
-  onUpdate={setLead}
-/>
+              <EditableField
+                field="name"
+                value={lead.name}
+                leadId={lead._id}
+                variant="header"
+                onUpdate={setLead}
+              />
             </h1>
 
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-gray-400">Lead</span>
+              <span className="text-xs text-black">Lead</span>
 
               {lead.title && (
                 <>
                   <span className="text-gray-300">•</span>
 
-                  <span className="text-xs text-gray-400 truncate">
+                  <span className="text-xs text-black truncate">
                     {lead.title}
                   </span>
                 </>
@@ -549,7 +544,7 @@ const handleNameKeyDown = (e) => {
 
         <aside
           className="
-            w-[370px]
+            w-[400px]
             flex-shrink-0
             bg-white
             border-r
@@ -574,7 +569,7 @@ const handleNameKeyDown = (e) => {
                 left-3.5
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-black
                 pointer-events-none
               "
             />
@@ -595,7 +590,7 @@ const handleNameKeyDown = (e) => {
                 bg-gray-50
                 text-sm
                 text-gray-700
-                placeholder:text-gray-400
+                placeholder:text-black
                 outline-none
                 transition-all
                 duration-200
@@ -641,32 +636,93 @@ const handleNameKeyDown = (e) => {
               <div>
                 <h3 className="text-sm font-semibold text-gray-800">Summary</h3>
 
-                <p className="text-[11px] text-gray-400 mt-0.5">
+                <p className="text-[11px] text-black mt-0.5">
                   Primary contact information
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <EditableContactField
-                label="email"
-                field="email"
-                value={lead.email?.[0]?.address}
-                type={lead.email?.[0]?.label || "Work"}
-                itemId={lead._id}
-                endpoint="leads"
-                onUpdate={setLead}
-              />
+              <div className="flex gap-2">
+                <div
+                  className="
+                    w-8
+                    h-8
+                    rounded-lg
+                    text-black
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Mail size={12} className="mb-1" />
+                </div>
+                <EditableContactField
+                  label="email"
+                  field="email"
+                  value={lead.email || []}
+                  itemId={lead._id}
+                  endpoint="leads"
+                  onUpdate={setLead}
+                />
+              </div>
 
-              <EditableContactField
-                label="phone"
-                field="phone"
-                value={lead.phone?.[0]?.number}
-                type={lead.phone?.[0]?.label || "Work"}
-                itemId={lead._id}
-                endpoint="leads"
-                onUpdate={setLead}
-              />
+              <div className="flex gap-2">
+                <div
+                  className="
+                    w-8
+                    h-8
+                    rounded-lg
+                    text-black
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Phone size={12} className="mb-1" />
+                </div>
+                <EditableContactField
+                  label="phone"
+                  field="phone"
+                  value={lead.phone || []}
+                  itemId={lead._id}
+                  endpoint="leads"
+                  onUpdate={setLead}
+                />
+              </div>
+
+              <div className="flex  gap-2">
+                <div
+                  className="
+                  w-8 h-8
+                  rounded-xl
+                  mt-
+                  text-[#0d68c5]
+                  flex items-center justify-center
+                  
+                  flex-shrink-0
+                "
+                >
+                  <Building2 size={18} />
+                </div>
+
+                <div
+                  onClick={() => {
+                    if (lead.organization?._id) {
+                      navigate(`/app/organizations/${lead.organization._id}`);
+                    }
+                  }}
+                  className="flex-1 min-w-0  cursor-pointer hover:bg-gray-200 rounded p-1 hover:underline"
+                >
+                  <h4 className=" text-sm mt-1 font-bold text-[#0d68c5] truncate ">
+                    {lead.organization?.name || "Unnamed Organization"}
+                  </h4>
+
+                  <p className="text-xs text-black mt-1 truncate">
+                    {lead.organization?.industry}
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -734,7 +790,7 @@ const handleNameKeyDown = (e) => {
                   <p
                     className="
                       text-[11px]
-                      text-gray-400
+                      text-black
                     "
                   >
                     Lead information
@@ -745,7 +801,7 @@ const handleNameKeyDown = (e) => {
               <span
                 className="
                   text-[10px]
-                  text-gray-400
+                  text-black
                 "
               >
                 {filteredLeadFields.length}
@@ -808,7 +864,7 @@ const handleNameKeyDown = (e) => {
                       py-6
                       text-center
                       text-xs
-                      text-gray-400
+                      text-black
                     "
                   >
                     No fields found
@@ -890,7 +946,7 @@ const handleNameKeyDown = (e) => {
                     )}
                   </div>
 
-                  <p className="text-[11px] text-gray-400 mt-0.5">
+                  <p className="text-[11px] text-black mt-0.5">
                     Company information
                   </p>
                 </div>
@@ -901,7 +957,7 @@ const handleNameKeyDown = (e) => {
         w-8 h-8
         rounded-lg
         flex items-center justify-center
-        text-gray-400
+        text-black
         hover:bg-gray-100
         transition
       "
@@ -974,7 +1030,7 @@ const handleNameKeyDown = (e) => {
                             {lead.organization?.name || "Unnamed Organization"}
                           </h4>
 
-                          <p className="text-xs text-gray-400 mt-1 truncate">
+                          <p className="text-xs text-black mt-1 truncate">
                             {lead.organization?.industry ||
                               "No industry specified"}
                           </p>
@@ -1009,7 +1065,7 @@ const handleNameKeyDown = (e) => {
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-emerald-500" />
 
-                          <span className="text-[11px] text-gray-500">
+                          <span className="text-[11px] text-black">
                             Connected organization
                           </span>
                         </div>
@@ -1040,7 +1096,7 @@ const handleNameKeyDown = (e) => {
                   uppercase
                   tracking-wider
                   font-semibold
-                  text-gray-400
+                  text-black
                 "
                         >
                           Organization details
@@ -1149,7 +1205,7 @@ const handleNameKeyDown = (e) => {
                 rounded-xl
                 bg-white
                 border border-gray-200
-                text-gray-400
+                text-black
                 flex items-center justify-center
                 shadow-sm
               "
@@ -1162,7 +1218,7 @@ const handleNameKeyDown = (e) => {
                           No organization linked
                         </p>
 
-                        <p className="text-[11px] text-gray-400 mt-1">
+                        <p className="text-[11px] text-black mt-1">
                           Connect this lead to a company
                         </p>
                       </div>
@@ -1320,7 +1376,7 @@ const handleNameKeyDown = (e) => {
                   <p
                     className="
                 text-xs
-                text-gray-400
+                text-black
                 mt-0.5
               "
                   >
@@ -1344,7 +1400,7 @@ const handleNameKeyDown = (e) => {
             flex
             items-center
             justify-center
-            text-gray-400
+            text-black
             hover:bg-gray-100
             hover:text-gray-700
             transition-all
@@ -1371,7 +1427,7 @@ const handleNameKeyDown = (e) => {
               left-4
               top-1/2
               -translate-y-1/2
-              text-gray-400
+              text-black
               pointer-events-none
             "
                 />
@@ -1403,7 +1459,7 @@ const handleNameKeyDown = (e) => {
               bg-gray-50
               text-sm
               text-gray-700
-              placeholder:text-gray-400
+              placeholder:text-black
               outline-none
               transition-all
               duration-200
@@ -1428,7 +1484,7 @@ const handleNameKeyDown = (e) => {
                 flex
                 items-center
                 justify-center
-                text-gray-400
+                text-black
                 hover:bg-gray-200
                 hover:text-gray-700
                 transition
@@ -1462,7 +1518,7 @@ const handleNameKeyDown = (e) => {
                   <p
                     className="
                 text-xs
-                text-gray-400
+                text-black
               "
                   >
                     {organizationLoading
@@ -1541,7 +1597,7 @@ const handleNameKeyDown = (e) => {
                         className="
                     mt-1
                     text-xs
-                    text-gray-400
+                    text-black
                   "
                       >
                         Please wait...
@@ -1588,7 +1644,7 @@ const handleNameKeyDown = (e) => {
                       h-11
                       rounded-xl
                       bg-[]
-                      text-white
+                      text-black
                       flex
                       items-center
                       justify-center
@@ -1663,7 +1719,7 @@ const handleNameKeyDown = (e) => {
                             items-center
                             gap-1.5
                             text-[11px]
-                            text-gray-400
+                            text-black
                             truncate
                             max-w-[130px]
                           "
@@ -1690,7 +1746,7 @@ const handleNameKeyDown = (e) => {
                             items-center
                             gap-1.5
                             text-[11px]
-                            text-gray-400
+                            text-black
                             truncate
                             max-w-[160px]
                           "
@@ -1726,7 +1782,7 @@ const handleNameKeyDown = (e) => {
                       flex
                       items-center
                       justify-center
-                      text-gray-300
+                      text-black
                       group-hover:bg-indigo-100
                       group-hover:text-[#4B49AC]
                       transition-all
@@ -1750,14 +1806,14 @@ const handleNameKeyDown = (e) => {
                   w-14
                   h-14
                   rounded-2xl
-                  bg-gray-100
-                  text-gray-400
+                  bg-black
+                  text-black
                   flex
                   items-center
                   justify-center
                 "
                     >
-                      <Building2 size={25} />
+                      <Building2 size={25} color="black" />
                     </div>
 
                     <h3
@@ -1774,7 +1830,7 @@ const handleNameKeyDown = (e) => {
                     <p
                       className="
                   text-xs
-                  text-gray-400
+                  text-black
                   mt-1
                   max-w-[300px]
                   mx-auto
@@ -1845,7 +1901,7 @@ const handleNameKeyDown = (e) => {
               <p
                 className="
             text-[10px]
-            text-gray-400
+            text-black
             text-center
             mt-3
           "

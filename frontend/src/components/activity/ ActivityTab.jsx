@@ -433,7 +433,7 @@ export default function ActivityTab({ type, data }) {
               border-gray-300
               rounded-2xl
               py-5
-              text-gray-500
+              text-black
               hover:border-blue-400
               hover:text-[#4B49AC]
               hover:bg-[#4B49AC]
@@ -491,7 +491,7 @@ export default function ActivityTab({ type, data }) {
         <div>
           <h2 className="text-xl font-semibold text-gray-800">Activities</h2>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-black mt-1">
             Tasks and activities related to this record
           </p>
         </div>
@@ -585,7 +585,7 @@ export default function ActivityTab({ type, data }) {
             No activities yet
           </h3>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-black mt-1">
             Create an activity to keep track of your work.
           </p>
         </motion.div>
@@ -679,8 +679,8 @@ export default function ActivityTab({ type, data }) {
                           )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-black">
+                          <div className="flex items-center gap-2 text-sm text-black">
                             {formatActivityDateTime(
                               activity.dueDate,
                               activity.startTime,
@@ -718,7 +718,7 @@ export default function ActivityTab({ type, data }) {
                               items-center
                               justify-center
                               hover:bg-gray-100
-                              text-gray-500
+                              text-black
                             "
                       >
                         <BsThreeDotsVertical />
@@ -836,7 +836,7 @@ export default function ActivityTab({ type, data }) {
                         gap-y-2
                         mt-5
                         text-sm
-                        text-gray-500
+                        text-black
                       "
                   >
                     <div className="flex items-center gap-2">
@@ -872,7 +872,7 @@ export default function ActivityTab({ type, data }) {
                         justify-between
                       "
                   >
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-black">
                       Owner
                       <span className="ml-2 font-medium text-gray-700">
                         {activity.owner?.name
@@ -897,7 +897,7 @@ export default function ActivityTab({ type, data }) {
                             ${
                               activity.status === "completed"
                                 ? "text-green-600"
-                                : "text-gray-500 hover:text-green-600"
+                                : "text-black hover:text-green-600"
                             }
                           `}
                     >

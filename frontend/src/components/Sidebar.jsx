@@ -15,7 +15,7 @@ export default function Sidebar() {
 
   const role = localStorage.getItem("role")?.toLowerCase();
 
-console.log("ROLE:", role);
+ 
 
 
   const menu = [
@@ -93,7 +93,7 @@ console.log("ROLE:", role);
                     ${
                       isActive
                         ? "text-white"
-                        : "text-[#6C7383] group-hover:text-white"
+                        : "text-[#000] group-hover:text-white"
                     }
                   `}
                 >

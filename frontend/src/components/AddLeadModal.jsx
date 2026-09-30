@@ -17,25 +17,35 @@ import {
   Save,
   Loader2,
   Search,
+  MapPin,
 } from "lucide-react";
 
 export default function AddLeadModal({
   onClose,
   onCreated,
+  initialName = "",
+  initialOrganization = "",
 }) {
   // =====================================================
   // FORM
   // =====================================================
 
   const [form, setForm] = useState({
-    name: "",
-    organization: "",
-    title: "",
-    value: "",
-    sourceChannel: "",
-    sourceChannelId: "",
-    expectedCloseDate: "",
-  });
+  name: initialName,
+  organization: initialOrganization,
+  title: "",
+  value: "",
+  sourceChannel: "",
+  sourceChannelId: "",
+  expectedCloseDate: "",
+});
+const [address, setAddress] = useState({
+  street: "",
+  city: "",
+  state: "",
+  country: "",
+  zipCode: "",
+});
 
   // =====================================================
   // ORGANIZATIONS
@@ -312,48 +322,46 @@ export default function AddLeadModal({
       setSaving(true);
       setError("");
 
-      const payload = {
-        name: form.name.trim(),
+ const payload = {
+  name: form.name.trim(),
 
-        title: form.title.trim(),
+  title: form.title.trim(),
 
-        value:
-          form.value === ""
-            ? 0
-            : Number(form.value),
+  value:
+    form.value === ""
+      ? 0
+      : Number(form.value),
 
-        sourceChannel:
-          form.sourceChannel.trim(),
+  sourceChannel: form.sourceChannel.trim(),
 
-        sourceChannelId:
-          form.sourceChannelId.trim(),
+  sourceChannelId: form.sourceChannelId.trim(),
 
-        expectedCloseDate:
-          form.expectedCloseDate || null,
+  expectedCloseDate:
+    form.expectedCloseDate || null,
 
-        phone: phones
-          .filter(
-            (phone) =>
-              phone.number.trim()
-          )
-          .map((phone) => ({
-            number:
-              phone.number.trim(),
-            label: phone.label,
-          })),
+  phone: phones
+    .filter((phone) => phone.number.trim())
+    .map((phone) => ({
+      number: phone.number.trim(),
+      label: phone.label,
+    })),
 
-        email: emails
-          .filter(
-            (email) =>
-              email.address.trim()
-          )
-          .map((email) => ({
-            address:
-              email.address.trim(),
-            label: email.label,
-          })),
-      };
+  email: emails
+    .filter((email) => email.address.trim())
+    .map((email) => ({
+      address: email.address.trim(),
+      label: email.label,
+    })),
 
+  // ADDRESS
+  address: {
+    street: address.street.trim(),
+    city: address.city.trim(),
+    state: address.state.trim(),
+    country: address.country.trim(),
+    zipCode: address.zipCode.trim(),
+  },
+};
       // Organization only if selected
       if (form.organization) {
         payload.organization =
@@ -395,6 +403,18 @@ export default function AddLeadModal({
       setSaving(false);
     }
   };
+
+  
+  const handleAddressChange = (field, value) => {
+  setAddress((prev) => ({
+    ...prev,
+    [field]: value,
+  }));
+
+  if (error) {
+    setError("");
+  }
+};
 
   // =====================================================
   // COMMON CLASSES
@@ -1193,6 +1213,7 @@ export default function AddLeadModal({
               </div>
 
             </section>
+            
 
             {/* =================================================
                 LEAD INFORMATION
@@ -1222,6 +1243,7 @@ export default function AddLeadModal({
                 >
                   <BriefcaseBusiness size={19} />
                 </div>
+                
 
                 <div>
 

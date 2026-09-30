@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+
 import { FaPencil } from "react-icons/fa6";
-import { Loader2, Check, X } from "lucide-react";
+
+import {
+  Loader2,
+  Check,
+  X,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 export default function EditableContactField({
   label,
@@ -15,31 +23,195 @@ export default function EditableContactField({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [input, setInput] = useState(value || "");
-  const [inputType, setInputType] = useState(
-    type?.toLowerCase() || "work"
+  // =====================================================
+  // NORMALIZE VALUE
+  // =====================================================
+
+  const normalizeValues = (val) => {
+    if (Array.isArray(val)) {
+      return val.length > 0
+        ? val
+        : [
+            field === "phone"
+              ? {
+                  number: "",
+                  label: "work",
+                }
+              : {
+                  address: "",
+                  label: "work",
+                },
+          ];
+    }
+
+    if (val) {
+      if (field === "phone") {
+        return [
+          {
+            number: val,
+            label: type?.toLowerCase() || "work",
+          },
+        ];
+      }
+
+      if (field === "email") {
+        return [
+          {
+            address: val,
+            label: type?.toLowerCase() || "work",
+          },
+        ];
+      }
+    }
+
+    return [
+      field === "phone"
+        ? {
+            number: "",
+            label: "work",
+          }
+        : {
+            address: "",
+            label: "work",
+          },
+    ];
+  };
+
+  // =====================================================
+  // EDIT VALUES
+  // =====================================================
+
+  const [editValues, setEditValues] = useState(
+    normalizeValues(value)
   );
 
-  // Keep input synced with updated parent value
-  useEffect(() => {
-    setInput(value || "");
-  }, [value]);
+  // =====================================================
+  // SYNC WITH PARENT
+  // =====================================================
 
   useEffect(() => {
-    setInputType(type?.toLowerCase() || "work");
-  }, [type]);
+    setEditValues(normalizeValues(value));
+  }, [value, field, type]);
+
+  // =====================================================
+  // START EDITING
+  // =====================================================
 
   const startEditing = () => {
-    setInput(value || "");
-    setInputType(type?.toLowerCase() || "work");
+    setEditValues(normalizeValues(value));
     setEditing(true);
   };
 
+  // =====================================================
+  // CANCEL
+  // =====================================================
+
   const cancelEditing = () => {
-    setInput(value || "");
-    setInputType(type?.toLowerCase() || "work");
+    setEditValues(normalizeValues(value));
     setEditing(false);
   };
+
+  // =====================================================
+  // ADD PHONE / EMAIL
+  // =====================================================
+
+  const addContact = () => {
+    setEditValues((prev) => [
+      ...prev,
+      field === "phone"
+        ? {
+            number: "",
+            label: "work",
+          }
+        : {
+            address: "",
+            label: "work",
+          },
+    ]);
+  };
+
+  // =====================================================
+  // REMOVE PHONE / EMAIL
+  // =====================================================
+
+  const removeContact = (index) => {
+    setEditValues((prev) => {
+      const updated = prev.filter(
+        (_, i) => i !== index
+      );
+
+      // Keep one empty row instead of completely
+      // removing the editor
+      if (updated.length === 0) {
+        return [
+          field === "phone"
+            ? {
+                number: "",
+                label: "work",
+              }
+            : {
+                address: "",
+                label: "work",
+              },
+        ];
+      }
+
+      return updated;
+    });
+  };
+
+  // =====================================================
+  // VALUE CHANGE
+  // =====================================================
+
+  const handleValueChange = (
+    index,
+    newValue
+  ) => {
+    setEditValues((prev) =>
+      prev.map((item, i) => {
+        if (i !== index) {
+          return item;
+        }
+
+        if (field === "phone") {
+          return {
+            ...item,
+            number: newValue,
+          };
+        }
+
+        return {
+          ...item,
+          address: newValue,
+        };
+      })
+    );
+  };
+
+  // =====================================================
+  // TYPE CHANGE
+  // =====================================================
+
+  const handleTypeChange = (
+    index,
+    newType
+  ) => {
+    setEditValues((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              label: newType,
+            }
+          : item
+      )
+    );
+  };
+
+  // =====================================================
+  // SAVE
+  // =====================================================
 
   const save = async () => {
     if (saving) return;
@@ -47,118 +219,228 @@ export default function EditableContactField({
     try {
       setSaving(true);
 
+      // Remove empty rows
+      const cleanedValues = editValues
+        .map((item) => {
+          if (field === "phone") {
+            return {
+              number: String(
+                item.number || ""
+              ).trim(),
+              label:
+                item.label || "work",
+            };
+          }
+
+          return {
+            address: String(
+              item.address || ""
+            ).trim(),
+            label:
+              item.label || "work",
+          };
+        })
+        .filter((item) => {
+          if (field === "phone") {
+            return item.number;
+          }
+
+          return item.address;
+        });
+
       let payload = {};
 
+      // =================================================
+      // LEADS
+      // =================================================
+
       if (endpoint === "leads") {
-        if (field === "email") {
-          payload[field] = [
-            {
-              address: input,
-              label: inputType,
-            },
-          ];
-        } else if (field === "phone") {
-          payload[field] = [
-            {
-              number: input,
-              label: inputType,
-            },
-          ];
+        if (
+          field === "phone" ||
+          field === "email"
+        ) {
+          payload[field] =
+            cleanedValues;
         } else {
-          payload[field] = input;
+          payload[field] =
+            cleanedValues[0] || "";
         }
-      } else {
-        payload[field] = input;
       }
+
+      // =================================================
+      // OTHER ENDPOINTS
+      // =================================================
+
+      else {
+        if (
+          field === "phone" ||
+          field === "email"
+        ) {
+          payload[field] =
+            cleanedValues;
+        } else {
+          payload[field] =
+            cleanedValues[0] || "";
+        }
+      }
+
+      console.log(
+        "UPDATE CONTACT PAYLOAD:",
+        payload
+      );
 
       const res = await api.put(
         `/${endpoint}/${itemId}`,
         payload
       );
 
-      onUpdate(res.data);
+      if (onUpdate) {
+        onUpdate(res.data);
+      }
+
       setEditing(false);
     } catch (err) {
-      console.log("Update error:", err);
+      console.error(
+        "UPDATE CONTACT ERROR:",
+        err.response?.data ||
+          err.message
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      save();
-    }
+  // =====================================================
+  // KEYBOARD
+  // =====================================================
 
+  const handleKeyDown = (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
       cancelEditing();
     }
+
+    // Enter ko save nahi karenge because
+    // multiple rows me Enter accidentally save
+    // kar sakta hai.
   };
 
- return (
-  <div className="group w-full py-0">
+  // =====================================================
+  // CONTACT VALUES
+  // =====================================================
 
-    {/* =====================================
-        VIEW MODE
-    ====================================== */}
+  const displayValues = Array.isArray(value)
+    ? value
+    : value
+      ? [
+          field === "phone"
+            ? {
+                number: value,
+                label: type,
+              }
+            : {
+                address: value,
+                label: type,
+              },
+        ]
+      : [];
 
-    {!editing ? (
-      <div className="flex items-center gap-3 w-full">
+  // =====================================================
+  // VIEW MODE
+  // =====================================================
 
-        {/* LABEL */}
-        <span
-          className="
-            w-[40px]
-            min-w-[9px]
-            flex-shrink-0
-            text-sm
-            text-gray-500
-            capitalize
-          "
-        >
-          {label}
-        </span>
-
-        {/* VALUE */}
-        <div className="flex items-center gap-1 flex-1 min-w-0">
+  if (!editing) {
+    return (
+      <div className="group w-full py-0">
+        <div className="flex items-start gap-3 w-full">
+          {/* LABEL */}
 
           <span
             className="
-              flex-1
-              min-w-0
-              truncate
+              w-[40px]
+              min-w-[40px]
+              flex-shrink-0
               text-sm
-              text-blue-600
-              hover:underline
+              text-black
+              capitalize
+              pt-1
             "
-            title={value || ""}
           >
-            {value || "-"}
+            {label}
           </span>
 
-          {/* TYPE */}
-          {value && (
-            <span
-              className="
-                flex-shrink-0
-                text-[10px]
-                font-medium
-                uppercase
-                tracking-wide
-                bg-gray-100
-                text-gray-500
-                px-2
-                py-1
-                rounded-md
-              "
-            >
-              {type}
-            </span>
-          )}
+          {/* VALUES */}
+
+          <div className="flex-1 min-w-0">
+            {displayValues.length > 0 ? (
+              <div className="space-y-1.5">
+                {displayValues.map(
+                  (item, index) => {
+                    const displayValue =
+                      field === "phone"
+                        ? item.number
+                        : item.address;
+
+                    if (!displayValue) {
+                      return null;
+                    }
+
+                    return (
+                      <div
+                        key={index}
+                        className="
+                          flex
+                          items-center
+                          gap-2
+                          min-w-0
+                        "
+                      >
+                        <span
+                          className="
+                            flex-1
+                            min-w-0
+                            truncate
+                            text-sm
+                            text-blue-600
+                            hover:underline
+                          "
+                          title={displayValue}
+                        >
+                          {displayValue}
+                        </span>
+
+                        {item.label && (
+                          <span
+                            className="
+                              flex-shrink-0
+                              text-[10px]
+                              font-medium
+                              uppercase
+                              tracking-wide
+                              bg-gray-100
+                              text-black
+                              px-2
+                              py-1
+                              rounded-md
+                            "
+                          >
+                            {item.label}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            ) : (
+              <span className="text-sm text-gray-400">
+                -
+              </span>
+            )}
+          </div>
 
           {/* EDIT */}
+
           <button
             type="button"
             onClick={startEditing}
@@ -182,174 +464,305 @@ export default function EditableContactField({
           >
             <FaPencil size={12} />
           </button>
-
         </div>
       </div>
-    ) : (
+    );
+  }
 
-      /* =====================================
-          EDIT MODE
-      ====================================== */
+  // =====================================================
+  // EDIT MODE
+  // =====================================================
 
-      <div className="w-full">
+  return (
+    <div className="w-full">
+      {/* LABEL */}
 
-        {/* LABEL */}
-        <div className="mb-2">
+      <div className="mb-2">
+        <span
+          className="
+            text-sm
+            font-medium
+            text-gray-600
+            capitalize
+          "
+        >
+          {label}
+        </span>
+      </div>
 
-          <span
-            className="
-              text-sm
-              font-medium
-              text-gray-600
-              capitalize
-            "
-          >
-            {label}
-          </span>
+      {/* CONTACT ROWS */}
 
-        </div>
+      <div className="space-y-2">
+        {editValues.map(
+          (item, index) => {
+            const currentValue =
+              field === "phone"
+                ? item.number || ""
+                : item.address || "";
 
+            return (
+              <div
+                key={index}
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  w-full
+                "
+              >
+                {/* DRAG STYLE ICON */}
 
-        {/* INPUT + ACTIONS */}
+                <div
+                  className="
+                    w-5
+                    flex
+                    items-center
+                    justify-center
+                    text-gray-400
+                    flex-shrink-0
+                  "
+                >
+                  <span className="text-lg leading-none">
+                    ⋮⋮
+                  </span>
+                </div>
 
-        <div className="flex items-center gap-2 w-full">
+                {/* INPUT */}
 
-          {/* INPUT */}
+                <input
+                  type={
+                    field === "email"
+                      ? "email"
+                      : "text"
+                  }
+                  value={currentValue}
+                  onChange={(e) =>
+                    handleValueChange(
+                      index,
+                      e.target.value
+                    )
+                  }
+                  onKeyDown={
+                    handleKeyDown
+                  }
+                  autoFocus={
+                    index ===
+                    editValues.length - 1
+                  }
+                  placeholder={
+                    field === "phone"
+                      ? "Phone number"
+                      : "Email address"
+                  }
+                  className="
+                    flex-1
+                    min-w-0
+                    h-12
+                    px-3
+                    rounded-xl
+                    border
+                    border-gray-300
+                    bg-white
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition-all
+                    duration-200
+                    placeholder:text-gray-400
+                    hover:border-indigo-300
+                    focus:border-indigo-500
+                    focus:ring-4
+                    focus:ring-indigo-500/10
+                  "
+                />
 
-          <input
-            type={field === "email" ? "email" : "text"}
-            value={input}
-            onChange={(e) =>
-              setInput(e.target.value)
-            }
-            onKeyDown={handleKeyDown}
-            autoFocus
-            className="
-              flex-1
-              min-w-0
-              w-full
-              h-10
-              px-3
-              rounded-xl
-              border
-              border-gray-300
-              bg-white
-              text-sm
-              text-gray-700
-              outline-none
-              transition-all
-              duration-200
-              placeholder:text-gray-400
-              hover:border-indigo-300
-              focus:border-indigo-500
-              focus:ring-4
-              focus:ring-indigo-500/10
-            "
-          />
+                {/* TYPE */}
 
+                <select
+                  value={
+                    item.label ||
+                    "work"
+                  }
+                  onChange={(e) =>
+                    handleTypeChange(
+                      index,
+                      e.target.value
+                    )
+                  }
+                  className="
+                    h-12
+                    w-[150px]
+                    px-3
+                    rounded-xl
+                    border
+                    border-gray-300
+                    bg-white
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    cursor-pointer
+                    flex-shrink-0
+                    focus:border-indigo-500
+                    focus:ring-4
+                    focus:ring-indigo-500/10
+                  "
+                >
+                  <option value="work">
+                    Work
+                  </option>
 
-          {/* TYPE */}
+                  <option value="home">
+                    Home
+                  </option>
 
-          <select
-            value={inputType}
-            onChange={(e) =>
-              setInputType(e.target.value)
-            }
-            className="
-              h-10
-              w-[82px]
-              px-2
-              rounded-xl
-              border
-              border-gray-300
-              bg-white
-              text-sm
-              text-gray-700
-              outline-none
-              cursor-pointer
-              flex-shrink-0
-              focus:border-indigo-500
-              focus:ring-4
-              focus:ring-indigo-500/10
-            "
-          >
-            <option value="work">
-              Work
-            </option>
+                  <option value="mobile">
+                    Mobile
+                  </option>
 
-            <option value="home">
-              Home
-            </option>
-          </select>
+                  <option value="other">
+                    Other
+                  </option>
+                </select>
 
+                {/* DELETE */}
 
-          {/* SAVE */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeContact(index)
+                  }
+                  disabled={
+                    saving
+                  }
+                  title={
+                    field === "phone"
+                      ? "Remove phone"
+                      : "Remove email"
+                  }
+                  className="
+                    w-11
+                    h-11
+                    rounded-xl
+                    flex
+                    items-center
+                    justify-center
+                    text-gray-500
+                    hover:text-red-600
+                    hover:bg-red-50
+                    transition
+                    flex-shrink-0
+                    disabled:opacity-50
+                  "
+                >
+                  <Trash2 size={19} />
+                </button>
+              </div>
+            );
+          }
+        )}
+      </div>
 
-          <button
-            type="button"
-            onClick={save}
-            disabled={saving}
-            title="Save"
-            className="
-              h-10
-              w-10
-              rounded-xl
-              bg-emerald-50
-              text-emerald-600
-              hover:bg-emerald-500
-              hover:text-white
-              transition-all
-              duration-200
-              flex
-              items-center
-              justify-center
-              flex-shrink-0
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            "
-          >
-            {saving ? (
+      {/* ADD BUTTON */}
+
+      <button
+        type="button"
+        onClick={addContact}
+        disabled={saving}
+        className="
+          mt-3
+          inline-flex
+          items-center
+          gap-1.5
+          text-blue-600
+          font-semibold
+          text-sm
+          hover:text-blue-700
+          transition
+          disabled:opacity-50
+        "
+      >
+        <Plus size={18} />
+
+        {field === "phone"
+          ? "Add phone"
+          : "Add email"}
+      </button>
+
+      {/* ACTIONS */}
+
+      <div
+        className="
+          flex
+          items-center
+          justify-end
+          gap-2
+          mt-4
+        "
+      >
+        {/* CANCEL */}
+
+        <button
+          type="button"
+          onClick={cancelEditing}
+          disabled={saving}
+          className="
+            h-10
+            px-4
+            rounded-xl
+            border
+            border-gray-200
+            bg-white
+            text-gray-700
+            text-sm
+            font-semibold
+            hover:bg-gray-50
+            transition
+            disabled:opacity-50
+          "
+        >
+          Cancel
+        </button>
+
+        {/* SAVE */}
+
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving}
+          className="
+            h-10
+            px-5
+            rounded-xl
+            bg-emerald-500
+            text-white
+            text-sm
+            font-semibold
+            flex
+            items-center
+            justify-center
+            gap-2
+            hover:bg-emerald-600
+            transition
+            disabled:opacity-50
+            disabled:cursor-not-allowed
+          "
+        >
+          {saving ? (
+            <>
               <Loader2
                 size={16}
                 className="animate-spin"
               />
-            ) : (
+              Saving...
+            </>
+          ) : (
+            <>
               <Check size={17} />
-            )}
-          </button>
-
-
-          {/* CANCEL */}
-
-          <button
-            type="button"
-            onClick={cancelEditing}
-            disabled={saving}
-            title="Cancel"
-            className="
-              h-10
-              w-10
-              rounded-xl
-              bg-red-50
-              text-red-500
-              hover:bg-red-500
-              hover:text-white
-              transition-all
-              duration-200
-              flex
-              items-center
-              justify-center
-              flex-shrink-0
-              disabled:opacity-50
-            "
-          >
-            <X size={17} />
-          </button>
-
-        </div>
-
+              Save
+            </>
+          )}
+        </button>
       </div>
-    )}
-  </div>
-);
+    </div>
+  );
 }

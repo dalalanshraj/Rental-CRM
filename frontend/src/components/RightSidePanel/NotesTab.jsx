@@ -482,7 +482,7 @@ export default function NotesTab({ type, data }) {
               border
               border-gray-200
               bg-white
-              text-gray-500
+              text-black
               text-xs
               font-medium
               flex
@@ -569,7 +569,7 @@ export default function NotesTab({ type, data }) {
               h-8
               rounded-lg
               bg-gray-100
-              text-gray-500
+              text-black
               flex
               items-center
               justify-center
@@ -1101,7 +1101,7 @@ export default function NotesTab({ type, data }) {
                           border
                           border-gray-200
                           bg-white
-                          text-gray-500
+                          text-black
                           text-xs
                           font-medium
                           flex

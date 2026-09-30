@@ -191,7 +191,7 @@ export default function Organizations() {
               className="
                 text-sm
                 md:text-sm
-                text-gray-400
+                text-black
                 mt-0.5
               "
             >
@@ -222,7 +222,7 @@ export default function Organizations() {
                 left-3
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-black
                 pointer-events-none
               "
             />
@@ -272,7 +272,7 @@ export default function Organizations() {
                 left-3
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-black
               "
             />
 
@@ -295,7 +295,7 @@ export default function Organizations() {
                 text-gray-700
                 outline-none
                 transition
-                placeholder:text-gray-400
+                placeholder:text-black
                 hover:border-indigo-200
                 focus:border-indigo-500
                 focus:ring-4
@@ -331,7 +331,7 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total Organizations</p>
+              <p className="text-sm text-black">Total Organizations</p>
 
               <p className="text-xl font-bold text-gray-800 mt-1">
                 {organizations.length}
@@ -366,7 +366,7 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-400">Showing</p>
+              <p className="text-xs text-black">Showing</p>
 
               <p className="text-xl font-bold text-gray-800 mt-1">
                 {filteredOrganizations.length}
@@ -402,7 +402,7 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total People</p>
+              <p className="text-sm text-black">Total People</p>
 
               <p className="text-xl font-bold text-gray-800 mt-1">
                 {organizations.reduce(
@@ -439,7 +439,7 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Selected Owner</p>
+              <p className="text-sm text-black">Selected Owner</p>
 
               <p className="text-sm font-bold text-gray-800 mt-1 truncate max-w-[120px]">
                 {selectedUser
@@ -506,7 +506,7 @@ export default function Organizations() {
             <p
               className="
                 text-sm
-                text-gray-400
+                text-black
                 mt-0.5
               "
             >
@@ -537,7 +537,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   Organization
@@ -552,7 +552,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   Website
@@ -567,7 +567,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   Email
@@ -582,7 +582,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   Phone
@@ -597,7 +597,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   Industry
@@ -612,7 +612,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   People
@@ -627,7 +627,7 @@ export default function Organizations() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-gray-400
+                    text-black
                   "
                 >
                   Owner
@@ -712,7 +712,7 @@ export default function Organizations() {
                           <p
                             className="
                                 text-[11px]
-                                text-gray-400
+                                text-black
                                 mt-0.5
                               "
                           >
@@ -766,7 +766,7 @@ export default function Organizations() {
                           <Mail
                             size={14}
                             className="
-                                text-gray-400
+                                text-black
                                 flex-shrink-0
                               "
                           />
@@ -965,7 +965,7 @@ export default function Organizations() {
                       className="
                         mt-1
                         text-sm
-                        text-gray-400
+                        text-black
                       "
                     >
                       Try changing your search or user filter.

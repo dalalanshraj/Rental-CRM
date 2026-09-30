@@ -25,7 +25,7 @@ const PORT = 3000;
 const allowedOrigins = [
  "https://bitbytegigabyte.com",
   "https://www.bitbytegigabyte.com",
-  "http://localhost:5174",
+  "http://localhost:5173",
 ];
 
 app.use(

@@ -923,7 +923,7 @@ const [historyOpen, setHistoryOpen] = useState(true);
                     bg-blue-50/70
                   `
                   : `
-                    text-gray-500
+                    text-black
                     hover:text-gray-800
                     hover:bg-gray-50
                   `
@@ -976,7 +976,7 @@ const [historyOpen, setHistoryOpen] = useState(true);
                     bg-indigo-50/60
                   `
                   : `
-                    text-gray-500
+                    text-black
                     hover:text-gray-800
                     hover:bg-gray-50
                   `
@@ -1304,7 +1304,7 @@ const [historyOpen, setHistoryOpen] = useState(true);
                               border
                               border-gray-200
                               bg-white
-                              text-gray-500
+                              text-black
                               text-xs
                               font-medium
                               flex
@@ -1464,7 +1464,7 @@ const [historyOpen, setHistoryOpen] = useState(true);
               <span
                 className="
                   text-sm
-                  text-gray-500
+                  text-black
                 "
               >
                 Expand all items
@@ -1836,7 +1836,7 @@ function HistoryButton({
               text-blue-600
             `
             : `
-              text-gray-500
+              text-black
               hover:bg-gray-50
               hover:text-gray-800
             `
@@ -2235,7 +2235,7 @@ function TimelineItem({
                       py-2
                       rounded-lg
                       text-xs
-                      text-gray-500
+                      text-black
                       hover:bg-gray-100
                     "
                   >

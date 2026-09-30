@@ -9,7 +9,7 @@ export default function ActivityList({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border p-6 text-center text-gray-500">
+      <div className="bg-white rounded-xl border p-6 text-center text-black">
         Loading activities...
       </div>
     );
@@ -17,7 +17,7 @@ export default function ActivityList({
 
   if (!activities.length) {
     return (
-      <div className="bg-white rounded-xl border p-8 text-center text-gray-500">
+      <div className="bg-white rounded-xl border p-8 text-center text-black">
         No activities found.
       </div>
     );

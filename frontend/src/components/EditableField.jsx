@@ -166,7 +166,7 @@ export default function EditableField({
       value === undefined ||
       value === ""
     ) {
-      return "-";
+      return "";
     }
 
     // Object
@@ -227,6 +227,7 @@ export default function EditableField({
             className="
               flex
               items-center
+              hover:bg-black-500
               gap-2
               min-w-0
             "
@@ -484,7 +485,7 @@ export default function EditableField({
           {label && (
             <div
               className="
-                w-[110px]
+                w-[150px]
                 flex-shrink-0
               "
             >
@@ -492,11 +493,11 @@ export default function EditableField({
                 className="
                   text-xs
                   font-medium
-                  text-gray-500
+                  text-black
                   capitalize
                 "
               >
-                {label}
+                {label} &nbsp; -
               </span>
             </div>
           )}
@@ -580,7 +581,7 @@ export default function EditableField({
                 className="
                   text-xs
                   font-medium
-                  text-gray-500
+                  text-black
                   capitalize
                 "
               >

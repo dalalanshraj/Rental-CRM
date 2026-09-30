@@ -454,7 +454,7 @@ export default function Activities() {
                Activities
               </h1>
 
-              <p className="text-sm text-gray-400 mt-0.5">
+              <p className="text-sm text-black mt-0.5">
                 Manage activities across your team
               </p>
             </div>
@@ -470,7 +470,7 @@ export default function Activities() {
           <div className=" relative w-full sm:w-[320px] ">
             <Search
               size={18}
-              className=" absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 "
+              className=" absolute left-3 top-1/2 -translate-y-1/2 text-black "
             />
 
             <input
@@ -505,7 +505,7 @@ export default function Activities() {
 
             <ChevronDown
               size={17}
-              className=" pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 "
+              className=" pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black "
             />
           </div>
         </div>
@@ -591,7 +591,7 @@ export default function Activities() {
                 ${
                   periodFilter === value
                     ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-800"
+                    : "border-transparent text-black hover:text-gray-800"
                 }
               `}
           >
@@ -610,7 +610,7 @@ export default function Activities() {
             {activityCount}
           </span>
 
-          <span className=" text-sm text-gray-500 ">activities</span>
+          <span className=" text-sm text-black ">activities</span>
         </div>
 
         <button
@@ -676,7 +676,7 @@ export default function Activities() {
                 </th>
 
                 <th className=" w-[50px] px-3 py-3 ">
-                  <MoreHorizontal size={18} className="text-gray-400" />
+                  <MoreHorizontal size={18} className="text-black" />
                 </th>
               </tr>
             </thead>
@@ -706,7 +706,7 @@ export default function Activities() {
 
               {!loading && filteredActivities.length === 0 && (
                 <tr>
-                  <td colSpan="9" className=" text-center py-16 text-gray-400 ">
+                  <td colSpan="9" className=" text-center py-16 text-black ">
                     <div className=" flex flex-col items-center ">
                       <div className=" w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3 ">
                         <CalendarDays size={26} />
@@ -772,7 +772,7 @@ export default function Activities() {
                               className={` font-semibold text-left hover:underline
                                   ${
                                     activity.status === "completed"
-                                      ? "text-gray-400 line-through"
+                                      ? "text-black line-through"
                                       : "text-gray-800 hover:text-blue-600"
                                   }
                                 `}
@@ -781,7 +781,7 @@ export default function Activities() {
                             </button>
 
                             <div
-                              className=" text-xs text-gray-400 mt-1 capitalize 
+                              className=" text-xs text-black mt-1 capitalize 
                               "
                             >
                               {activity.type}
@@ -808,7 +808,7 @@ export default function Activities() {
                           </button>
                         ) : (
                           <span
-                            className=" text-gray-400
+                            className=" text-black
                             "
                           >
                             —
@@ -839,7 +839,7 @@ export default function Activities() {
                             {activity.organization.name}
                           </button>
                         ) : (
-                          <span className=" text-gray-400 ">—</span>
+                          <span className=" text-black ">—</span>
                         )}
                       </td>
 
@@ -862,7 +862,7 @@ export default function Activities() {
                             <span>{email}</span>
                           </a>
                         ) : (
-                          <span className=" text-gray-400 ">—</span>
+                          <span className=" text-black ">—</span>
                         )}
                       </td>
 
@@ -885,7 +885,7 @@ export default function Activities() {
                             {phone}
                           </a>
                         ) : (
-                          <span className=" text-gray-400 "> —</span>
+                          <span className=" text-black "> —</span>
                         )}
                       </td>
 
@@ -896,7 +896,7 @@ export default function Activities() {
                           <Clock3
                             size={15}
                             className="
-                                text-gray-400
+                                text-black
                               "
                           />
 
@@ -959,7 +959,7 @@ export default function Activities() {
                       >
                         <button
                           type="button"
-                          className=" w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-700
+                          className=" w-8 h-8 rounded-lg flex items-center justify-center text-black hover:bg-gray-100 hover:text-gray-700
                             "
                         >
                           <MoreHorizontal size={18} />

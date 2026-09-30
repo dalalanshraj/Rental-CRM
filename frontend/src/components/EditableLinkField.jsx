@@ -132,7 +132,7 @@ export default function EditableLinkField({
           className="
             text-xs
             font-medium
-            text-gray-500
+            text-black
             capitalize
           "
         >

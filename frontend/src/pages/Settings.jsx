@@ -41,7 +41,7 @@ export default function Settings() {
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-800">Settings</h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-black">
             Manage your CRM settings and data.
           </p>
         </div>
@@ -53,7 +53,7 @@ export default function Settings() {
               Data Management
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-black">
               Export or import your CRM data.
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function Settings() {
                 Export Data
               </h3>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-black">
                 Download your Organizations, Leads and Deals data as an Excel
                 file.
               </p>

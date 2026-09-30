@@ -168,7 +168,7 @@ export default function Leads() {
             <div>
               <h1 className="text-2xl font-bold text-gray-800">People</h1>
 
-              <p className="text-sm text-gray-400 mt-0.5">
+              <p className="text-sm text-black mt-0.5">
                 Manage and view all your leads
               </p>
             </div>
@@ -191,7 +191,7 @@ export default function Leads() {
             </span>
 
             {search && (
-              <span className="text-xs text-gray-400">matching "{search}"</span>
+              <span className="text-xs text-black">matching "{search}"</span>
             )}
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function Leads() {
                 left-3.5
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-black
                 pointer-events-none
               "
             />
@@ -265,7 +265,7 @@ export default function Leads() {
                 rounded-xl
                 text-sm
                 text-gray-700
-                placeholder:text-gray-400
+                placeholder:text-black
                 outline-none
                 transition-all
                 duration-200
@@ -312,7 +312,7 @@ export default function Leads() {
               Lead Directory
             </h2>
 
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-black mt-0.5">
               Click any lead to view details
             </p>
           </div>
@@ -323,7 +323,7 @@ export default function Leads() {
               items-center
               gap-2
               text-xs
-              text-gray-400
+              text-black
             "
           >
             <span
@@ -355,31 +355,31 @@ export default function Leads() {
                 "
               >
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-black">
                     Name
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-black">
                     Organization
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-black">
                     Email
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-black">
                     Phone
                   </span>
                 </th>
 
                 <th className="text-left px-5 py-3.5">
-                  <span className="text-[12px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-black">
                     Owner
                   </span>
                 </th>
@@ -409,7 +409,7 @@ export default function Leads() {
                         "
                       />
 
-                      <p className="mt-3 text-sm text-gray-400">
+                      <p className="mt-3 text-sm text-black">
                         Loading leads...
                       </p>
                     </div>
@@ -449,7 +449,7 @@ export default function Leads() {
                           </p>
 
                           {lead.title && (
-                            <p className="text-xs text-gray-400 truncate mt-0.5">
+                            <p className="text-xs text-black truncate mt-0.5">
                               {lead.title}
                             </p>
                           )}
@@ -496,7 +496,7 @@ export default function Leads() {
                         <div className="flex items-center gap-2">
                           <FiMail
                             size={15}
-                            className="text-gray-400 flex-shrink-0"
+                            className="text-black flex-shrink-0"
                           />
 
                           <span
@@ -519,7 +519,7 @@ export default function Leads() {
                     <td className="px-5 py-4">
                       {lead.phone?.[0]?.number ? (
                         <div className="flex items-center gap-2">
-                          <FiPhone size={15} className="text-gray-400" />
+                          <FiPhone size={15} className="text-black" />
 
                           <span className="text-gray-600">
                             {lead.phone[0].number}
@@ -591,7 +591,7 @@ export default function Leads() {
                           h-14
                           rounded-2xl
                           bg-gray-100
-                          text-gray-400
+                          text-black
                           flex
                           items-center
                           justify-center
@@ -604,7 +604,7 @@ export default function Leads() {
                         No leads found
                       </h3>
 
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-black">
                         {search
                           ? "Try changing your search keyword."
                           : "There are no leads available for this user."}

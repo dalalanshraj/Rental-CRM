@@ -32,26 +32,31 @@ export default function Navbar({
   // SEARCH / DEBOUNCE
   // ==========================================
 
-  useEffect(() => {
-    const value = query.trim();
+ useEffect(() => {
+  const value = query.trim();
 
-    if (!value) {
-      onSearch("");
-      setSearching(false);
-      return;
-    }
+  if (!value) {
+    onSearch("");
+    setSearching(false);
+    return;
+  }
 
-    setSearching(true);
+  setSearching(true);
 
-    const timer = setTimeout(async () => {
+  const timer = setTimeout(async () => {
+    try {
       await onSearch(value);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
       setSearching(false);
-    }, 300);
+    }
+  }, 250);
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [query]);
+  return () => {
+    clearTimeout(timer);
+  };
+}, [query, onSearch]);
 
   // ==========================================
   // CLOSE PLUS MENU ON OUTSIDE CLICK
@@ -352,7 +357,7 @@ const [userEmail, setUserEmail] = useState(
                     "
                   />
 
-                  <span className="text-sm text-gray-500">Searching...</span>
+                  <span className="text-sm text-black">Searching...</span>
                 </div>
               )}
 

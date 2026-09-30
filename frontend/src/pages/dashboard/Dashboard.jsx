@@ -126,7 +126,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-[#f6f7fb] p-8">
         <div className="bg-white rounded-2xl p-8 text-center">
-          <p className="text-gray-500">No dashboard data available.</p>
+          <p className="text-black">No dashboard data available.</p>
         </div>
       </div>
     );
@@ -226,7 +226,7 @@ export default function Dashboard() {
             Dashboard
           </h1>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-black mt-1">
             Welcome back! Here's what's happening with your CRM.
           </p>
         </div>
@@ -272,7 +272,7 @@ export default function Dashboard() {
               </div>
 
               <div className="mt-5">
-                <p className="text-sm text-gray-500">{stat.title}</p>
+                <p className="text-sm text-black">{stat.title}</p>
 
                 <h2 className="text-3xl font-bold text-gray-800 mt-1">
                   {stat.value}
@@ -299,7 +299,7 @@ export default function Dashboard() {
                 Leads & Deals
               </h2>
 
-              <p className="text-sm text-gray-500 mt-1">Growth overview</p>
+              <p className="text-sm text-black mt-1">Growth overview</p>
             </div>
 
             <div className="flex items-center gap-4 text-xs">
@@ -426,11 +426,11 @@ export default function Dashboard() {
                 Lead Status
               </h2>
 
-              <p className="text-sm text-gray-500 mt-1">Current pipeline</p>
+              <p className="text-sm text-black mt-1">Current pipeline</p>
             </div>
 
             <button className="p-2 rounded-lg hover:bg-gray-100">
-              <MoreHorizontal size={19} className="text-gray-500" />
+              <MoreHorizontal size={19} className="text-black" />
             </button>
           </div>
 
@@ -472,7 +472,7 @@ export default function Dashboard() {
                   {totalLeadStatus}
                 </span>
 
-                <span className="text-xs text-gray-500">Total Leads</span>
+                <span className="text-xs text-black">Total Leads</span>
               </div>
             )}
           </div>
@@ -520,7 +520,7 @@ export default function Dashboard() {
               Deal Pipeline
             </h2>
 
-            <p className="text-sm text-gray-500 mt-1">Deals by stage</p>
+            <p className="text-sm text-black mt-1">Deals by stage</p>
           </div>
 
           <div className="h-[300px]">
@@ -580,7 +580,7 @@ export default function Dashboard() {
                 Recent Activities
               </h2>
 
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-black mt-1">
                 Your upcoming activities
               </p>
             </div>
@@ -622,13 +622,13 @@ export default function Dashboard() {
                       </p>
 
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-black">
                           {activity.type}
                         </span>
 
                         <span className="text-gray-300">•</span>
 
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-black">
                           {activity.startTime || activity.dueDate || "No time"}
                         </span>
                       </div>

@@ -574,7 +574,7 @@ export default function ActivityComposer({
 
         <div className="mt-6">
           <div className="border border-gray-300 rounded-xl px-4 py-4">
-            <p className="text-xs text-gray-500">Owner</p>
+            <p className="text-xs text-black">Owner</p>
 
             <p className="text-sm font-semibold text-gray-800 mt-1">
               {data?.owner?.name ? `${data.owner.name} (You)` : "You"}

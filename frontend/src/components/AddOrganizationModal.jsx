@@ -680,7 +680,7 @@ export default function AddOrganizationModal({
                               : `
                                 border-gray-200
                                 bg-white
-                                text-gray-500
+                                text-black
                                 
                               `
                           }
