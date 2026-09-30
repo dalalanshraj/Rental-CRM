@@ -1,13 +1,9 @@
- import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/axios";
 
 import { FaPencil } from "react-icons/fa6";
 
-import {
-  Check,
-  X,
-  Loader2,
-} from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
 
 export default function EditableField({
   label,
@@ -37,10 +33,7 @@ export default function EditableField({
   // =====================================================
 
   const formatValue = (val) => {
-    if (
-      val === null ||
-      val === undefined
-    ) {
+    if (val === null || val === undefined) {
       return "";
     }
 
@@ -55,9 +48,7 @@ export default function EditableField({
   // INPUT
   // =====================================================
 
-  const [input, setInput] = useState(
-    formatValue(value)
-  );
+  const [input, setInput] = useState(formatValue(value));
 
   // =====================================================
   // SYNC VALUE
@@ -65,9 +56,7 @@ export default function EditableField({
 
   useEffect(() => {
     if (!editing) {
-      setInput(
-        formatValue(value)
-      );
+      setInput(formatValue(value));
     }
   }, [value, editing]);
 
@@ -76,9 +65,7 @@ export default function EditableField({
   // =====================================================
 
   const startEditing = () => {
-    setInput(
-      formatValue(value)
-    );
+    setInput(formatValue(value));
 
     setEditing(true);
   };
@@ -88,9 +75,7 @@ export default function EditableField({
   // =====================================================
 
   const cancelEditing = () => {
-    setInput(
-      formatValue(value)
-    );
+    setInput(formatValue(value));
 
     setEditing(false);
   };
@@ -100,10 +85,7 @@ export default function EditableField({
   // =====================================================
 
   const save = async () => {
-    if (
-      saving ||
-      !actualId
-    ) {
+    if (saving || !actualId) {
       return;
     }
 
@@ -114,10 +96,7 @@ export default function EditableField({
         [field]: input,
       };
 
-      const res = await api.put(
-        `/${endpoint}/${actualId}`,
-        payload
-      );
+      const res = await api.put(`/${endpoint}/${actualId}`, payload);
 
       // Update parent
       if (onUpdate) {
@@ -125,12 +104,8 @@ export default function EditableField({
       }
 
       setEditing(false);
-
     } catch (err) {
-      console.error(
-        "Update failed:",
-        err
-      );
+      console.error("Update failed:", err);
     } finally {
       setSaving(false);
     }
@@ -141,7 +116,6 @@ export default function EditableField({
   // =====================================================
 
   const handleKeyDown = (e) => {
-
     // Enter = Save
     if (e.key === "Enter") {
       e.preventDefault();
@@ -160,20 +134,12 @@ export default function EditableField({
   // =====================================================
 
   const displayValue = () => {
-
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
+    if (value === null || value === undefined || value === "") {
       return "";
     }
 
     // Object
-    if (
-      typeof value === "object"
-    ) {
-
+    if (typeof value === "object") {
       // ADDRESS OBJECT
       if (
         value.street ||
@@ -193,9 +159,7 @@ export default function EditableField({
           .join(", ");
       }
 
-      return JSON.stringify(
-        value
-      );
+      return JSON.stringify(value);
     }
 
     return value;
@@ -216,13 +180,11 @@ export default function EditableField({
           min-w-0
         "
       >
-
         {/* =================================================
             HEADER VIEW MODE
         ================================================= */}
 
         {!editing ? (
-
           <div
             className="
               flex
@@ -230,9 +192,9 @@ export default function EditableField({
               hover:bg-black-500
               gap-2
               min-w-0
+              
             "
           >
-
             {/* NAME */}
 
             <span
@@ -242,10 +204,9 @@ export default function EditableField({
                 font-bold
                 text-gray-800
                 min-w-0
+                
               "
-              title={String(
-                displayValue()
-              )}
+              title={String(displayValue())}
             >
               {displayValue()}
             </span>
@@ -273,15 +234,10 @@ export default function EditableField({
                 flex-shrink-0
               "
             >
-              <FaPencil
-                size={11}
-              />
+              <FaPencil size={11} />
             </button>
-
           </div>
-
         ) : (
-
           /* =================================================
               HEADER EDIT MODE
           ================================================= */
@@ -292,7 +248,6 @@ export default function EditableField({
               max-w-[520px]
             "
           >
-
             <div
               className="
                 flex
@@ -300,20 +255,13 @@ export default function EditableField({
                 gap-2
               "
             >
-
               {/* INPUT */}
 
               <input
                 type="text"
                 value={input}
-                onChange={(e) =>
-                  setInput(
-                    e.target.value
-                  )
-                }
-                onKeyDown={
-                  handleKeyDown
-                }
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
                 autoFocus
                 disabled={saving}
                 className="
@@ -344,9 +292,7 @@ export default function EditableField({
 
               <button
                 type="button"
-                onClick={
-                  cancelEditing
-                }
+                onClick={cancelEditing}
                 disabled={saving}
                 title="Cancel"
                 className="
@@ -373,13 +319,9 @@ export default function EditableField({
                   flex-shrink-0
                 "
               >
-                <X
-                  size={17}
-                />
+                <X size={17} />
 
-                <span className="hidden sm:inline">
-                  Cancel
-                </span>
+                <span className="hidden sm:inline">Cancel</span>
               </button>
 
               {/* =================================================
@@ -389,10 +331,7 @@ export default function EditableField({
               <button
                 type="button"
                 onClick={save}
-                disabled={
-                  saving ||
-                  !actualId
-                }
+                disabled={saving || !actualId}
                 title="Save"
                 className="
                   h-11
@@ -418,7 +357,6 @@ export default function EditableField({
                   flex-shrink-0
                 "
               >
-
                 {saving ? (
                   <Loader2
                     size={17}
@@ -427,24 +365,16 @@ export default function EditableField({
                     "
                   />
                 ) : (
-                  <Check
-                    size={17}
-                  />
+                  <Check size={17} />
                 )}
 
                 <span className="hidden sm:inline">
-                  {saving
-                    ? "Saving..."
-                    : "Save"}
+                  {saving ? "Saving..." : "Save"}
                 </span>
-
               </button>
-
             </div>
-
           </div>
         )}
-
       </div>
     );
   }
@@ -463,13 +393,11 @@ export default function EditableField({
         min-w-0
       "
     >
-
       {/* =================================================
           VIEW MODE
       ================================================= */}
 
       {!editing ? (
-
         <div
           className="
             flex
@@ -479,7 +407,6 @@ export default function EditableField({
             min-h-[34px]
           "
         >
-
           {/* LABEL */}
 
           {label && (
@@ -510,12 +437,13 @@ export default function EditableField({
               w-full
               text-sm
               text-blue-500 
-             
+               hover:bg-gray-200
+                            p-1 
+                            rounded
+                            cursor-pointer
               hover:underline
             "
-            title={String(
-              displayValue()
-            )}
+            title={String(displayValue())}
           >
             {displayValue()}
           </span>
@@ -525,9 +453,7 @@ export default function EditableField({
           <button
             type="button"
             onClick={startEditing}
-            title={`Edit ${
-              label || ""
-            }`}
+            title={`Edit ${label || ""}`}
             className="
               w-7
               h-7
@@ -545,15 +471,10 @@ export default function EditableField({
               flex-shrink-0
             "
           >
-            <FaPencil
-              size={12}
-            />
+            <FaPencil size={12} />
           </button>
-
         </div>
-
       ) : (
-
         /* =================================================
             DEFAULT EDIT MODE
         ================================================= */
@@ -566,7 +487,6 @@ export default function EditableField({
             w-full
           "
         >
-
           {/* LABEL */}
 
           {label && (
@@ -598,20 +518,13 @@ export default function EditableField({
               min-w-0
             "
           >
-
             {/* INPUT */}
 
             <input
               type="text"
               value={input}
-              onChange={(e) =>
-                setInput(
-                  e.target.value
-                )
-              }
-              onKeyDown={
-                handleKeyDown
-              }
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
               autoFocus
               disabled={saving}
               className="
@@ -648,14 +561,11 @@ export default function EditableField({
                 mt-2
               "
             >
-
               {/* CANCEL */}
 
               <button
                 type="button"
-                onClick={
-                  cancelEditing
-                }
+                onClick={cancelEditing}
                 disabled={saving}
                 title="Cancel"
                 className="
@@ -678,10 +588,7 @@ export default function EditableField({
                   disabled:cursor-not-allowed
                 "
               >
-                <X
-                  size={14}
-                />
-
+                <X size={14} />
                 Cancel
               </button>
 
@@ -690,10 +597,7 @@ export default function EditableField({
               <button
                 type="button"
                 onClick={save}
-                disabled={
-                  saving ||
-                  !actualId
-                }
+                disabled={saving || !actualId}
                 title="Save"
                 className="
                   h-9
@@ -715,7 +619,6 @@ export default function EditableField({
                   disabled:cursor-not-allowed
                 "
               >
-
                 {saving ? (
                   <Loader2
                     size={14}
@@ -724,24 +627,15 @@ export default function EditableField({
                     "
                   />
                 ) : (
-                  <Check
-                    size={14}
-                  />
+                  <Check size={14} />
                 )}
 
-                {saving
-                  ? "Saving..."
-                  : "Save"}
-
+                {saving ? "Saving..." : "Save"}
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 }

@@ -39,29 +39,12 @@ export const getLeads = async (req, res) => {
 
     let filter = {};
 
-    // ==========================================
-    // OWNER FILTER
-    // ==========================================
-
-    if (req.user.role === "admin") {
-      // Admin selected a specific user
-      if (userId && userId !== "all") {
-        filter.owner = userId;
-      }
-
-      // Admin + no userId
-      // => ALL USERS
-      // => no owner filter
-    } else {
-      // Sales user
-      // Only see own leads
-      filter.owner = req.user.id;
+    // Specific salesperson selected
+    if (userId) {
+      filter.owner = userId;
     }
 
-    // ==========================================
-    // SEARCH
-    // ==========================================
-
+    // Search
     if (search?.trim()) {
       const searchValue = search.trim();
 
@@ -81,46 +64,54 @@ export const getLeads = async (req, res) => {
             $options: "i",
           },
         },
-
         {
           title: {
             $regex: searchValue,
             $options: "i",
           },
         },
-
         {
           "email.address": {
             $regex: searchValue,
             $options: "i",
           },
         },
-
         {
           "phone.number": {
             $regex: searchValue,
             $options: "i",
           },
         },
-
         {
           organization: {
             $in: organizationIds,
           },
         },
+        {
+          website: {
+            $regex: searchValue,
+            $options: "i",
+          },
+        },
+        {
+          instagram: {
+            $regex: searchValue,
+            $options: "i",
+          },
+        },
+        {
+          facebook: {
+            $regex: searchValue,
+            $options: "i",
+          },
+        },
       ];
     }
-
-    // ==========================================
-    // GET LEADS
-    // ==========================================
 
     const leads = await Leads.find(filter)
       .populate("organization", "name website")
       .populate("owner", "name email role")
-      .sort({
-        createdAt: -1,
-      });
+      .sort({ createdAt: -1 });
 
     res.json(leads);
   } catch (error) {

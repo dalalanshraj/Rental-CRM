@@ -360,8 +360,8 @@ export default function EditableContactField({
               w-[40px]
               min-w-[40px]
               flex-shrink-0
-              text-sm
-              text-black
+              text-[#0d68c5]
+              
               capitalize
               pt-1
             "
@@ -371,9 +371,9 @@ export default function EditableContactField({
 
           {/* VALUES */}
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 ">
             {displayValues.length > 0 ? (
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 ">
                 {displayValues.map(
                   (item, index) => {
                     const displayValue =
@@ -390,8 +390,13 @@ export default function EditableContactField({
                         key={index}
                         className="
                           flex
-                          items-center
+                          items-center 
+                          hover:bg-gray-200
+                            p-1 
+                            rounded
+                            cursor-pointer
                           gap-2
+                          mt-1
                           min-w-0
                         "
                       >
@@ -402,6 +407,7 @@ export default function EditableContactField({
                             truncate
                             text-sm
                             text-blue-600
+                            
                             hover:underline
                           "
                           title={displayValue}

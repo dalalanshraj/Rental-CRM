@@ -134,6 +134,7 @@ export default function EditableLinkField({
             font-medium
             text-black
             capitalize
+            
           "
         >
           {label}
@@ -152,6 +153,7 @@ export default function EditableLinkField({
             gap-2
             w-full
             min-h-[34px]
+             
           "
         >
 
@@ -170,14 +172,16 @@ export default function EditableLinkField({
                 flex-1
                 min-w-0
                 truncate
+                
                 text-sm
                 text-[#4B49AC]
                 hover:text-indigo-700
+               
                 hover:underline
                 transition
               "
             >
-              <span className="truncate">
+              <span className="truncate ">
                 {displayUrl()}
               </span>
 

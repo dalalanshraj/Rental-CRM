@@ -39,60 +39,71 @@ export default function Leads() {
   // FETCH LEADS
   // ==========================================
 
-  const fetchLeads = async (userId = "") => {
-    try {
-      const params = {};
+const fetchLeads = async (userId = "") => {
+  try {
+    setLoading(true);
 
-      // Specific user selected
-      if (userId && userId !== "all") {
-        params.userId = userId;
-      }
+    const params = {};
 
-      const res = await api.get("/leads", {
-        params,
-      });
-
-      setLeads(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error("Failed to fetch leads:", error);
-      setLeads([]);
+    // Sirf jab dropdown se specific user select ho
+    if (userId) {
+      params.userId = userId;
     }
-  };
 
+    console.log("FETCH LEADS PARAMS:", params);
+
+    const res = await api.get("/leads", {
+      params,
+    });
+
+    console.log("LEADS RESPONSE:", res.data);
+
+    setLeads(Array.isArray(res.data) ? res.data : []);
+  } catch (error) {
+    console.error("Failed to fetch leads:", error);
+    setLeads([]);
+  } finally {
+    setLoading(false);
+  }
+};
   // ==========================================
   // INITIAL LOAD
   // ==========================================
 
-  useEffect(() => {
-    fetchUsers();
+ 
+
+useEffect(() => {
+  const loadData = async () => {
+    await fetchUsers();
 
     const userId = localStorage.getItem("userId");
 
+    // Dropdown me logged-in user selected rahega
     if (userId) {
       setSelectedUser(userId);
-      fetchLeads(userId);
-    } else {
-      fetchLeads("");
     }
-  }, []);
+
+    // IMPORTANT:
+    // Page load par ALL leads fetch honge
+    fetchLeads("");
+  };
+
+  loadData();
+}, []);
 
   // ==========================================
   // USER CHANGE
   // ==========================================
 
-  const handleUserChange = (e) => {
-    const value = e.target.value;
+const handleUserChange = (e) => {
+  const userId = e.target.value;
 
-    if (value === "all") {
-      setSelectedUser("");
-      fetchLeads("");
-      return;
-    }
+  console.log("SELECTED USER:", userId);
 
-    setSelectedUser(value);
-    fetchLeads(value);
-  };
+  setSelectedUser(userId);
 
+  fetchLeads(userId);
+};
   // ==========================================
   // FILTER
   // ==========================================
@@ -199,10 +210,10 @@ export default function Leads() {
         {/* RIGHT CONTROLS */}
         <div className="flex flex-col sm:flex-row gap-3">
           {/* USER FILTER */}
-          <select
-            value={selectedUser || "all"}
-            onChange={handleUserChange}
-            className="
+       <select
+  value={selectedUser}
+  onChange={handleUserChange}
+  className="
     h-11
     min-w-[180px]
     appearance-none
@@ -224,15 +235,13 @@ export default function Leads() {
     focus:ring-indigo-500/10
     shadow-sm
   "
-          >
-            <option value="all">All Users</option>
-
-            {users.map((u) => (
-              <option key={u._id} value={u._id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
+>
+  {users.map((u) => (
+    <option key={u._id} value={u._id}>
+      {u.name}
+    </option>
+  ))}
+</select>
 
           {/* SEARCH */}
           <div className="relative">

@@ -802,6 +802,7 @@ export default function LeadDetails() {
                 className="
                   text-[10px]
                   text-black
+                  
                 "
               >
                 {filteredLeadFields.length}

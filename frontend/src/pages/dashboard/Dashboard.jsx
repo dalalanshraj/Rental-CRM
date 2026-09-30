@@ -295,9 +295,9 @@ export default function Dashboard() {
         <div className="xl:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div>
-              <h2 className="text-lg font-semibold text-gray-800">
-                Leads & Deals
-              </h2>
+            <h2 className="text-lg font-semibold text-gray-800">
+  Leads Growth
+</h2>
 
               <p className="text-sm text-black mt-1">Growth overview</p>
             </div>
@@ -308,10 +308,7 @@ export default function Dashboard() {
                 Leads
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-                Deals
-              </div>
+              
             </div>
           </div>
 
@@ -390,13 +387,7 @@ export default function Dashboard() {
                     fill="url(#leadGradient)"
                   />
 
-                  <Area
-                    type="monotone"
-                    dataKey="deals"
-                    stroke="#8b5cf6"
-                    strokeWidth={3}
-                    fill="url(#dealGradient)"
-                  />
+                
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
@@ -509,7 +500,7 @@ export default function Dashboard() {
           SECOND ROW
       ========================================= */}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div className="grid grid-cols-1 gap-6">
         {/* =====================================
             DEAL PIPELINE
         ===================================== */}
