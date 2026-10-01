@@ -39,12 +39,11 @@ export const getLeads = async (req, res) => {
 
     let filter = {};
 
-    // Specific salesperson selected
+    // Dropdown me selected user ke leads
     if (userId) {
       filter.owner = userId;
     }
 
-    // Search
     if (search?.trim()) {
       const searchValue = search.trim();
 
@@ -55,21 +54,13 @@ export const getLeads = async (req, res) => {
         },
       }).select("_id");
 
-      const organizationIds = organizations.map((org) => org._id);
+      const organizationIds = organizations.map(
+        (org) => org._id
+      );
 
       filter.$or = [
-        {
-          name: {
-            $regex: searchValue,
-            $options: "i",
-          },
-        },
-        {
-          title: {
-            $regex: searchValue,
-            $options: "i",
-          },
-        },
+        { name: { $regex: searchValue, $options: "i" } },
+        { title: { $regex: searchValue, $options: "i" } },
         {
           "email.address": {
             $regex: searchValue,
@@ -108,10 +99,15 @@ export const getLeads = async (req, res) => {
       ];
     }
 
+    console.log("GET LEADS QUERY:", req.query);
+    console.log("GET LEADS FILTER:", filter);
+
     const leads = await Leads.find(filter)
       .populate("organization", "name website")
       .populate("owner", "name email role")
       .sort({ createdAt: -1 });
+
+    console.log("LEADS FOUND:", leads.length);
 
     res.json(leads);
   } catch (error) {

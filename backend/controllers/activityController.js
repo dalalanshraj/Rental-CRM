@@ -9,7 +9,6 @@ export const createActivity = async (req, res) => {
       description,
       dueDate,
       startTime,
-     
       lead,
       organization,
       status,

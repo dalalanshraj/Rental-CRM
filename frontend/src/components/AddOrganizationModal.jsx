@@ -5,6 +5,7 @@ import {
   X,
   Building2,
   UserRound,
+  Mail,
   Phone,
   MapPin,
   CalendarDays,
@@ -28,6 +29,7 @@ export default function AddOrganizationModal({
     name: "",
     owner: "",
     phone: "",
+    email:"",
     address: "",
     currentBookingPalAccount: "none",
     nextListingExpirationDate: "",
@@ -543,6 +545,34 @@ export default function AddOrganizationModal({
                       value={form.phone}
                       onChange={handleChange}
                       placeholder="Company phone"
+                      className={`${inputClass} pl-10`}
+                    />
+                  </div>
+                </div>
+                {/* EMAIL */}
+                     <div>
+                  <label className={labelClass}>
+                   Company Email
+                  </label>
+
+                  <div className="relative">
+                    <Mail
+                      size={16}
+                      className="
+                        absolute
+                        left-3.5
+                        top-1/2
+                        -translate-y-1/2
+                        text-gray-400
+                      "
+                    />
+
+                    <input
+                      type="text"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="Company  Email"
                       className={`${inputClass} pl-10`}
                     />
                   </div>

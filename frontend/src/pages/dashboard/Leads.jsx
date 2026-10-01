@@ -45,20 +45,26 @@ const fetchLeads = async (userId = "") => {
 
     const params = {};
 
-    // Sirf jab dropdown se specific user select ho
     if (userId) {
       params.userId = userId;
     }
 
-    console.log("FETCH LEADS PARAMS:", params);
+    console.log("========== FETCH LEADS ==========");
+    console.log("USER ID:", userId);
+    console.log("PARAMS:", params);
 
     const res = await api.get("/leads", {
       params,
     });
 
     console.log("LEADS RESPONSE:", res.data);
+    console.log("LEADS COUNT:", res.data?.length);
 
-    setLeads(Array.isArray(res.data) ? res.data : []);
+    setLeads(
+      Array.isArray(res.data)
+        ? res.data
+        : []
+    );
   } catch (error) {
     console.error("Failed to fetch leads:", error);
     setLeads([]);
@@ -78,13 +84,11 @@ useEffect(() => {
 
     const userId = localStorage.getItem("userId");
 
-    // Dropdown me logged-in user selected rahega
     if (userId) {
       setSelectedUser(userId);
     }
 
-    // IMPORTANT:
-    // Page load par ALL leads fetch honge
+    // Page load = ALL LEADS
     fetchLeads("");
   };
 
@@ -98,7 +102,8 @@ useEffect(() => {
 const handleUserChange = (e) => {
   const userId = e.target.value;
 
-  console.log("SELECTED USER:", userId);
+  console.log("========== USER FILTER ==========");
+  console.log("SELECTED USER ID:", userId);
 
   setSelectedUser(userId);
 

@@ -854,7 +854,7 @@ const [address, setAddress] = useState({
 
             <section>
 
-              <div
+              {/* <div
                 className="
                   flex
                   items-center
@@ -900,11 +900,11 @@ const [address, setAddress] = useState({
 
                 </div>
 
-              </div>
+              </div> */}
 
               {/* PHONE */}
 
-              <div className="mb-5">
+              <div className="mb-10">
 
                 <div
                   className="

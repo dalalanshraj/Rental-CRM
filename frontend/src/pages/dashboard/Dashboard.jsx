@@ -505,7 +505,7 @@ export default function Dashboard() {
             DEAL PIPELINE
         ===================================== */}
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        {/* <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="mb-5">
             <h2 className="text-lg font-semibold text-gray-800">
               Deal Pipeline
@@ -558,7 +558,7 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* =====================================
             RECENT ACTIVITIES
@@ -576,9 +576,9 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <button className="text-sm text-blue-600 font-medium hover:text-blue-700">
+            {/* <button className="text-sm text-blue-600 font-medium hover:text-blue-700">
               View all
-            </button>
+            </button> */}
           </div>
 
           <div className="space-y-3">
