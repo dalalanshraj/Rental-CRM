@@ -1,5 +1,6 @@
- import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useCreateSuccess } from "../context/CreateSuccessContext";
 
 import {
   X,
@@ -17,10 +18,8 @@ import {
   Loader2,
 } from "lucide-react";
 
-export default function AddOrganizationModal({
-  onClose,
-  onCreated,
-}) {
+export default function AddOrganizationModal({ onClose, onCreated }) {
+  const { showCreateSuccess } = useCreateSuccess();
   // =====================================================
   // FORM
   // =====================================================
@@ -29,7 +28,7 @@ export default function AddOrganizationModal({
     name: "",
     owner: "",
     phone: "",
-    email:"",
+    email: "",
     address: "",
     currentBookingPalAccount: "none",
     nextListingExpirationDate: "",
@@ -53,6 +52,9 @@ export default function AddOrganizationModal({
   // =====================================================
 
   const [saving, setSaving] = useState(false);
+  const [checkingName, setCheckingName] = useState(false);
+  const [nameExists, setNameExists] = useState(false);
+  const [nameAvailable, setNameAvailable] = useState(false);
 
   // =====================================================
   // ERROR
@@ -65,31 +67,26 @@ export default function AddOrganizationModal({
   // =====================================================
 
   const fetchUsers = async () => {
-  try {
-    setLoadingUsers(true);
+    try {
+      setLoadingUsers(true);
 
-    const res = await api.get("/auth");
+      const res = await api.get("/auth");
 
-    
-    const userData = Array.isArray(res.data)
-      ? res.data
-      : Array.isArray(res.data?.users)
-      ? res.data.users
-      : [];
+      const userData = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.users)
+          ? res.data.users
+          : [];
 
-    setUsers(userData);
+      setUsers(userData);
+    } catch (err) {
+      console.error("FETCH USERS ERROR:", err.response?.data || err);
 
-  } catch (err) {
-    console.error(
-      "FETCH USERS ERROR:",
-      err.response?.data || err
-    );
-
-    setUsers([]);
-  } finally {
-    setLoadingUsers(false);
-  }
-};
+      setUsers([]);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   // =====================================================
   // INITIAL LOAD
@@ -98,6 +95,85 @@ export default function AddOrganizationModal({
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // =====================================================
+  // CHECK ORGANIZATION NAME
+  // =====================================================
+
+  const checkOrganizationNameExists = async (name) => {
+    const cleanName = name.trim();
+
+    if (!cleanName) {
+      setNameExists(false);
+      setNameAvailable(false);
+      setCheckingName(false);
+      return;
+    }
+
+    try {
+      setCheckingName(true);
+      setNameExists(false);
+      setNameAvailable(false);
+
+      const startTime = Date.now();
+
+      const res = await api.get("/organizations/check-name", {
+        params: {
+          name: cleanName,
+        },
+      });
+
+      // Minimum 1 second spinner
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(1000 - elapsed, 0);
+
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+      }
+
+      if (res.data?.exists) {
+        setNameExists(true);
+        setNameAvailable(false);
+
+        setError("An organization with this name already exists.");
+      } else {
+        setNameExists(false);
+        setNameAvailable(true);
+
+        setError("");
+      }
+    } catch (error) {
+      console.error("CHECK ORGANIZATION NAME ERROR:", error);
+
+      setNameExists(false);
+      setNameAvailable(false);
+
+      setError("Unable to verify organization name.");
+    } finally {
+      setCheckingName(false);
+    }
+  };
+
+  // =====================================================
+  // ORGANIZATION NAME WATCHER
+  // =====================================================
+
+  useEffect(() => {
+    const name = form.name.trim();
+
+    if (!name) {
+      setNameExists(false);
+      setNameAvailable(false);
+      setCheckingName(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      checkOrganizationNameExists(name);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [form.name]);
 
   // =====================================================
   // INPUT CHANGE
@@ -113,6 +189,12 @@ export default function AddOrganizationModal({
 
     if (error) {
       setError("");
+    }
+
+    // Reset organization name status when user changes name
+    if (name === "name") {
+      setNameExists(false);
+      setNameAvailable(false);
     }
   };
 
@@ -171,64 +253,45 @@ export default function AddOrganizationModal({
 
         address: form.address.trim(),
 
-        currentBookingPalAccount:
-          form.currentBookingPalAccount,
+        currentBookingPalAccount: form.currentBookingPalAccount,
 
-        nextListingExpirationDate:
-          form.nextListingExpirationDate || null,
+        nextListingExpirationDate: form.nextListingExpirationDate || null,
 
         ecbyoPass: form.ecbyoPass,
 
         pmsUsed: form.pmsUsed.trim(),
 
         totalUnitsManaged:
-          form.totalUnitsManaged === ""
-            ? 0
-            : Number(form.totalUnitsManaged),
+          form.totalUnitsManaged === "" ? 0 : Number(form.totalUnitsManaged),
 
-        unitsOnEcbyo:
-          form.unitsOnEcbyo === ""
-            ? 0
-            : Number(form.unitsOnEcbyo),
+        unitsOnEcbyo: form.unitsOnEcbyo === "" ? 0 : Number(form.unitsOnEcbyo),
 
         listingId: form.listingId.trim(),
 
         feedDataLink: form.feedDataLink.trim(),
       };
 
-      console.log(
-        "CREATE ORGANIZATION PAYLOAD:",
-        payload
-      );
+      console.log("CREATE ORGANIZATION PAYLOAD:", payload);
 
-      const res = await api.post(
-        "/organizations",
-        payload
-      );
+      const res = await api.post("/organizations", payload);
 
-      console.log(
-        "ORGANIZATION CREATED:",
-        res.data
-      );
+      console.log("ORGANIZATION CREATED:", res.data);
 
       // Parent ko updated organization denge
       if (onCreated) {
         onCreated(res.data);
       }
 
+      // Global success toast
+      showCreateSuccess("organization", res.data);
+
       onClose();
 
+      onClose();
     } catch (err) {
-      console.error(
-        "CREATE ORGANIZATION ERROR:",
-        err
-      );
+      console.error("CREATE ORGANIZATION ERROR:", err);
 
-      setError(
-        err.response?.data?.message ||
-          "Failed to create organization."
-      );
-
+      setError(err.response?.data?.message || "Failed to create organization.");
     } finally {
       setSaving(false);
     }
@@ -393,7 +456,6 @@ export default function AddOrganizationModal({
           "
         >
           <div className="p-6 space-y-7">
-
             {/* =================================================
                 BASIC INFORMATION
             ================================================= */}
@@ -427,15 +489,12 @@ export default function AddOrganizationModal({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                 {/* NAME */}
 
                 <div>
                   <label className={labelClass}>
                     Organization Name
-                    <span className="text-red-500 ml-1">
-                      *
-                    </span>
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
 
                   <input
@@ -447,6 +506,31 @@ export default function AddOrganizationModal({
                     className={inputClass}
                     autoFocus
                   />
+
+                  {checkingName && (
+                    <div className="mt-1.5 flex items-center gap-2 text-[11px] text-gray-400">
+                      <Loader2
+                        size={13}
+                        strokeWidth={2.5}
+                        className="animate-spin"
+                      />
+                      <span>Checking organization name...</span>
+                    </div>
+                  )}
+
+                  {!checkingName && nameExists && (
+                    <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-red-500">
+                      <X size={12} strokeWidth={2.5} />
+                      <span>This organization already exists.</span>
+                    </div>
+                  )}
+
+                  {!checkingName && !nameExists && nameAvailable && (
+                    <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-green-600">
+                      <span className="text-sm">✓</span>
+                      <span>Organization name is available.</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* OWNER */}
@@ -454,9 +538,7 @@ export default function AddOrganizationModal({
                 <div>
                   <label className={labelClass}>
                     Owner
-                    <span className="text-red-500 ml-1">
-                      *
-                    </span>
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
 
                   <div className="relative">
@@ -487,19 +569,12 @@ export default function AddOrganizationModal({
                       `}
                     >
                       <option value="">
-                        {loadingUsers
-                          ? "Loading users..."
-                          : "Select owner"}
+                        {loadingUsers ? "Loading users..." : "Select owner"}
                       </option>
 
                       {users.map((user) => (
-                        <option
-                          key={user._id}
-                          value={user._id}
-                        >
-                          {user.name ||
-                            user.email ||
-                            "Unnamed User"}
+                        <option key={user._id} value={user._id}>
+                          {user.name || user.email || "Unnamed User"}
                         </option>
                       ))}
                     </select>
@@ -523,9 +598,7 @@ export default function AddOrganizationModal({
                 {/* PHONE */}
 
                 <div>
-                  <label className={labelClass}>
-                    Company Phone
-                  </label>
+                  <label className={labelClass}>Company Phone</label>
 
                   <div className="relative">
                     <Phone
@@ -550,10 +623,8 @@ export default function AddOrganizationModal({
                   </div>
                 </div>
                 {/* EMAIL */}
-                     <div>
-                  <label className={labelClass}>
-                   Company Email
-                  </label>
+                <div>
+                  <label className={labelClass}>Company Email</label>
 
                   <div className="relative">
                     <Mail
@@ -581,9 +652,7 @@ export default function AddOrganizationModal({
                 {/* FULL ADDRESS */}
 
                 <div className="md:col-span-2">
-                  <label className={labelClass}>
-                    Full Address
-                  </label>
+                  <label className={labelClass}>Full Address</label>
 
                   <div className="relative">
                     <MapPin
@@ -679,18 +748,13 @@ export default function AddOrganizationModal({
                     },
                   ].map((option) => {
                     const active =
-                      form.currentBookingPalAccount ===
-                      option.value;
+                      form.currentBookingPalAccount === option.value;
 
                     return (
                       <button
                         key={option.value}
                         type="button"
-                        onClick={() =>
-                          handleBookingPalChange(
-                            option.value
-                          )
-                        }
+                        onClick={() => handleBookingPalChange(option.value)}
                         className={`
                           h-11
                           rounded-xl
@@ -757,7 +821,6 @@ export default function AddOrganizationModal({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                 {/* EXPIRATION DATE */}
 
                 <div>
@@ -781,9 +844,7 @@ export default function AddOrganizationModal({
                     <input
                       type="date"
                       name="nextListingExpirationDate"
-                      value={
-                        form.nextListingExpirationDate
-                      }
+                      value={form.nextListingExpirationDate}
                       onChange={handleChange}
                       className={`${inputClass} pl-10`}
                     />
@@ -793,9 +854,7 @@ export default function AddOrganizationModal({
                 {/* LISTING ID */}
 
                 <div>
-                  <label className={labelClass}>
-                    Listing ID
-                  </label>
+                  <label className={labelClass}>Listing ID</label>
 
                   <div className="relative">
                     <Hash
@@ -823,9 +882,7 @@ export default function AddOrganizationModal({
                 {/* FEED DATA LINK */}
 
                 <div className="md:col-span-2">
-                  <label className={labelClass}>
-                    Feed Data Link
-                  </label>
+                  <label className={labelClass}>Feed Data Link</label>
 
                   <div className="relative">
                     <Rss
@@ -885,13 +942,10 @@ export default function AddOrganizationModal({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                 {/* ECBYO PASS */}
 
                 <div>
-                  <label className={labelClass}>
-                    ECBYO Pass
-                  </label>
+                  <label className={labelClass}>ECBYO Pass</label>
 
                   <div className="relative">
                     <KeyRound
@@ -969,9 +1023,7 @@ export default function AddOrganizationModal({
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-gray-800">
-                    Units
-                  </h3>
+                  <h3 className="text-sm font-bold text-gray-800">Units</h3>
 
                   <p className="text-[11px] text-gray-400">
                     Property unit information
@@ -980,7 +1032,6 @@ export default function AddOrganizationModal({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                 {/* TOTAL UNITS */}
 
                 <div>
@@ -992,9 +1043,7 @@ export default function AddOrganizationModal({
                     type="number"
                     min="0"
                     name="totalUnitsManaged"
-                    value={
-                      form.totalUnitsManaged
-                    }
+                    value={form.totalUnitsManaged}
                     onChange={handleChange}
                     placeholder="0"
                     className={inputClass}
@@ -1004,9 +1053,7 @@ export default function AddOrganizationModal({
                 {/* ECBYO UNITS */}
 
                 <div>
-                  <label className={labelClass}>
-                    Number of Units on ECBYO
-                  </label>
+                  <label className={labelClass}>Number of Units on ECBYO</label>
 
                   <input
                     type="number"
@@ -1041,7 +1088,6 @@ export default function AddOrganizationModal({
                 {error}
               </div>
             )}
-
           </div>
 
           {/* =================================================
@@ -1087,40 +1133,45 @@ export default function AddOrganizationModal({
 
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || checkingName || nameExists}
               className="
-                h-11
-                px-6
-                rounded-xl
-                bg-[#4B49AC]
-                text-white
-                text-sm
-                font-semibold
-                flex
-                items-center
-                justify-center
-                gap-2
-                shadow-md
-                shadow-indigo-500/20
-                hover:bg-[#403e99]
-                transition
-                disabled:opacity-60
-                disabled:cursor-not-allowed
-              "
+    h-11
+    px-6
+    rounded-xl
+    bg-[#4B49AC]
+    text-white
+    text-sm
+    font-semibold
+    flex
+    items-center
+    justify-center
+    gap-2
+    shadow-md
+    shadow-indigo-500/20
+    hover:bg-[#403e99]
+    transition
+    disabled:opacity-60
+    disabled:cursor-not-allowed
+  "
             >
               {saving ? (
                 <>
-                  <Loader2
-                    size={17}
-                    className="animate-spin"
-                  />
-
+                  <Loader2 size={17} className="animate-spin" />
                   Creating...
+                </>
+              ) : checkingName ? (
+                <>
+                  <Loader2 size={17} className="animate-spin" />
+                  Checking...
+                </>
+              ) : nameExists ? (
+                <>
+                  <X size={17} />
+                  Name Already Exists
                 </>
               ) : (
                 <>
                   <Save size={17} />
-
                   Create Organization
                 </>
               )}

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+ 
 
 // AUTH
 import Login from "./pages/auth/Login";
@@ -17,103 +18,140 @@ import OrganizationDetails from "./pages/dashboard/OrganizationDetails";
 import Activities from "./pages/dashboard/Activities";
 import PersonalPreferences from "./pages/PersonalPreferences";
 import Settings from "./pages/Settings";
+import CreateSuccessToast from "./components/CreateSuccessToast";
+import { CreateSuccessProvider } from "./context/CreateSuccessContext";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* AUTH */}
-        <Route path="/" element={<Login />} />
-        {/* <Route path="/register" element={<Register />} /> */}
+   <BrowserRouter>
+      <CreateSuccessProvider>
 
-        {/* DASHBOARD */}
-        <Route
-          path="/app/dashboard"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Dashboard />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
+        <Routes>
 
-        {/* LEADS TABLE */}
-        <Route
-          path="/app/leads"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Leads />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* AUTH */}
 
-        {/* SINGLE LEAD */}
-        <Route
-          path="/app/leads/:id"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <LeadDetails />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/"
+            element={<Login />}
+          />
 
-        {/* LEADS TABLE */}
-        <Route
-          path="/app/organizations"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Organizations />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/app/organizations/:id"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <OrganizationDetails />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/app/activities"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Activities />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings/profile"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                 <PersonalPreferences />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-  path="/settings"
-  element={
-    <ProtectedRoute>
-      <MainLayout>
-        <Settings />
-      </MainLayout>
-    </ProtectedRoute>
-  }
-/>
-      </Routes>
+          {/* 
+          <Route
+            path="/register"
+            element={<Register />}
+          />
+          */}
+
+          {/* DASHBOARD */}
+
+          <Route
+            path="/app/dashboard"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* LEADS TABLE */}
+
+          <Route
+            path="/app/leads"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Leads />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* SINGLE LEAD */}
+
+          <Route
+            path="/app/leads/:id"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <LeadDetails />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ORGANIZATIONS */}
+
+          <Route
+            path="/app/organizations"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Organizations />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* SINGLE ORGANIZATION */}
+
+          <Route
+            path="/app/organizations/:id"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <OrganizationDetails />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ACTIVITIES */}
+
+          <Route
+            path="/app/activities"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Activities />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* PROFILE */}
+
+          <Route
+            path="/settings/profile"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <PersonalPreferences />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* SETTINGS */}
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Settings />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+        </Routes>
+
+        {/* GLOBAL CREATE SUCCESS TOAST */}
+        <CreateSuccessToast />
+
+      </CreateSuccessProvider>
     </BrowserRouter>
   );
 }

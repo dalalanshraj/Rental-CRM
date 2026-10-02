@@ -982,3 +982,42 @@ export const addOrganizationNote = async (
     });
   }
 };
+
+export const checkOrganizationName = async (req, res) => {
+  try {
+    const name = req.query.name?.trim();
+
+    if (!name) {
+      return res.json({
+        exists: false,
+      });
+    }
+
+    const escapedName = name.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+    const existingOrganization =
+      await Organization.findOne({
+        name: {
+          $regex: `^${escapedName}$`,
+          $options: "i",
+        },
+      }).select("_id name");
+
+    return res.json({
+      exists: !!existingOrganization,
+      organization: existingOrganization || null,
+    });
+  } catch (error) {
+    console.error(
+      "CHECK ORGANIZATION NAME ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to check organization name.",
+    });
+  }
+};

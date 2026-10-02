@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  checkOrganizationName,
   createOrganization,
   getOrganizations,
   getOrganizationById,
@@ -16,6 +17,12 @@ import {
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+router.get(
+  "/check-name",
+  protect,
+  checkOrganizationName
+);
 
 router.post("/", protect, createOrganization);
 

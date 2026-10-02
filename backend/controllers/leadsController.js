@@ -4,30 +4,97 @@ import Organization from "../models/Organization.js";
 // Add leads Data
 export const createLeads = async (req, res) => {
   try {
-    const lead = await Leads.create({
-      ...req.body,
-      owner: req.user.id,
-      organization: req.body.organization,
-    });
+    // =========================================
+    // NAME VALIDATION
+    // =========================================
 
-    if (req.body.organization) {
-      await Organization.findByIdAndUpdate(req.body.organization, {
-        $addToSet: {
-          leads: lead._id,
-        },
+    const name = req.body.name?.trim();
+
+    if (!name) {
+      return res.status(400).json({
+        message: "Contact person name is required.",
       });
     }
 
-    const populatedLead = await Leads.findById(lead._id)
-      .populate("owner", "name email role")
-      .populate(
-        "organization",
-        "name website email phone industry vrsUsed vrsId monthsOfCredit totalUnitsManaged address",
-      );
+    // =========================================
+    // CHECK DUPLICATE LEAD NAME
+    // Case-insensitive exact match
+    // John Smith = john smith = JOHN SMITH
+    // =========================================
 
-    res.status(201).json(populatedLead);
+    const escapedName = name.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+    const existingLead = await Leads.findOne({
+      name: {
+        $regex: `^${escapedName}$`,
+        $options: "i",
+      },
+    }).select("_id name");
+
+    if (existingLead) {
+      return res.status(409).json({
+        message:
+          "A lead with this name already exists.",
+      });
+    }
+
+    // =========================================
+    // CREATE LEAD
+    // =========================================
+
+    const lead = await Leads.create({
+      ...req.body,
+      name,
+      owner: req.user.id,
+      organization: req.body.organization || null,
+    });
+
+    // =========================================
+    // LINK LEAD TO ORGANIZATION
+    // =========================================
+
+    if (req.body.organization) {
+      await Organization.findByIdAndUpdate(
+        req.body.organization,
+        {
+          $addToSet: {
+            leads: lead._id,
+          },
+        }
+      );
+    }
+
+    // =========================================
+    // POPULATE CREATED LEAD
+    // =========================================
+
+    const populatedLead =
+      await Leads.findById(lead._id)
+        .populate(
+          "owner",
+          "name email role"
+        )
+        .populate(
+          "organization",
+          "name website email phone industry vrsUsed vrsId monthsOfCredit totalUnitsManaged address"
+        );
+
+    return res.status(201).json(
+      populatedLead
+    );
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(
+      "CREATE LEAD ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -480,6 +547,36 @@ export const transferLeadOwner = async (req, res) => {
 
     return res.status(500).json({
       message: err.message,
+    });
+  }
+};
+
+export const checkLeadName = async (req, res) => {
+  try {
+    const name = req.query.name?.trim();
+
+    if (!name) {
+      return res.json({
+        exists: false,
+      });
+    }
+
+    const existingLead = await Leads.findOne({
+      name: {
+        $regex: `^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+        $options: "i",
+      },
+    }).select("_id name");
+
+    return res.json({
+      exists: !!existingLead,
+      lead: existingLead || null,
+    });
+  } catch (error) {
+    console.error("CHECK LEAD NAME ERROR:", error);
+
+    return res.status(500).json({
+      message: "Failed to check lead name.",
     });
   }
 };

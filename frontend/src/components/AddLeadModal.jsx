@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useCreateSuccess } from "../context/CreateSuccessContext";
 
 import {
   X,
@@ -26,37 +27,36 @@ export default function AddLeadModal({
   initialName = "",
   initialOrganization = "",
 }) {
+   const { showCreateSuccess } = useCreateSuccess();
   // =====================================================
   // FORM
   // =====================================================
 
   const [form, setForm] = useState({
-  name: initialName,
-  organization: initialOrganization,
-  title: "",
-  value: "",
-  sourceChannel: "",
-  sourceChannelId: "",
-  expectedCloseDate: "",
-});
-const [address, setAddress] = useState({
-  street: "",
-  city: "",
-  state: "",
-  country: "",
-  zipCode: "",
-});
+    name: initialName,
+    organization: initialOrganization,
+    title: "",
+    value: "",
+    sourceChannel: "",
+    sourceChannelId: "",
+    expectedCloseDate: "",
+  });
+  const [address, setAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    country: "",
+    zipCode: "",
+  });
 
   // =====================================================
   // ORGANIZATIONS
   // =====================================================
 
   const [organizations, setOrganizations] = useState([]);
-  const [organizationSearch, setOrganizationSearch] =
-    useState("");
+  const [organizationSearch, setOrganizationSearch] = useState("");
 
-  const [loadingOrganizations, setLoadingOrganizations] =
-    useState(false);
+  const [loadingOrganizations, setLoadingOrganizations] = useState(false);
 
   // =====================================================
   // PHONES
@@ -91,6 +91,9 @@ const [address, setAddress] = useState({
   // =====================================================
 
   const [error, setError] = useState("");
+  const [checkingName, setCheckingName] = useState(false);
+  const [nameExists, setNameExists] = useState(false);
+  const [nameAvailable, setNameAvailable] = useState(false);
 
   // =====================================================
   // FETCH ORGANIZATIONS
@@ -102,15 +105,13 @@ const [address, setAddress] = useState({
 
       const res = await api.get("/organizations");
 
-      const data = Array.isArray(res.data)
-        ? res.data
-        : [];
+      const data = Array.isArray(res.data) ? res.data : [];
 
       setOrganizations(data);
     } catch (err) {
       console.error(
         "FETCH ORGANIZATIONS ERROR:",
-        err.response?.data || err.message
+        err.response?.data || err.message,
       );
 
       setOrganizations([]);
@@ -127,6 +128,77 @@ const [address, setAddress] = useState({
     fetchOrganizations();
   }, []);
 
+  useEffect(() => {
+    const name = form.name.trim();
+
+    if (!name) {
+      setNameExists(false);
+      setNameAvailable(false);
+      setCheckingName(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      checkLeadNameExists(name);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [form.name]);
+
+  // Name Check Filter Function
+  const checkLeadNameExists = async (name) => {
+    const cleanName = name.trim();
+
+    if (!cleanName) {
+      setNameExists(false);
+      setNameAvailable(false);
+      setCheckingName(false);
+      return;
+    }
+
+    try {
+      setCheckingName(true);
+      setNameExists(false);
+      setNameAvailable(false);
+
+      const startTime = Date.now();
+
+      const res = await api.get("/leads/check-name", {
+        params: {
+          name: cleanName,
+        },
+      });
+
+      // Minimum 1 second loading
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(1000 - elapsed, 0);
+
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+      }
+
+      if (res.data?.exists) {
+        setNameExists(true);
+        setNameAvailable(false);
+
+        setError("A lead with this name already exists.");
+      } else {
+        setNameExists(false);
+        setNameAvailable(true);
+        setError("");
+      }
+    } catch (error) {
+      console.error("CHECK LEAD NAME ERROR:", error);
+
+      setNameExists(false);
+      setNameAvailable(false);
+
+      setError("Unable to verify lead name.");
+    } finally {
+      setCheckingName(false);
+    }
+  };
+
   // =====================================================
   // INPUT CHANGE
   // =====================================================
@@ -142,6 +214,11 @@ const [address, setAddress] = useState({
     if (error) {
       setError("");
     }
+
+    if (name === "name") {
+      setNameExists(false);
+      setNameAvailable(false);
+    }
   };
 
   // =====================================================
@@ -156,8 +233,8 @@ const [address, setAddress] = useState({
               ...phone,
               number: value,
             }
-          : phone
-      )
+          : phone,
+      ),
     );
 
     if (error) {
@@ -169,10 +246,7 @@ const [address, setAddress] = useState({
   // PHONE LABEL
   // =====================================================
 
-  const handlePhoneLabelChange = (
-    index,
-    value
-  ) => {
+  const handlePhoneLabelChange = (index, value) => {
     setPhones((prev) =>
       prev.map((phone, i) =>
         i === index
@@ -180,8 +254,8 @@ const [address, setAddress] = useState({
               ...phone,
               label: value,
             }
-          : phone
-      )
+          : phone,
+      ),
     );
   };
 
@@ -189,10 +263,7 @@ const [address, setAddress] = useState({
   // EMAIL CHANGE
   // =====================================================
 
-  const handleEmailChange = (
-    index,
-    value
-  ) => {
+  const handleEmailChange = (index, value) => {
     setEmails((prev) =>
       prev.map((email, i) =>
         i === index
@@ -200,8 +271,8 @@ const [address, setAddress] = useState({
               ...email,
               address: value,
             }
-          : email
-      )
+          : email,
+      ),
     );
 
     if (error) {
@@ -213,10 +284,7 @@ const [address, setAddress] = useState({
   // EMAIL LABEL
   // =====================================================
 
-  const handleEmailLabelChange = (
-    index,
-    value
-  ) => {
+  const handleEmailLabelChange = (index, value) => {
     setEmails((prev) =>
       prev.map((email, i) =>
         i === index
@@ -224,8 +292,8 @@ const [address, setAddress] = useState({
               ...email,
               label: value,
             }
-          : email
-      )
+          : email,
+      ),
     );
   };
 
@@ -252,9 +320,7 @@ const [address, setAddress] = useState({
       return;
     }
 
-    setPhones((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+    setPhones((prev) => prev.filter((_, i) => i !== index));
   };
 
   // =====================================================
@@ -280,25 +346,18 @@ const [address, setAddress] = useState({
       return;
     }
 
-    setEmails((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+    setEmails((prev) => prev.filter((_, i) => i !== index));
   };
 
   // =====================================================
   // FILTER ORGANIZATIONS
   // =====================================================
 
-  const filteredOrganizations =
-    organizations.filter((organization) =>
-      (organization.name || "")
-        .toLowerCase()
-        .includes(
-          organizationSearch
-            .toLowerCase()
-            .trim()
-        )
-    );
+  const filteredOrganizations = organizations.filter((organization) =>
+    (organization.name || "")
+      .toLowerCase()
+      .includes(organizationSearch.toLowerCase().trim()),
+  );
 
   // =====================================================
   // SUBMIT
@@ -308,6 +367,10 @@ const [address, setAddress] = useState({
     e.preventDefault();
 
     if (saving) return;
+    if (nameExists) {
+      setError("A lead with this name already exists.");
+      return;
+    }
 
     // -----------------------------------------
     // NAME
@@ -322,99 +385,83 @@ const [address, setAddress] = useState({
       setSaving(true);
       setError("");
 
- const payload = {
-  name: form.name.trim(),
+      const payload = {
+        name: form.name.trim(),
 
-  title: form.title.trim(),
+        title: form.title.trim(),
 
-  value:
-    form.value === ""
-      ? 0
-      : Number(form.value),
+        value: form.value === "" ? 0 : Number(form.value),
 
-  sourceChannel: form.sourceChannel.trim(),
+        sourceChannel: form.sourceChannel.trim(),
 
-  sourceChannelId: form.sourceChannelId.trim(),
+        sourceChannelId: form.sourceChannelId.trim(),
 
-  expectedCloseDate:
-    form.expectedCloseDate || null,
+        expectedCloseDate: form.expectedCloseDate || null,
 
-  phone: phones
-    .filter((phone) => phone.number.trim())
-    .map((phone) => ({
-      number: phone.number.trim(),
-      label: phone.label,
-    })),
+        phone: phones
+          .filter((phone) => phone.number.trim())
+          .map((phone) => ({
+            number: phone.number.trim(),
+            label: phone.label,
+          })),
 
-  email: emails
-    .filter((email) => email.address.trim())
-    .map((email) => ({
-      address: email.address.trim(),
-      label: email.label,
-    })),
+        email: emails
+          .filter((email) => email.address.trim())
+          .map((email) => ({
+            address: email.address.trim(),
+            label: email.label,
+          })),
 
-  // ADDRESS
-  address: {
-    street: address.street.trim(),
-    city: address.city.trim(),
-    state: address.state.trim(),
-    country: address.country.trim(),
-    zipCode: address.zipCode.trim(),
-  },
-};
+        // ADDRESS
+        address: {
+          street: address.street.trim(),
+          city: address.city.trim(),
+          state: address.state.trim(),
+          country: address.country.trim(),
+          zipCode: address.zipCode.trim(),
+        },
+      };
       // Organization only if selected
       if (form.organization) {
-        payload.organization =
-          form.organization;
+        payload.organization = form.organization;
       }
 
-      console.log(
-        "CREATE LEAD PAYLOAD:",
-        payload
-      );
+      console.log("CREATE LEAD PAYLOAD:", payload);
 
-      const res = await api.post(
-        "/leads",
-        payload
-      );
+      const res = await api.post("/leads", payload);
 
-      console.log(
-        "LEAD CREATED:",
-        res.data
-      );
+      console.log("LEAD CREATED:", res.data);
 
-      if (onCreated) {
-        onCreated(res.data);
-      }
+   if (onCreated) {
+  onCreated(res.data);
+}
+
+// Global success toast
+showCreateSuccess("lead", res.data);
+
+onClose();
+      
 
       onClose();
-
     } catch (err) {
-      console.error(
-        "CREATE LEAD ERROR:",
-        err
-      );
+      console.error("CREATE LEAD ERROR:", err);
 
-      setError(
-        err.response?.data?.message ||
-          "Failed to create lead."
-      );
+      setError(err.response?.data?.message || "Failed to create lead.");
     } finally {
       setSaving(false);
     }
   };
 
-  
   const handleAddressChange = (field, value) => {
-  setAddress((prev) => ({
-    ...prev,
-    [field]: value,
-  }));
+    setAddress((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
 
-  if (error) {
-    setError("");
-  }
-};
+    if (error) {
+      setError("");
+    }
+  };
 
   // =====================================================
   // COMMON CLASSES
@@ -470,7 +517,6 @@ const [address, setAddress] = useState({
         }
       }}
     >
-
       {/* =================================================
           MODAL
       ================================================= */}
@@ -489,11 +535,8 @@ const [address, setAddress] = useState({
           flex
           flex-col
         "
-        onMouseDown={(e) =>
-          e.stopPropagation()
-        }
+        onMouseDown={(e) => e.stopPropagation()}
       >
-
         {/* =================================================
             HEADER
         ================================================= */}
@@ -510,9 +553,7 @@ const [address, setAddress] = useState({
             flex-shrink-0
           "
         >
-
           <div className="flex items-center gap-3">
-
             <div
               className="
                 w-11
@@ -529,7 +570,6 @@ const [address, setAddress] = useState({
             </div>
 
             <div>
-
               <h2
                 className="
                   text-lg
@@ -549,9 +589,7 @@ const [address, setAddress] = useState({
               >
                 Create a new lead
               </p>
-
             </div>
-
           </div>
 
           <button
@@ -574,7 +612,6 @@ const [address, setAddress] = useState({
           >
             <X size={19} />
           </button>
-
         </div>
 
         {/* =================================================
@@ -591,15 +628,12 @@ const [address, setAddress] = useState({
             scrollbar-track-transparent
           "
         >
-
           <div className="p-6 space-y-7">
-
             {/* =================================================
                 BASIC INFORMATION
             ================================================= */}
 
             <section>
-
               <div
                 className="
                   flex
@@ -608,7 +642,6 @@ const [address, setAddress] = useState({
                   mb-4
                 "
               >
-
                 <div
                   className="
                     w-8
@@ -624,7 +657,6 @@ const [address, setAddress] = useState({
                 </div>
 
                 <div>
-
                   <h3
                     className="
                       text-sm
@@ -643,9 +675,7 @@ const [address, setAddress] = useState({
                   >
                     Basic contact information
                   </p>
-
                 </div>
-
               </div>
 
               <div
@@ -656,20 +686,15 @@ const [address, setAddress] = useState({
                   gap-4
                 "
               >
-
                 {/* NAME */}
 
                 <div>
-
                   <label className={labelClass}>
                     Contact Person
-                    <span className="text-red-500 ml-1">
-                      *
-                    </span>
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
 
                   <div className="relative">
-
                     <UserRound
                       size={16}
                       className="
@@ -692,20 +717,44 @@ const [address, setAddress] = useState({
                       autoFocus
                     />
 
-                  </div>
+                    {/* NAME CHECK STATUS */}
 
+                    {checkingName && (
+                      <div className="mt-1.5 flex items-center gap-2 text-[11px] text-gray-400">
+                        <Loader2
+                          size={13}
+                          strokeWidth={2.5}
+                          className="animate-spin"
+                        />
+
+                        <span>Checking name...</span>
+                      </div>
+                    )}
+
+                    {!checkingName && nameExists && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-red-500">
+                        <X size={12} strokeWidth={2.5} />
+
+                        <span>This lead already exists.</span>
+                      </div>
+                    )}
+
+                    {!checkingName && !nameExists && nameAvailable && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-green-600">
+                        <span className="text-sm">✓</span>
+
+                        <span>Name is available.</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* TITLE */}
 
                 <div>
-
-                  <label className={labelClass}>
-                    Job Title
-                  </label>
+                  <label className={labelClass}>Job Title</label>
 
                   <div className="relative">
-
                     <BriefcaseBusiness
                       size={16}
                       className="
@@ -726,21 +775,15 @@ const [address, setAddress] = useState({
                       placeholder="e.g. Manager"
                       className={`${inputClass} pl-10`}
                     />
-
                   </div>
-
                 </div>
 
                 {/* ORGANIZATION */}
 
                 <div className="md:col-span-2">
-
-                  <label className={labelClass}>
-                    Organization
-                  </label>
+                  <label className={labelClass}>Organization</label>
 
                   <div className="relative mb-2">
-
                     <Search
                       size={16}
                       className="
@@ -755,22 +798,14 @@ const [address, setAddress] = useState({
 
                     <input
                       type="text"
-                      value={
-                        organizationSearch
-                      }
-                      onChange={(e) =>
-                        setOrganizationSearch(
-                          e.target.value
-                        )
-                      }
+                      value={organizationSearch}
+                      onChange={(e) => setOrganizationSearch(e.target.value)}
                       placeholder="Search organization..."
                       className={`${inputClass} pl-10`}
                     />
-
                   </div>
 
                   <div className="relative">
-
                     <Building2
                       size={16}
                       className="
@@ -785,13 +820,9 @@ const [address, setAddress] = useState({
 
                     <select
                       name="organization"
-                      value={
-                        form.organization
-                      }
+                      value={form.organization}
                       onChange={handleChange}
-                      disabled={
-                        loadingOrganizations
-                      }
+                      disabled={loadingOrganizations}
                       className={`
                         ${inputClass}
                         pl-10
@@ -802,28 +833,17 @@ const [address, setAddress] = useState({
                         disabled:cursor-wait
                       `}
                     >
-
                       <option value="">
                         {loadingOrganizations
                           ? "Loading organizations..."
                           : "Select organization"}
                       </option>
 
-                      {filteredOrganizations.map(
-                        (organization) => (
-                          <option
-                            key={
-                              organization._id
-                            }
-                            value={
-                              organization._id
-                            }
-                          >
-                            {organization.name}
-                          </option>
-                        )
-                      )}
-
+                      {filteredOrganizations.map((organization) => (
+                        <option key={organization._id} value={organization._id}>
+                          {organization.name}
+                        </option>
+                      ))}
                     </select>
 
                     <span
@@ -839,13 +859,9 @@ const [address, setAddress] = useState({
                     >
                       ▼
                     </span>
-
                   </div>
-
                 </div>
-
               </div>
-
             </section>
 
             {/* =================================================
@@ -853,7 +869,7 @@ const [address, setAddress] = useState({
             ================================================= */}
 
             <section>
-<div
+              <div
                 className="
                   flex
                   items-center
@@ -861,36 +877,34 @@ const [address, setAddress] = useState({
                   mb-1
                 "
               >
-              {/* 
+                {/* 
 
                 
               {/* PHONE */}
 
-              <div className="mb-10">
-
-                <div
-                  className="
+                <div className="mb-10">
+                  <div
+                    className="
                     flex
                     items-center
                     justify-between
                     mb-2
                   "
-                >
-
-                  <label
-                    className="
+                  >
+                    <label
+                      className="
                       text-xs
                       font-semibold
                       text-gray-600
                     "
-                  >
-                    Phone
-                  </label>
+                    >
+                      Phone
+                    </label>
 
-                  <button
-                    type="button"
-                    onClick={addPhone}
-                    className="
+                    <button
+                      type="button"
+                      onClick={addPhone}
+                      className="
                       inline-flex
                       items-center
                       gap-1
@@ -899,17 +913,14 @@ const [address, setAddress] = useState({
                       text-[#4B49AC]
                       hover:text-indigo-700
                     "
-                  >
-                    <Plus size={14} />
-                    Add phone
-                  </button>
+                    >
+                      <Plus size={14} />
+                      Add phone
+                    </button>
+                  </div>
 
-                </div>
-
-                <div className="space-y-2">
-
-                  {phones.map(
-                    (phone, index) => (
+                  <div className="space-y-2">
+                    {phones.map((phone, index) => (
                       <div
                         key={index}
                         className="
@@ -917,9 +928,7 @@ const [address, setAddress] = useState({
                           gap-2
                         "
                       >
-
                         <div className="relative flex-1">
-
                           <Phone
                             size={15}
                             className="
@@ -933,28 +942,19 @@ const [address, setAddress] = useState({
 
                           <input
                             type="text"
-                            value={
-                              phone.number
-                            }
+                            value={phone.number}
                             onChange={(e) =>
-                              handlePhoneChange(
-                                index,
-                                e.target.value
-                              )
+                              handlePhoneChange(index, e.target.value)
                             }
                             placeholder="Phone number"
                             className={`${inputClass} pl-9`}
                           />
-
                         </div>
 
                         <select
                           value={phone.label}
                           onChange={(e) =>
-                            handlePhoneLabelChange(
-                              index,
-                              e.target.value
-                            )
+                            handlePhoneLabelChange(index, e.target.value)
                           }
                           className="
                             h-11
@@ -969,31 +969,19 @@ const [address, setAddress] = useState({
                             cursor-pointer
                           "
                         >
-                          <option value="work">
-                            Work
-                          </option>
+                          <option value="work">Work</option>
 
-                          <option value="home">
-                            Home
-                          </option>
+                          <option value="home">Home</option>
 
-                          <option value="mobile">
-                            Mobile
-                          </option>
+                          <option value="mobile">Mobile</option>
 
-                          <option value="other">
-                            Other
-                          </option>
+                          <option value="other">Other</option>
                         </select>
 
                         {phones.length > 1 && (
                           <button
                             type="button"
-                            onClick={() =>
-                              removePhone(
-                                index
-                              )
-                            }
+                            onClick={() => removePhone(index)}
                             className="
                               w-11
                               h-11
@@ -1010,42 +998,36 @@ const [address, setAddress] = useState({
                             <Trash2 size={16} />
                           </button>
                         )}
-
                       </div>
-                    )
-                  )}
-
+                    ))}
+                  </div>
                 </div>
 
-              </div>
+                {/* EMAIL */}
 
-              {/* EMAIL */}
-
-            <div className="mb-10">
-
-                 <div
-                  className="
+                <div className="mb-10">
+                  <div
+                    className="
                     flex
                     items-center
                     justify-between
                     mb-2
                   "
-                >
-
-                  <label
-                    className="
+                  >
+                    <label
+                      className="
                       text-xs
                       font-semibold
                       text-gray-600
                     "
-                  >
-                    Email
-                  </label>
+                    >
+                      Email
+                    </label>
 
-                  <button
-                    type="button"
-                    onClick={addEmail}
-                    className="
+                    <button
+                      type="button"
+                      onClick={addEmail}
+                      className="
                       inline-flex
                       items-center
                       gap-1
@@ -1054,17 +1036,14 @@ const [address, setAddress] = useState({
                       text-[#4B49AC]
                       hover:text-indigo-700
                     "
-                  >
-                    <Plus size={14} />
-                    Add email
-                  </button>
+                    >
+                      <Plus size={14} />
+                      Add email
+                    </button>
+                  </div>
 
-                </div>
-
-                <div className="space-y-2">
-
-                  {emails.map(
-                    (email, index) => (
+                  <div className="space-y-2">
+                    {emails.map((email, index) => (
                       <div
                         key={index}
                         className="
@@ -1072,9 +1051,7 @@ const [address, setAddress] = useState({
                           gap-2
                         "
                       >
-
                         <div className="relative flex-1">
-
                           <Mail
                             size={15}
                             className="
@@ -1088,28 +1065,19 @@ const [address, setAddress] = useState({
 
                           <input
                             type="email"
-                            value={
-                              email.address
-                            }
+                            value={email.address}
                             onChange={(e) =>
-                              handleEmailChange(
-                                index,
-                                e.target.value
-                              )
+                              handleEmailChange(index, e.target.value)
                             }
                             placeholder="Email address"
                             className={`${inputClass} pl-9`}
                           />
-
                         </div>
 
                         <select
                           value={email.label}
                           onChange={(e) =>
-                            handleEmailLabelChange(
-                              index,
-                              e.target.value
-                            )
+                            handleEmailLabelChange(index, e.target.value)
                           }
                           className="
                             h-11
@@ -1124,31 +1092,19 @@ const [address, setAddress] = useState({
                             cursor-pointer
                           "
                         >
-                          <option value="work">
-                            Work
-                          </option>
+                          <option value="work">Work</option>
 
-                          <option value="home">
-                            Home
-                          </option>
+                          <option value="home">Home</option>
 
-                          <option value="mobile">
-                            Mobile
-                          </option>
+                          <option value="mobile">Mobile</option>
 
-                          <option value="other">
-                            Other
-                          </option>
+                          <option value="other">Other</option>
                         </select>
 
                         {emails.length > 1 && (
                           <button
                             type="button"
-                            onClick={() =>
-                              removeEmail(
-                                index
-                              )
-                            }
+                            onClick={() => removeEmail(index)}
                             className="
                               w-11
                               h-11
@@ -1165,24 +1121,18 @@ const [address, setAddress] = useState({
                             <Trash2 size={16} />
                           </button>
                         )}
-
                       </div>
-                    )
-                  )}
-
+                    ))}
+                  </div>
                 </div>
-
               </div>
-</div>
             </section>
-            
 
             {/* =================================================
                 LEAD INFORMATION
             ================================================= */}
 
             <section>
-
               <div
                 className="
                   flex
@@ -1191,7 +1141,6 @@ const [address, setAddress] = useState({
                   mb-0
                 "
               >
-
                 <div
                   className="
                     w-8
@@ -1205,10 +1154,8 @@ const [address, setAddress] = useState({
                 >
                   <BriefcaseBusiness size={19} />
                 </div>
-                
 
                 <div>
-
                   <h3
                     className="
                       text-sm
@@ -1227,9 +1174,7 @@ const [address, setAddress] = useState({
                   >
                     Lead value and source details
                   </p>
-
                 </div>
-
               </div>
 
               <div
@@ -1240,17 +1185,12 @@ const [address, setAddress] = useState({
                   gap-4
                 "
               >
-
                 {/* VALUE */}
 
                 <div>
-
-                  <label className={labelClass}>
-                    Lead Value
-                  </label>
+                  <label className={labelClass}>Lead Value</label>
 
                   <div className="relative">
-
                     <DollarSign
                       size={16}
                       className="
@@ -1271,21 +1211,15 @@ const [address, setAddress] = useState({
                       placeholder="0"
                       className={`${inputClass} pl-10`}
                     />
-
                   </div>
-
                 </div>
 
                 {/* EXPECTED CLOSE */}
 
                 <div>
-
-                  <label className={labelClass}>
-                    Expected Close Date
-                  </label>
+                  <label className={labelClass}>Expected Close Date</label>
 
                   <div className="relative">
-
                     <CalendarDays
                       size={16}
                       className="
@@ -1301,27 +1235,19 @@ const [address, setAddress] = useState({
                     <input
                       type="date"
                       name="expectedCloseDate"
-                      value={
-                        form.expectedCloseDate
-                      }
+                      value={form.expectedCloseDate}
                       onChange={handleChange}
                       className={`${inputClass} pl-10`}
                     />
-
                   </div>
-
                 </div>
 
                 {/* SOURCE CHANNEL */}
 
                 <div>
-
-                  <label className={labelClass}>
-                    Source Channel
-                  </label>
+                  <label className={labelClass}>Source Channel</label>
 
                   <div className="relative">
-
                     <Radio
                       size={16}
                       className="
@@ -1336,28 +1262,20 @@ const [address, setAddress] = useState({
                     <input
                       type="text"
                       name="sourceChannel"
-                      value={
-                        form.sourceChannel
-                      }
+                      value={form.sourceChannel}
                       onChange={handleChange}
                       placeholder="e.g. Website"
                       className={`${inputClass} pl-10`}
                     />
-
                   </div>
-
                 </div>
 
                 {/* SOURCE ID */}
 
                 <div>
-
-                  <label className={labelClass}>
-                    Source Channel ID
-                  </label>
+                  <label className={labelClass}>Source Channel ID</label>
 
                   <div className="relative">
-
                     <Hash
                       size={16}
                       className="
@@ -1372,20 +1290,14 @@ const [address, setAddress] = useState({
                     <input
                       type="text"
                       name="sourceChannelId"
-                      value={
-                        form.sourceChannelId
-                      }
+                      value={form.sourceChannelId}
                       onChange={handleChange}
                       placeholder="Source ID"
                       className={`${inputClass} pl-10`}
                     />
-
                   </div>
-
                 </div>
-
               </div>
-
             </section>
 
             {/* =================================================
@@ -1408,7 +1320,6 @@ const [address, setAddress] = useState({
                 {error}
               </div>
             )}
-
           </div>
 
           {/* =================================================
@@ -1430,7 +1341,6 @@ const [address, setAddress] = useState({
               gap-3
             "
           >
-
             <button
               type="button"
               onClick={onClose}
@@ -1455,7 +1365,7 @@ const [address, setAddress] = useState({
 
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || checkingName || nameExists}
               className="
                 h-11
                 px-6
@@ -1476,32 +1386,21 @@ const [address, setAddress] = useState({
                 disabled:cursor-not-allowed
               "
             >
-
               {saving ? (
                 <>
-                  <Loader2
-                    size={17}
-                    className="animate-spin"
-                  />
-
+                  <Loader2 size={17} className="animate-spin" />
                   Creating...
                 </>
               ) : (
                 <>
                   <Save size={17} />
-
                   Create Lead
                 </>
               )}
-
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  checkLeadName,
   createLeads,
   getLeads,
   updateLeads,
@@ -10,7 +11,7 @@ import {
   // addNote,
   // deleteNote,
   // updateNote,
-  // pinNote,
+  // pinNote,handleChange
   linkOrganization,
   transferLeadOwner,
 } from "../controllers/leadsController.js";
@@ -19,6 +20,8 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+
+router.get("/check-name", protect, checkLeadName);
 router.post("/", protect, createLeads);
 
 router.get("/", protect, getLeads);
