@@ -601,7 +601,7 @@ export default function OrganizationDetails() {
                     <EditableField
                       label="What PMS does this company use?"
                       field="vrsUsed"
-                      value={organization.vrsUsed}
+                      value={organization.pmsUsed}
                       itemId={organization._id}
                       endpoint="organizations"
                       onUpdate={setOrganization}
@@ -623,7 +623,7 @@ export default function OrganizationDetails() {
                     <EditableField
                       label="Number of Units on ECBYO"
                       field="unitsOnECBYO"
-                      value={organization.unitsOnECBYO}
+                      value={organization.unitsOnEcbyo}
                       itemId={organization._id}
                       endpoint="organizations"
                       onUpdate={setOrganization}

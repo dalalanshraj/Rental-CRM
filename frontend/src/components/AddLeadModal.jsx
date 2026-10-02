@@ -853,55 +853,17 @@ const [address, setAddress] = useState({
             ================================================= */}
 
             <section>
-
-              {/* <div
+<div
                 className="
                   flex
                   items-center
-                  gap-2
-                  mb-4
+                  gap-10
+                  mb-1
                 "
               >
+              {/* 
 
-                <div
-                  className="
-                    w-8
-                    h-8
-                    rounded-lg
-                    text-black
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <Phone size={19} />
-                </div>
-
-                <div>
-
-                  <h3
-                    className="
-                      text-sm
-                      font-bold
-                      text-gray-800
-                    "
-                  >
-                    Contact Information
-                  </h3>
-
-                  <p
-                    className="
-                      text-[11px]
-                      text-gray-400
-                    "
-                  >
-                    Phone numbers and email addresses
-                  </p>
-
-                </div>
-
-              </div> */}
-
+                
               {/* PHONE */}
 
               <div className="mb-10">
@@ -1059,9 +1021,9 @@ const [address, setAddress] = useState({
 
               {/* EMAIL */}
 
-              <div>
+            <div className="mb-10">
 
-                <div
+                 <div
                   className="
                     flex
                     items-center
@@ -1211,7 +1173,7 @@ const [address, setAddress] = useState({
                 </div>
 
               </div>
-
+</div>
             </section>
             
 
@@ -1226,7 +1188,7 @@ const [address, setAddress] = useState({
                   flex
                   items-center
                   gap-2
-                  mb-4
+                  mb-0
                 "
               >
 
