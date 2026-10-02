@@ -600,7 +600,7 @@ export default function OrganizationDetails() {
 
                     <EditableField
                       label="What PMS does this company use?"
-                      field="vrsUsed"
+                      field="pmsUsed"
                       value={organization.pmsUsed}
                       itemId={organization._id}
                       endpoint="organizations"
