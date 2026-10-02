@@ -436,7 +436,7 @@ export default function EditableField({
               flex-1
               w-full
               text-sm
-              text-blue-500 
+              text-black
                hover:bg-gray-200
                             p-1 
                             rounded

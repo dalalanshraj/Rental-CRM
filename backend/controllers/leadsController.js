@@ -247,7 +247,6 @@ export const updateLeads = async (req, res) => {
 };
 
 // delete leads
-
 export const deleteLeads = async (req, res) => {
   try {
     const lead = await Leads.findById(req.params.id);
@@ -282,6 +281,66 @@ export const deleteLeads = async (req, res) => {
   }
 };
 
+export const deleteBulkLeads = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        message: "No leads selected.",
+      });
+    }
+
+    const leads = await Leads.find({
+      _id: { $in: ids },
+    }).select("_id organization");
+
+    if (!leads.length) {
+      return res.status(404).json({
+        message: "No leads found.",
+      });
+    }
+
+    const organizationIds = [
+      ...new Set(
+        leads
+          .filter((lead) => lead.organization)
+          .map((lead) => lead.organization.toString())
+      ),
+    ];
+
+    if (organizationIds.length > 0) {
+      await Organization.updateMany(
+        {
+          _id: { $in: organizationIds },
+        },
+        {
+          $pull: {
+            leads: {
+              $in: leads.map((lead) => lead._id),
+            },
+          },
+        }
+      );
+    }
+
+    await Leads.deleteMany({
+      _id: { $in: ids },
+    });
+
+    return res.json({
+      message: `${leads.length} leads deleted successfully.`,
+      deletedCount: leads.length,
+    });
+  } catch (error) {
+    console.error("BULK DELETE LEADS ERROR:", error);
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 export const getLeadById = async (req, res) => {
   try {
     const lead = await Leads.findById(req.params.id)
@@ -306,158 +365,7 @@ export const getLeadById = async (req, res) => {
     });
   }
 };
-// export const addNote = async (req, res) => {
-//   try {
-
-//     const { text } = req.body;
-
-//     const lead = await Leads.findById(req.params.id);
-
-//     lead.notes.push({
-//       text,
-//       createdBy: req.user.id
-//     });
-
-//     await lead.save();
-//     // Agar lead kisi organization se linked hai
-// if (lead.organization) {
-
-//   const organization = await Organization.findById(
-//     lead.organization
-//   );
-
-//   if (organization) {
-
-//     organization.notes.push({
-//       text,
-//       createdBy: req.user.id,
-//     });
-
-//     await organization.save();
-
-//   }
-
-// }
-
-// const updated = await Leads.findById(req.params.id)
-//   .populate("owner", "name email")
-//   .populate("organization")
-//   .populate("notes.createdBy", "name");
-
-// res.json(updated);
-
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// export const deleteNote = async (req, res) => {
-//   try {
-
-//     const { noteId } = req.params;
-
-//     const lead = await Leads.findById(req.params.id);
-
-//     lead.notes = lead.notes.filter(
-//       n => n._id.toString() !== noteId
-//     );
-
-//     await lead.save();
-
-//     res.json(lead);
-
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// export const updateNote = async (req, res) => {
-//   try {
-
-//     const { noteId } = req.params;
-//     const { text } = req.body;
-
-//     const lead = await Leads.findById(req.params.id);
-
-//     const note = lead.notes.id(noteId);
-
-//     note.text = text;
-
-//     await lead.save();
-
-//     res.json(lead);
-
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// export const pinNote = async (req, res) => {
-//   try {
-
-//     const { noteId } = req.params;
-
-//     const lead = await Leads.findById(req.params.id);
-
-//     if (!lead) {
-//       return res.status(404).json({
-//         message: "Lead not found",
-//       });
-//     }
-
-//     const note = lead.notes.id(noteId);
-
-//     if (!note) {
-//       return res.status(404).json({
-//         message: "Note not found",
-//       });
-//     }
-
-//     console.log("Clicked Note:", noteId);
-
-//     console.log(
-//       "Before:",
-//       lead.notes.map((n) => ({
-//         id: n._id.toString(),
-//         pinned: n.pinned,
-//       }))
-//     );
-
-//     // Toggle
-//     note.pinned = !note.pinned;
-
-//     await lead.save();
-
-//     console.log(
-//       "After:",
-//       lead.notes.map((n) => ({
-//         id: n._id.toString(),
-//         pinned: n.pinned,
-//       }))
-//     );
-
-//     const updatedLead = await Leads.findById(req.params.id)
-//       .populate("notes.createdBy", "name")
-//       .populate("owner", "name email")
-//       .populate("organization");
-
-//     res.json(updatedLead);
-
-//   } catch (err) {
-
-//     console.log(err);
-
-//     res.status(500).json({
-//       message: err.message,
-//     });
-
-//   }
-// };
-
-// ==========================================
-// LINK / CHANGE LEAD ORGANIZATION
-// ==========================================
-
+ 
 export const linkOrganization = async (req, res) => {
   try {
     const { organizationId } = req.body;

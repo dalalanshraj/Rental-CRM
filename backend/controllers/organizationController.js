@@ -477,7 +477,6 @@ export const deleteOrganization = async (
   res
 ) => {
   try {
-
     const organization =
       await Organization.findByIdAndDelete(
         req.params.id
@@ -485,8 +484,7 @@ export const deleteOrganization = async (
 
     if (!organization) {
       return res.status(404).json({
-        message:
-          "Organization not found",
+        message: "Organization not found",
       });
     }
 
@@ -496,8 +494,7 @@ export const deleteOrganization = async (
 
     await Leads.updateMany(
       {
-        organization:
-          organization._id,
+        organization: organization._id,
       },
       {
         $unset: {
@@ -507,10 +504,8 @@ export const deleteOrganization = async (
     );
 
     return res.json({
-      message:
-        "Organization deleted successfully",
+      message: "Organization deleted successfully",
     });
-
   } catch (error) {
     console.error(
       "DELETE ORGANIZATION ERROR:",
@@ -523,6 +518,77 @@ export const deleteOrganization = async (
   }
 };
 
+export const deleteBulkOrganizations = async (
+  req,
+  res
+) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        message: "No organizations selected.",
+      });
+    }
+
+    const organizations = await Organization.find({
+      _id: {
+        $in: ids,
+      },
+    }).select("_id");
+
+    if (!organizations.length) {
+      return res.status(404).json({
+        message: "No organizations found.",
+      });
+    }
+
+    const organizationIds = organizations.map(
+      (organization) => organization._id
+    );
+
+    // ------------------------------------------
+    // REMOVE ORGANIZATION FROM ALL LEADS
+    // ------------------------------------------
+
+    await Leads.updateMany(
+      {
+        organization: {
+          $in: organizationIds,
+        },
+      },
+      {
+        $unset: {
+          organization: "",
+        },
+      }
+    );
+
+    // ------------------------------------------
+    // DELETE ORGANIZATIONS
+    // ------------------------------------------
+
+    await Organization.deleteMany({
+      _id: {
+        $in: organizationIds,
+      },
+    });
+
+    return res.json({
+      message: `${organizations.length} organizations deleted successfully.`,
+      deletedCount: organizations.length,
+    });
+  } catch (error) {
+    console.error(
+      "BULK DELETE ORGANIZATIONS ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 // ======================================================
 // ADD LEAD TO ORGANIZATION

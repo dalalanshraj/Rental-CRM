@@ -27,6 +27,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import AddOrganizationModal from "../../components/AddOrganizationModal";
 
 // ======================================================
 // ORGANIZATION FIELDS
@@ -642,88 +643,101 @@ export default function LeadDetails() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <div
-                  className="
-                    w-8
-                    h-8
-                    rounded-lg
-                    text-black
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <Mail size={12} className="mb-1" />
-                </div>
-                <EditableContactField
-                  label="email"
-                  field="email"
-                  value={lead.email || []}
-                  itemId={lead._id}
-                  endpoint="leads"
-                  onUpdate={setLead}
-                />
-              </div>
+        <div className="space-y-3">
+  {/* ================= EMAIL ================= */}
+  <div className="flex items-center gap-3 min-w-0">
+    <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center text-black">
+      <Mail size={17} />
+    </div>
 
-              <div className="flex gap-2">
-                <div
-                  className="
-                    w-8
-                    h-8
-                    rounded-lg
-                    text-black
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <Phone size={12} className="mb-1" />
-                </div>
-                <EditableContactField
-                  label="phone"
-                  field="phone"
-                  value={lead.phone || []}
-                  itemId={lead._id}
-                  endpoint="leads"
-                  onUpdate={setLead}
-                />
-              </div>
+    <div className="flex-1 min-w-0">
+      <EditableContactField
+        label="email"
+        field="email"
+        value={lead.email || []}
+        itemId={lead._id}
+        endpoint="leads"
+        onUpdate={setLead}
+      />
+    </div>
+  </div>
 
-              <div className="flex  gap-2">
-                <div
-                  className="
-                  w-8 h-8
-                  rounded-xl
-                  mt-
-                  text-[#0d68c5]
-                  flex items-center justify-center
-                  
-                  flex-shrink-0
-                "
-                >
-                  <Building2 size={18} />
-                </div>
+  {/* ================= PHONE ================= */}
+  <div className="flex items-center gap-3 min-w-0">
+    <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center text-black">
+      <Phone size={17} />
+    </div>
 
-                <div
-                  onClick={() => {
-                    if (lead.organization?._id) {
-                      navigate(`/app/organizations/${lead.organization._id}`);
-                    }
-                  }}
-                  className="flex-1 min-w-0  cursor-pointer hover:bg-gray-200 rounded p-1 hover:underline"
-                >
-                  <h4 className=" text-sm mt-1 font-bold text-[#0d68c5] truncate ">
-                    {lead.organization?.name || "Unnamed Organization"}
-                  </h4>
+    <div className="flex-1 min-w-0">
+      <EditableContactField
+        label="phone"
+        field="phone"
+        value={lead.phone || []}
+        itemId={lead._id}
+        endpoint="leads"
+        onUpdate={setLead}
+      />
+    </div>
+  </div>
 
-                  <p className="text-xs text-black mt-1 truncate">
-                    {lead.organization?.industry}
-                  </p>
-                </div>
-              </div>
-            </div>
+  {/* ================= ORGANIZATION ================= */}
+  {lead.organization && (
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center text-[#0d68c5]">
+        <Building2 size={18} />
+      </div>
+
+      <div
+        onClick={() => {
+          if (lead.organization?._id) {
+            navigate(
+              `/app/organizations/${lead.organization._id}`
+            );
+          }
+        }}
+        className="
+          flex-1
+          min-w-0
+          cursor-pointer
+          rounded-md
+          px-1
+          py-1
+          hover:bg-gray-100
+          transition
+        "
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <h4
+            className="
+              text-sm
+              font-semibold
+              text-[#0d68c5]
+              truncate
+              hover:underline
+            "
+            title={lead.organization?.name || ""}
+          >
+            {lead.organization?.name || "Organization"}
+          </h4>
+        </div>
+
+        {lead.organization?.industry && (
+          <p
+            className="
+              text-xs
+              text-gray-500
+              truncate
+              mt-0.5
+            "
+            title={lead.organization.industry}
+          >
+            {lead.organization.industry}
+          </p>
+        )}
+      </div>
+    </div>
+  )}
+</div>
           </section>
 
           {/* =================================================
@@ -811,68 +825,77 @@ export default function LeadDetails() {
 
             {/* DETAILS CONTENT */}
 
+         <div
+  className={`
+    overflow-hidden
+    transition-all
+    duration-300
+    ease-in-out
+    ${
+      openDetails
+        ? "max-h-[900px] opacity-100"
+        : "max-h-0 opacity-0"
+    }
+  `}
+>
+  <div
+    className="
+      px-4
+      pb-4
+      pt-2
+      space-y-1
+    "
+  >
+    {filteredLeadFields.length > 0 ? (
+      filteredLeadFields.map((item) => {
+        if (item.type === "link") {
+          return (
             <div
-              className={`
-                transition-all
-                duration-300
-                overflow-hidden
-                ${
-                  openDetails
-                    ? "max-h-[900px] opacity-100"
-                    : "max-h-0 opacity-0"
-                }
-              `}
+              key={item.field}
+              className="w-full min-w-0"
             >
-              <div
-                className="
-                  px-4
-                  pb-4
-                  pt-1
-                  space-y-2
-                "
-              >
-                {filteredLeadFields.length > 0 ? (
-                  filteredLeadFields.map((item) => {
-                    if (item.type === "link") {
-                      return (
-                        <EditableLinkField
-                          key={item.field}
-                          label={item.label}
-                          field={item.field}
-                          value={item.value}
-                          itemId={lead._id}
-                          endpoint="leads"
-                          onUpdate={setLead}
-                        />
-                      );
-                    }
-
-                    return (
-                      <EditableField
-                        key={item.field}
-                        label={item.label}
-                        field={item.field}
-                        value={item.value}
-                        itemId={lead._id}
-                        endpoint="leads"
-                        onUpdate={setLead}
-                      />
-                    );
-                  })
-                ) : (
-                  <div
-                    className="
-                      py-6
-                      text-center
-                      text-xs
-                      text-black
-                    "
-                  >
-                    No fields found
-                  </div>
-                )}
-              </div>
+              <EditableLinkField
+                label={item.label}
+                field={item.field}
+                value={item.value}
+                itemId={lead._id}
+                endpoint="leads"
+                onUpdate={setLead}
+              />
             </div>
+          );
+        }
+
+        return (
+          <div
+            key={item.field}
+            className="w-full min-w-0"
+          >
+            <EditableField
+              label={item.label}
+              field={item.field}
+              value={item.value}
+              itemId={lead._id}
+              endpoint="leads"
+              onUpdate={setLead}
+            />
+          </div>
+        );
+      })
+    ) : (
+      <div
+        className="
+          py-6
+          text-center
+          text-xs
+          text-gray-500
+        "
+      >
+        No fields found
+      </div>
+    )}
+  </div>
+</div>
           </section>
 
           {/* =================================================
@@ -1028,7 +1051,7 @@ export default function LeadDetails() {
                     truncate
                   "
                           >
-                            {lead.organization?.name || "Unnamed Organization"}
+                            {lead.organization?.name}
                           </h4>
 
                           <p className="text-xs text-black mt-1 truncate">
@@ -1697,7 +1720,7 @@ export default function LeadDetails() {
                         duration-200
                       "
                         >
-                          {org.name || "Unnamed Organization"}
+                          {org.name}
                         </p>
 
                         {/* METADATA */}
@@ -1913,6 +1936,23 @@ export default function LeadDetails() {
           </div>
         </div>
       )}
+      {showAddOrganizationModal && (
+  <AddOrganizationModal
+    onClose={() => {
+      setShowAddOrganizationModal(false);
+    }}
+    onCreated={async (newOrganization) => {
+      setShowAddOrganizationModal(false);
+
+      if (newOrganization?._id) {
+        await handleLinkOrganization(newOrganization._id);
+      } else {
+        await fetchOrganizations();
+      }
+    }}
+  />
+   
+)}
     </div>
   );
 }

@@ -174,7 +174,7 @@ export default function EditableLinkField({
                 truncate
                 
                 text-sm
-                text-[#4B49AC]
+                text-[#000]
                 hover:text-indigo-700
                
                 hover:underline

@@ -13,7 +13,9 @@ import {
   ChevronRight,
   UserRound,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react";
+
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 
 export default function Organizations() {
@@ -24,6 +26,22 @@ export default function Organizations() {
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ==========================
+  // DELETE STATES
+  // ==========================
+
+  const [deleteMode, setDeleteMode] = useState(false);
+
+  const [selectedOrganizations, setSelectedOrganizations] = useState([]);
+
+  const [deleteModal, setDeleteModal] = useState({
+    open: false,
+    type: null, // "single" | "bulk"
+    id: null,
+  });
+
+  const [deleting, setDeleting] = useState(false);
 
   // ==========================
   // FETCH USERS
@@ -57,7 +75,9 @@ export default function Organizations() {
         params,
       });
 
-      setOrganizations(Array.isArray(res.data) ? res.data : []);
+      setOrganizations(
+        Array.isArray(res.data) ? res.data : []
+      );
     } catch (err) {
       console.error("Fetch organizations error:", err);
 
@@ -94,6 +114,9 @@ export default function Organizations() {
     setSelectedUser(userId);
 
     fetchOrganizations(userId);
+
+    // Clear selections when filter changes
+    setSelectedOrganizations([]);
   };
 
   // ==========================
@@ -125,6 +148,173 @@ export default function Organizations() {
   });
 
   // ==========================
+  // DELETE SELECTION
+  // ==========================
+
+  const toggleOrganizationSelection = (organizationId) => {
+    setSelectedOrganizations((prev) =>
+      prev.includes(organizationId)
+        ? prev.filter((id) => id !== organizationId)
+        : [...prev, organizationId]
+    );
+  };
+
+  // ==========================
+  // SELECT ALL
+  // ==========================
+
+  const toggleSelectAllOrganizations = () => {
+    const visibleIds = filteredOrganizations.map(
+      (org) => org._id
+    );
+
+    const allSelected =
+      visibleIds.length > 0 &&
+      visibleIds.every((id) =>
+        selectedOrganizations.includes(id)
+      );
+
+    if (allSelected) {
+      setSelectedOrganizations((prev) =>
+        prev.filter((id) => !visibleIds.includes(id))
+      );
+    } else {
+      setSelectedOrganizations((prev) => [
+        ...new Set([...prev, ...visibleIds]),
+      ]);
+    }
+  };
+
+  // ==========================
+  // DELETE MODE
+  // ==========================
+
+  const openDeleteMode = () => {
+    console.log("ORGANIZATION DELETE MODE CLICKED");
+
+    setDeleteMode(true);
+    setSelectedOrganizations([]);
+  };
+
+  const cancelDeleteMode = () => {
+    setDeleteMode(false);
+    setSelectedOrganizations([]);
+  };
+
+  // ==========================
+  // SINGLE DELETE CONFIRM
+  // ==========================
+
+  const confirmSingleOrganizationDelete = (organizationId) => {
+    setDeleteModal({
+      open: true,
+      type: "single",
+      id: organizationId,
+    });
+  };
+
+  // ==========================
+  // BULK DELETE CONFIRM
+  // ==========================
+
+  const confirmBulkOrganizationDelete = () => {
+    if (!selectedOrganizations.length) return;
+
+    setDeleteModal({
+      open: true,
+      type: "bulk",
+      id: null,
+    });
+  };
+
+  // ==========================
+  // CLOSE DELETE MODAL
+  // ==========================
+
+  const closeDeleteModal = () => {
+    if (deleting) return;
+
+    setDeleteModal({
+      open: false,
+      type: null,
+      id: null,
+    });
+  };
+
+  // ==========================
+  // DELETE ORGANIZATIONS
+  // ==========================
+
+  const handleDeleteOrganizations = async () => {
+    try {
+      setDeleting(true);
+
+      // ==========================
+      // SINGLE DELETE
+      // ==========================
+
+      if (
+        deleteModal.type === "single" &&
+        deleteModal.id
+      ) {
+        await api.delete(
+          `/organizations/${deleteModal.id}`
+        );
+
+        setOrganizations((prev) =>
+          prev.filter(
+            (org) => org._id !== deleteModal.id
+          )
+        );
+      }
+
+      // ==========================
+      // BULK DELETE
+      // ==========================
+
+      if (deleteModal.type === "bulk") {
+        await api.delete(
+          "/organizations/bulk-delete",
+          {
+            data: {
+              ids: selectedOrganizations,
+            },
+          }
+        );
+
+        setOrganizations((prev) =>
+          prev.filter(
+            (org) =>
+              !selectedOrganizations.includes(org._id)
+          )
+        );
+
+        setSelectedOrganizations([]);
+
+        setDeleteMode(false);
+      }
+
+      setDeleteModal({
+        open: false,
+        type: null,
+        id: null,
+      });
+    } catch (error) {
+      console.error(
+        "DELETE ORGANIZATION ERROR:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to delete organization."
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // ==========================
   // AVATAR
   // ==========================
 
@@ -138,7 +328,8 @@ export default function Organizations() {
         min-h-screen
         bg-[#f7f8fc]
         p-5
-        md:p-6 mt-20
+        md:p-6
+        mt-20
       "
     >
       {/* =====================================
@@ -163,13 +354,10 @@ export default function Organizations() {
             className="
               w-11
               h-11
-          
-               
               text-indigo-600
               flex
               items-center
               justify-center
-               
             "
           >
             <HiOutlineBuildingOffice2 size={30} />
@@ -214,7 +402,7 @@ export default function Organizations() {
         >
           {/* USER FILTER */}
 
-          <div className="relative">
+          {/* <div className="relative">
             <Users
               size={16}
               className="
@@ -255,12 +443,15 @@ export default function Organizations() {
               <option value="">All Users</option>
 
               {users.map((u) => (
-                <option key={u._id} value={u._id}>
+                <option
+                  key={u._id}
+                  value={u._id}
+                >
                   {u.name}
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* SEARCH */}
 
@@ -280,7 +471,9 @@ export default function Organizations() {
               type="text"
               placeholder="Search organizations..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
               className="
                 h-11
                 w-full
@@ -319,6 +512,8 @@ export default function Organizations() {
           mb-5
         "
       >
+        {/* TOTAL ORGANIZATIONS */}
+
         <div
           className="
             bg-white
@@ -331,7 +526,9 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black">Total Organizations</p>
+              <p className="text-sm text-black">
+                Total Organizations
+              </p>
 
               <p className="text-xl font-bold text-gray-800 mt-1">
                 {organizations.length}
@@ -342,17 +539,19 @@ export default function Organizations() {
               className="
                 w-9
                 h-9
-                
-             
                 flex
                 items-center
                 justify-center
               "
             >
-              <HiOutlineBuildingOffice2 size={30} />
+              <HiOutlineBuildingOffice2
+                size={30}
+              />
             </div>
           </div>
         </div>
+
+        {/* OLD SHOWING CARD */}
 
         {/* <div
           className="
@@ -366,7 +565,9 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-black">Showing</p>
+              <p className="text-xs text-black">
+                Showing
+              </p>
 
               <p className="text-xl font-bold text-gray-800 mt-1">
                 {filteredOrganizations.length}
@@ -390,6 +591,8 @@ export default function Organizations() {
           </div>
         </div> */}
 
+        {/* TOTAL PEOPLE */}
+
         <div
           className="
             bg-white
@@ -402,12 +605,16 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black">Total People</p>
+              <p className="text-sm text-black">
+                Total People
+              </p>
 
               <p className="text-xl font-bold text-gray-800 mt-1">
                 {organizations.reduce(
-                  (total, org) => total + (org.leads?.length || 0),
-                  0,
+                  (total, org) =>
+                    total +
+                    (org.leads?.length || 0),
+                  0
                 )}
               </p>
             </div>
@@ -416,7 +623,6 @@ export default function Organizations() {
               className="
                 w-9
                 h-9
-               
                 flex
                 items-center
                 justify-center
@@ -427,6 +633,8 @@ export default function Organizations() {
           </div>
         </div>
 
+        {/* SELECTED OWNER */}
+
         <div
           className="
             bg-white
@@ -439,12 +647,16 @@ export default function Organizations() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black">Selected Owner</p>
+              <p className="text-sm text-black">
+                Selected Owner
+              </p>
 
               <p className="text-sm font-bold text-gray-800 mt-1 truncate max-w-[120px]">
                 {selectedUser
-                  ? users.find((u) => u._id === selectedUser)?.name ||
-                    "Selected"
+                  ? users.find(
+                      (u) =>
+                        u._id === selectedUser
+                    )?.name || "Selected"
                   : "All Users"}
               </p>
             </div>
@@ -453,7 +665,6 @@ export default function Organizations() {
               className="
                 w-9
                 h-9
-               
                 flex
                 items-center
                 justify-center
@@ -466,7 +677,7 @@ export default function Organizations() {
       </div>
 
       {/* =====================================
-          TABLE
+          TABLE CONTAINER
       ====================================== */}
 
       <div
@@ -479,7 +690,9 @@ export default function Organizations() {
           overflow-hidden
         "
       >
-        {/* TABLE HEADER */}
+        {/* =====================================
+            TABLE HEADER
+        ====================================== */}
 
         <div
           className="
@@ -490,6 +703,7 @@ export default function Organizations() {
             flex
             items-center
             justify-between
+            gap-4
           "
         >
           <div>
@@ -510,13 +724,99 @@ export default function Organizations() {
                 mt-0.5
               "
             >
-              {filteredOrganizations.length} organization
-              {filteredOrganizations.length !== 1 ? "s" : ""} found
+              {deleteMode
+                ? "Select organizations you want to delete"
+                : `${filteredOrganizations.length} organization${
+                    filteredOrganizations.length !==
+                    1
+                      ? "s"
+                      : ""
+                  } found`}
             </p>
           </div>
+
+          {/* DELETE CONTROLS */}
+
+          {!deleteMode ? (
+            <button
+              type="button"
+              onClick={openDeleteMode}
+              className="
+                h-10
+                px-4
+                rounded-xl
+                border
+                border-red-200
+                bg-red-50
+                text-red-600
+                text-sm
+                font-semibold
+                flex
+                items-center
+                gap-2
+                hover:bg-red-100
+                transition
+                flex-shrink-0
+              "
+            >
+              <Trash2 size={16} />
+              Delete
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {selectedOrganizations.length > 0 && (
+                <button
+                  type="button"
+                  onClick={
+                    confirmBulkOrganizationDelete
+                  }
+                  className="
+                    h-10
+                    px-4
+                    rounded-xl
+                    bg-red-600
+                    text-white
+                    text-sm
+                    font-semibold
+                    flex
+                    items-center
+                    gap-2
+                    hover:bg-red-700
+                    transition
+                  "
+                >
+                  <Trash2 size={16} />
+                  Delete Selected (
+                  {selectedOrganizations.length})
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={cancelDeleteMode}
+                className="
+                  h-10
+                  px-4
+                  rounded-xl
+                  border
+                  border-gray-200
+                  bg-white
+                  text-gray-600
+                  text-sm
+                  font-semibold
+                  hover:bg-gray-50
+                  transition
+                "
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* TABLE */}
+        {/* =====================================
+            TABLE
+        ====================================== */}
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px]">
@@ -528,6 +828,40 @@ export default function Organizations() {
                   border-gray-100
                 "
               >
+                {/* SELECT ALL CHECKBOX */}
+
+                {deleteMode && (
+                  <th className="w-12 px-5 py-3.5">
+                    <input
+                      type="checkbox"
+                      checked={
+                        filteredOrganizations.length >
+                          0 &&
+                        filteredOrganizations.every(
+                          (org) =>
+                            selectedOrganizations.includes(
+                              org._id
+                            )
+                        )
+                      }
+                      onChange={
+                        toggleSelectAllOrganizations
+                      }
+                      onClick={(e) =>
+                        e.stopPropagation()
+                      }
+                      className="
+                        w-4
+                        h-4
+                        accent-red-600
+                        cursor-pointer
+                      "
+                    />
+                  </th>
+                )}
+
+                {/* ORGANIZATION */}
+
                 <th
                   className="
                     text-left
@@ -542,6 +876,8 @@ export default function Organizations() {
                 >
                   Organization
                 </th>
+
+                {/* WEBSITE */}
 
                 <th
                   className="
@@ -558,6 +894,8 @@ export default function Organizations() {
                   Website
                 </th>
 
+                {/* EMAIL */}
+
                 <th
                   className="
                     text-left
@@ -572,6 +910,8 @@ export default function Organizations() {
                 >
                   Email
                 </th>
+
+                {/* PHONE */}
 
                 <th
                   className="
@@ -588,6 +928,8 @@ export default function Organizations() {
                   Phone
                 </th>
 
+                {/* INDUSTRY */}
+
                 <th
                   className="
                     text-left
@@ -603,6 +945,8 @@ export default function Organizations() {
                   Industry
                 </th>
 
+                {/* PEOPLE */}
+
                 <th
                   className="
                     text-left
@@ -617,6 +961,8 @@ export default function Organizations() {
                 >
                   People
                 </th>
+
+                {/* OWNER */}
 
                 <th
                   className="
@@ -638,83 +984,138 @@ export default function Organizations() {
             </thead>
 
             <tbody>
-              {/* LOADING */}
+              {/* =====================================
+                  LOADING
+              ====================================== */}
 
               {loading ? (
                 [1, 2, 3, 4, 5].map((item) => (
                   <tr key={item}>
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((cell) => (
-                      <td key={cell} className="px-5 py-4">
+                    {[
+                      1,
+                      2,
+                      3,
+                      4,
+                      5,
+                      6,
+                      7,
+                      8,
+                      ...(deleteMode ? [9] : []),
+                    ].map((cell) => (
+                      <td
+                        key={cell}
+                        className="px-5 py-4"
+                      >
                         <div
                           className="
-                              h-4
-                              bg-gray-100
-                              rounded
-                              animate-pulse
-                              w-24
-                            "
+                            h-4
+                            bg-gray-100
+                            rounded
+                            animate-pulse
+                            w-24
+                          "
                         />
                       </td>
                     ))}
                   </tr>
                 ))
-              ) : filteredOrganizations.length > 0 ? (
+              ) : filteredOrganizations.length >
+                0 ? (
                 filteredOrganizations.map((org) => (
                   <tr
                     key={org._id}
-                    onClick={() => navigate(`/app/organizations/${org._id}`)}
+                    onClick={() => {
+                      if (!deleteMode) {
+                        navigate(
+                          `/app/organizations/${org._id}`
+                        );
+                      }
+                    }}
                     className="
-                        group
-                        border-b
-                        border-gray-100
-                        last:border-0
-                        cursor-pointer
-                        transition-all
-                        duration-200
-                        hover:bg-indigo-50/40
-                      "
+                      group
+                      border-b
+                      border-gray-100
+                      last:border-0
+                      cursor-pointer
+                      transition-all
+                      duration-200
+                      hover:bg-indigo-50/40
+                    "
                   >
-                    {/* ORGANIZATION */}
+                    {/* CHECKBOX */}
+
+                    {deleteMode && (
+                      <td
+                        className="px-4 py-4"
+                        onClick={(e) =>
+                          e.stopPropagation()
+                        }
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedOrganizations.includes(
+                            org._id
+                          )}
+                          onChange={() =>
+                            toggleOrganizationSelection(
+                              org._id
+                            )
+                          }
+                          className="
+                            w-4
+                            h-4
+                            accent-red-600
+                            cursor-pointer
+                          "
+                        />
+                      </td>
+                    )}
+
+                    {/* =====================================
+                        ORGANIZATION
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div
                           className="
-                                                     w-8
-                                                     h-8
-                                                     rounded-lg
-                                                     
-                                                     text-black
-                                                     flex
-                                                     items-center
-                                                     justify-center
-                                                     flex-shrink-0
-                                                   "
+                            w-8
+                            h-8
+                            rounded-lg
+                            text-black
+                            flex
+                            items-center
+                            justify-center
+                            flex-shrink-0
+                          "
                         >
-                          <HiOutlineBuildingOffice2 size={25} />
+                          <HiOutlineBuildingOffice2
+                            size={25}
+                          />
                         </div>
 
                         <div className="min-w-0">
                           <p
                             className="
-                                text-sm
-                                font-semibold
-                                text-gray-800
-                                truncate
-                                max-w-[200px]
-                                group-hover:text-indigo-600
-                                transition
-                              "
+                              text-sm
+                              font-semibold
+                              text-gray-800
+                              truncate
+                              max-w-[200px]
+                              group-hover:text-indigo-600
+                              transition
+                            "
                           >
-                            {org.name || "Unnamed Organization"}
+                            {org.name ||
+                              "Unnamed Organization"}
                           </p>
 
                           <p
                             className="
-                                text-[11px]
-                                text-black
-                                mt-0.5
-                              "
+                              text-[11px]
+                              text-black
+                              mt-0.5
+                            "
                           >
                             Organization
                           </p>
@@ -722,211 +1123,269 @@ export default function Organizations() {
                       </div>
                     </td>
 
-                    {/* WEBSITE */}
+                    {/* =====================================
+                        WEBSITE
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       {org.website ? (
                         <div
                           className="
-                              flex
-                              items-center
-                              gap-2
-                              
-                            "
+                            flex
+                            items-center
+                            gap-2
+                          "
                         >
-                          <Globe2 size={25} className="flex-shrink-0" />
+                          <Globe2
+                            size={25}
+                            className="flex-shrink-0"
+                          />
 
                           <span
                             className="
-                            text-indigo-600
-                                text-sm
-                                truncate
-                                max-w-[180px]
-                              "
+                              text-indigo-600
+                              text-sm
+                              truncate
+                              max-w-[180px]
+                            "
                           >
                             {org.website}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span className="text-gray-300">
+                          —
+                        </span>
                       )}
                     </td>
 
-                    {/* EMAIL */}
+                    {/* =====================================
+                        EMAIL
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       {org.email ? (
                         <div
                           className="
-                              flex
-                              items-center
-                              gap-2
-                            "
+                            flex
+                            items-center
+                            gap-2
+                          "
                         >
                           <Mail
                             size={14}
                             className="
-                                text-black
-                                flex-shrink-0
-                              "
+                              text-black
+                              flex-shrink-0
+                            "
                           />
 
                           <span
                             className="
-                                text-
-                                text-gray-600
-                                truncate
-                                max-w-[200px]
-                              "
+                              text-gray-600
+                              text-sm
+                              truncate
+                              max-w-[200px]
+                            "
                           >
                             {org.email}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span className="text-gray-300">
+                          —
+                        </span>
                       )}
                     </td>
 
-                    {/* PHONE */}
+                    {/* =====================================
+                        PHONE
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       {org.phone ? (
                         <div
                           className="
-                              flex
-                              truncate
-                              items-center
-                              gap-2
-                            "
+                            flex
+                            truncate
+                            items-center
+                            gap-2
+                          "
                         >
-                          <Phone size={25}  />
+                          <Phone size={25} />
 
                           <span
                             className="
-                                text-sm
-                                text-gray-600
-                              "
+                              text-sm
+                              text-gray-600
+                            "
                           >
                             {org.phone}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span className="text-gray-300">
+                          —
+                        </span>
                       )}
                     </td>
 
-                    {/* INDUSTRY */}
+                    {/* =====================================
+                        INDUSTRY
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       {org.industry ? (
                         <span
                           className="
-                              inline-flex
-                              items-center
-                              gap-1.5
-                              px-2.5
-                              py-1
-                              rounded-lg
-                              bg-gray-100
-                              text-gray-600
-                              text-[11px]
-                              font-medium
-                            "
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            px-2.5
+                            py-1
+                            rounded-lg
+                            bg-gray-100
+                            text-gray-600
+                            text-[11px]
+                            font-medium
+                          "
                         >
-                          <BriefcaseBusiness size={12} />
+                          <BriefcaseBusiness
+                            size={12}
+                          />
 
                           {org.industry}
                         </span>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span className="text-gray-300">
+                          —
+                        </span>
                       )}
                     </td>
 
-                    {/* PEOPLE */}
+                    {/* =====================================
+                        PEOPLE
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       <div
                         className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            px-2.5
-                            py-1.5
-                            rounded-xl
-                            bg-blue-50
-                            text-blue-600
-                          "
+                          inline-flex
+                          items-center
+                          gap-2
+                          px-2.5
+                          py-1.5
+                          rounded-xl
+                          bg-blue-50
+                          text-blue-600
+                        "
                       >
                         <Users size={15} />
 
                         <span
                           className="
-                              text-sm
-                              font-semibold
-                            "
+                            text-sm
+                            font-semibold
+                          "
                         >
                           {org.leads?.length || 0}
                         </span>
                       </div>
                     </td>
 
-                    {/* OWNER */}
+                    {/* =====================================
+                        OWNER
+                    ====================================== */}
 
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         <div
                           className="
-                              w-8
-                              h-8
-                              rounded-full
-                              bg-indigo-100
-                              text-indigo-600
-                              flex
-                              items-center
-                              justify-center
-                              text-sm
-                              font-bold
-                              flex-shrink-0
-                            "
+                            w-8
+                            h-8
+                            rounded-full
+                            bg-indigo-100
+                            text-indigo-600
+                            flex
+                            items-center
+                            justify-center
+                            text-sm
+                            font-bold
+                            flex-shrink-0
+                          "
                         >
-                          {getInitial(org.owner?.name)}
+                          {getInitial(
+                            org.owner?.name
+                          )}
                         </div>
 
                         <span
                           className="
-                              text-sm
-                              font-medium
-                              text-gray-600
-                              truncate
-                              max-w-[120px]
-                            "
+                            text-sm
+                            font-medium
+                            text-gray-600
+                            truncate
+                            max-w-[120px]
+                          "
                         >
                           {org.owner?.name || "—"}
                         </span>
                       </div>
                     </td>
 
-                    {/* ARROW */}
+                    {/* =====================================
+                        ACTION
+                    ====================================== */}
 
                     <td className="px-3 py-4">
-                      <ChevronRight
-                        size={17}
-                        className="
+                      {deleteMode ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+
+                            confirmSingleOrganizationDelete(
+                              org._id
+                            );
+                          }}
+                          className="
+                            w-9
+                            h-9
+                            rounded-xl
+                            flex
+                            items-center
+                            justify-center
+                            text-red-500
+                            bg-red-50
+                            hover:bg-red-100
+                            transition
+                          "
+                          title="Delete organization"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      ) : (
+                        <ChevronRight
+                          size={17}
+                          className="
                             text-gray-300
                             group-hover:text-indigo-500
                             group-hover:translate-x-0.5
                             transition-all
                           "
-                      />
+                        />
+                      )}
                     </td>
                   </tr>
                 ))
               ) : (
-                /* EMPTY */
+                /* =====================================
+                    EMPTY
+                ====================================== */
 
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan={deleteMode ? 9 : 8}
                     className="
                       py-16
                       text-center
@@ -947,7 +1406,9 @@ export default function Organizations() {
                         justify-center
                       "
                     >
-                      <HiOutlineBuildingOffice2 size={25} />
+                      <HiOutlineBuildingOffice2
+                        size={25}
+                      />
                     </div>
 
                     <h3
@@ -968,7 +1429,8 @@ export default function Organizations() {
                         text-black
                       "
                     >
-                      Try changing your search or user filter.
+                      Try changing your search or user
+                      filter.
                     </p>
                   </td>
                 </tr>
@@ -977,6 +1439,140 @@ export default function Organizations() {
           </table>
         </div>
       </div>
+
+      {/* =====================================
+          DELETE CONFIRMATION MODAL
+      ====================================== */}
+
+      {deleteModal.open && (
+        <div
+          className="
+            fixed
+            inset-0
+            z-[9999]
+            flex
+            items-center
+            justify-center
+            p-4
+            bg-black/40
+            backdrop-blur-sm
+          "
+          onClick={closeDeleteModal}
+        >
+          <div
+            className="
+              w-full
+              max-w-md
+              rounded-2xl
+              bg-white
+              shadow-2xl
+              p-6
+            "
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+            <div className="flex items-start gap-4">
+              <div
+                className="
+                  w-11
+                  h-11
+                  rounded-xl
+                  bg-red-50
+                  text-red-600
+                  flex
+                  items-center
+                  justify-center
+                  flex-shrink-0
+                "
+              >
+                <Trash2 size={20} />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">
+                  Are you sure?
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-500 leading-6">
+                  {deleteModal.type === "bulk"
+                    ? `You are about to delete ${selectedOrganizations.length} selected organizations. This action cannot be undone.`
+                    : "You are about to delete this organization. This action cannot be undone."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-7">
+              {/* CANCEL */}
+
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={closeDeleteModal}
+                className="
+                  h-10
+                  px-5
+                  rounded-xl
+                  border
+                  border-gray-200
+                  text-gray-600
+                  text-sm
+                  font-semibold
+                  hover:bg-gray-50
+                  disabled:opacity-50
+                "
+              >
+                Cancel
+              </button>
+
+              {/* DELETE */}
+
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleDeleteOrganizations}
+                className="
+                  h-10
+                  px-5
+                  rounded-xl
+                  bg-red-600
+                  text-white
+                  text-sm
+                  font-semibold
+                  flex
+                  items-center
+                  gap-2
+                  hover:bg-red-700
+                  disabled:opacity-60
+                "
+              >
+                {deleting ? (
+                  <>
+                    <span
+                      className="
+                        w-4
+                        h-4
+                        border-2
+                        border-white
+                        border-t-transparent
+                        rounded-full
+                        animate-spin
+                      "
+                    />
+
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={15} />
+                    Delete
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
