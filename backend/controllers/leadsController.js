@@ -99,17 +99,31 @@ export const createLeads = async (req, res) => {
 };
 
 // Get all leads Data
-
 export const getLeads = async (req, res) => {
   try {
     const { search, userId } = req.query;
 
     let filter = {};
 
-    // Dropdown me selected user ke leads
+    const loggedInUserId = req.user?.id || req.user?._id;
+
+    // =========================================================
+    // OWNER FILTER
+    // =========================================================
+    //
+    // userId selected hai → us user ki leads
+    // userId nahi hai → logged-in user ki own leads
+    //
+
     if (userId) {
       filter.owner = userId;
+    } else {
+      filter.owner = loggedInUserId;
     }
+
+    // =========================================================
+    // SEARCH
+    // =========================================================
 
     if (search?.trim()) {
       const searchValue = search.trim();
@@ -126,8 +140,18 @@ export const getLeads = async (req, res) => {
       );
 
       filter.$or = [
-        { name: { $regex: searchValue, $options: "i" } },
-        { title: { $regex: searchValue, $options: "i" } },
+        {
+          name: {
+            $regex: searchValue,
+            $options: "i",
+          },
+        },
+        {
+          title: {
+            $regex: searchValue,
+            $options: "i",
+          },
+        },
         {
           "email.address": {
             $regex: searchValue,
@@ -166,8 +190,13 @@ export const getLeads = async (req, res) => {
       ];
     }
 
-    console.log("GET LEADS QUERY:", req.query);
-    console.log("GET LEADS FILTER:", filter);
+    console.log("========== GET LEADS ==========");
+    console.log("REQ QUERY:", req.query);
+    console.log("LOGGED USER:", {
+      id: loggedInUserId,
+      role: req.user?.role,
+    });
+    console.log("FINAL LEADS FILTER:", filter);
 
     const leads = await Leads.find(filter)
       .populate("organization", "name website")
@@ -176,11 +205,11 @@ export const getLeads = async (req, res) => {
 
     console.log("LEADS FOUND:", leads.length);
 
-    res.json(leads);
+    return res.json(leads);
   } catch (error) {
     console.error("GET LEADS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }

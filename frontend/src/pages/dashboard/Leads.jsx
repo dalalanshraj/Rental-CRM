@@ -12,6 +12,10 @@ import {
   FiTrash2,
   FiCheck,
 } from "react-icons/fi";
+import {
+  FaUser,
+  FaChevronDown,
+} from "react-icons/fa";
 
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 
@@ -49,64 +53,78 @@ export default function Leads() {
   // FETCH LEADS
   // ==========================================
 
-  const fetchLeads = async (userId = "") => {
-    try {
-      setLoading(true);
+const fetchLeads = async (userId = "") => {
+  try {
+    setLoading(true);
 
-      const params = {};
+    const params = {};
 
-      if (userId) {
-        params.userId = userId;
-      }
-
-   
-      const res = await api.get("/leads", {
-        params,
-      });
-
-      
-      setLeads(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error("Failed to fetch leads:", error);
-      setLeads([]);
-    } finally {
-      setLoading(false);
+    if (userId) {
+      params.userId = userId;
     }
-  };
+
+    console.log("FETCH LEADS USER ID:", userId);
+    console.log("FETCH LEADS PARAMS:", params);
+
+    const res = await api.get("/leads", {
+      params,
+    });
+
+    console.log("LEADS RESPONSE:", res.data);
+
+    setLeads(Array.isArray(res.data) ? res.data : []);
+  } catch (error) {
+    console.error("Failed to fetch leads:", error);
+    setLeads([]);
+  } finally {
+    setLoading(false);
+  }
+};
   // ==========================================
   // INITIAL LOAD
   // ==========================================
 
-  useEffect(() => {
-    const loadData = async () => {
+useEffect(() => {
+  const loadData = async () => {
+    try {
       await fetchUsers();
 
       const userId = localStorage.getItem("userId");
+      const role = localStorage
+        .getItem("role")
+        ?.trim()
+        .toLowerCase();
 
       if (userId) {
         setSelectedUser(userId);
       }
 
-      // Page load = ALL LEADS
-      fetchLeads("");
-    };
+      // Salesperson and Admin both initially see OWN leads
+      if (userId) {
+        await fetchLeads(userId);
+      } else {
+        await fetchLeads("");
+      }
+    } catch (error) {
+      console.error("INITIAL LEADS LOAD ERROR:", error);
+    }
+  };
 
-    loadData();
-  }, []);
+  loadData();
+}, []);
 
   // ==========================================
   // USER CHANGE
   // ==========================================
+const handleUserChange = async (e) => {
+  const userId = e.target.value;
 
-  const handleUserChange = (e) => {
-    const userId = e.target.value;
+  console.log("SELECTED USER ID:", userId);
 
- 
+  setSelectedUser(userId);
 
-    setSelectedUser(userId);
-
-    fetchLeads(userId);
-  };
+  await fetchLeads(userId);
+};
 
   // ==========================================
   // SELECT LEAD
@@ -334,38 +352,59 @@ export default function Leads() {
         {/* RIGHT CONTROLS */}
         <div className="flex flex-col sm:flex-row gap-3">
           {/* USER FILTER */}
-          {/* <select
-            value={selectedUser}
-            onChange={handleUserChange}
-            className="
-    h-11
-    min-w-[180px]
-    appearance-none
-    border
-    border-gray-200
-    bg-white
-    pl-10
-    pr-9
-    rounded-xl
-    text-sm
-    text-gray-700
-    outline-none
-    cursor-pointer
-    transition-all
-    duration-200
-    hover:border-indigo-300
-    focus:border-indigo-500
-    focus:ring-4
-    focus:ring-indigo-500/10
-    shadow-sm
-  "
-          >
-            {users.map((u) => (
-              <option key={u._id} value={u._id}>
-                {u.name}
-              </option>
-            ))}
-          </select> */}
+         <div className="relative flex items-center">
+  {/* User Icon */}
+  <div className="pointer-events-none absolute left-3 z-10 flex items-center">
+    <FaUser size={15} className="text-indigo-500" />
+  </div>
+
+  {/* Select */}
+  <select
+    value={selectedUser}
+    onChange={handleUserChange}
+    aria-label="Select user to view leads"
+    className="
+      h-11
+      min-w-[210px]
+      appearance-none
+      rounded-xl
+      border
+      border-indigo-200
+      bg-gradient-to-r
+      from-indigo-50
+      to-white
+      pl-10
+      pr-10
+      text-sm
+      font-semibold
+      text-gray-800
+      outline-none
+      cursor-pointer
+      transition-all
+      duration-200
+      hover:border-indigo-400
+      hover:shadow-md
+      focus:border-indigo-500
+      focus:ring-4
+      focus:ring-indigo-500/10
+      shadow-sm
+    "
+  >
+    {users.map((u) => (
+      <option key={u._id} value={u._id}>
+        {u.name}
+      </option>
+    ))}
+  </select>
+
+  {/* Dropdown Arrow */}
+  <div className="pointer-events-none absolute right-3 flex items-center">
+    <FaChevronDown
+      size={13}
+      className="text-indigo-500"
+    />
+  </div>
+</div>
 
           {/* SEARCH */}
           <div className="relative">

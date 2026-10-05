@@ -13,9 +13,22 @@ export default function Sidebar() {
   });
   const { pathname } = useLocation();
 
-  const role = localStorage.getItem("role")?.toLowerCase();
+const savedUser = localStorage.getItem("user");
 
- 
+let role = "";
+
+if (savedUser) {
+  try {
+    const user = JSON.parse(savedUser);
+    role = user?.role || "";
+  } catch (error) {
+    console.error("Failed to parse user from localStorage:", error);
+  }
+}
+
+const normalizedRole = String(role).trim().toLowerCase();
+
+console.log("SIDEBAR ROLE:", normalizedRole);
 
 
   const menu = [
@@ -40,7 +53,7 @@ export default function Sidebar() {
       path: "/app/organizations",
     },
 
-     ...(role === "admin"
+     ...(normalizedRole === "admin"
   ? [
       {
         icon: <IoSettingsOutline size={25} />,

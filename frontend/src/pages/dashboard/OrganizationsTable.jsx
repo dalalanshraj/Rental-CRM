@@ -15,6 +15,10 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
+import {
+  FaUser,
+  FaChevronDown,
+} from "react-icons/fa";
 
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 
@@ -402,56 +406,65 @@ export default function Organizations() {
         >
           {/* USER FILTER */}
 
-          {/* <div className="relative">
-            <Users
-              size={16}
-              className="
-                absolute
-                left-3
-                top-1/2
-                -translate-y-1/2
-                text-black
-                pointer-events-none
-              "
-            />
+       <div className="relative flex items-center">
+  {/* User Icon */}
+  <div className="pointer-events-none absolute left-3 z-10 flex items-center">
+    <FaUser
+      size={15}
+      className="text-indigo-500"
+    />
+  </div>
 
-            <select
-              value={selectedUser}
-              onChange={handleUserChange}
-              className="
-                h-11
-                w-full
-                sm:w-[170px]
-                pl-9
-                pr-8
-                rounded-xl
-                border
-                border-gray-200
-                bg-white
-                text-sm
-                text-gray-700
-                outline-none
-                appearance-none
-                cursor-pointer
-                transition
-                hover:border-indigo-200
-                focus:border-indigo-500
-                focus:ring-4
-                focus:ring-indigo-500/10
-              "
-            >
-              <option value="">All Users</option>
+  {/* Select */}
+  <select
+    value={selectedUser}
+    onChange={handleUserChange}
+    aria-label="Select user to view leads"
+    className="
+      h-11
+      min-w-[210px]
+      appearance-none
+      rounded-xl
+      border
+      border-indigo-200
+      bg-gradient-to-r
+      from-indigo-50
+      to-white
+      pl-10
+      pr-10
+      text-sm
+      font-semibold
+      text-gray-800
+      outline-none
+      cursor-pointer
+      transition-all
+      duration-200
+      hover:border-indigo-400
+      hover:shadow-md
+      focus:border-indigo-500
+      focus:ring-4
+      focus:ring-indigo-500/10
+      shadow-sm
+    "
+  >
+    {users.map((u) => (
+      <option
+        key={u._id}
+        value={u._id}
+      >
+        {u.name}
+      </option>
+    ))}
+  </select>
 
-              {users.map((u) => (
-                <option
-                  key={u._id}
-                  value={u._id}
-                >
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div> */}
+  {/* Dropdown Arrow */}
+  <div className="pointer-events-none absolute right-3 flex items-center">
+    <FaChevronDown
+      size={13}
+      className="text-indigo-500"
+    />
+  </div>
+</div>
 
           {/* SEARCH */}
 
