@@ -625,38 +625,38 @@ export default function Login() {
                     "
                   />
 
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="you@company.com"
-                    autoComplete="email"
-                    disabled={loading}
-                    className="
-                      w-full
-                      h-11
-                      pl-10
-                      pr-3
-                      rounded-lg
-                      border
-                      border-gray-200
-                      bg-gray-50
-                      text-xs
-                      text-gray-800
-                      outline-none
-                      transition-all
-                      placeholder:text-gray-400
-                      hover:bg-white
-                      hover:border-gray-300
-                      focus:bg-white
-                      focus:border-[#4B49AC]
-                      focus:ring-4
-                      focus:ring-indigo-500/10
-                      disabled:opacity-60
-                    "
-                  />
+                 <input
+  id="email"
+  type="email"
+  name="email"
+  value={form.email}
+  onChange={handleChange}
+  placeholder="you@company.com"
+  autoComplete="username"
+  disabled={loading}
+  className="
+    w-full
+    h-11
+    pl-10
+    pr-3
+    rounded-lg
+    border
+    border-gray-200
+    bg-gray-50
+    text-xs
+    text-gray-800
+    outline-none
+    transition-all
+    placeholder:text-gray-400
+    hover:bg-white
+    hover:border-gray-300
+    focus:bg-white
+    focus:border-[#4B49AC]
+    focus:ring-4
+    focus:ring-indigo-500/10
+    disabled:opacity-60
+  "
+/>
 
                 </div>
 
@@ -692,42 +692,38 @@ export default function Login() {
                     "
                   />
 
-                  <input
-                    id="password"
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    autoComplete="current-password"
-                    disabled={loading}
-                    className="
-                      w-full
-                      h-11
-                      pl-10
-                      pr-10
-                      rounded-lg
-                      border
-                      border-gray-200
-                      bg-gray-50
-                      text-xs
-                      text-gray-800
-                      outline-none
-                      transition-all
-                      placeholder:text-gray-400
-                      hover:bg-white
-                      hover:border-gray-300
-                      focus:bg-white
-                      focus:border-[#4B49AC]
-                      focus:ring-4
-                      focus:ring-indigo-500/10
-                      disabled:opacity-60
-                    "
-                  />
+                <input
+  id="password"
+  type={showPassword ? "text" : "password"}
+  name="password"
+  value={form.password}
+  onChange={handleChange}
+  placeholder="Enter your password"
+  autoComplete="current-password"
+  disabled={loading}
+  className="
+    w-full
+    h-11
+    pl-10
+    pr-10
+    rounded-lg
+    border
+    border-gray-200
+    bg-gray-50
+    text-xs
+    text-gray-800
+    outline-none
+    transition-all
+    placeholder:text-gray-400
+    hover:bg-white
+    hover:border-gray-300
+    focus:bg-white
+    focus:border-[#4B49AC]
+    focus:ring-4
+    focus:ring-indigo-500/10
+    disabled:opacity-60
+  "
+/>
 
                   <button
                     type="button"
